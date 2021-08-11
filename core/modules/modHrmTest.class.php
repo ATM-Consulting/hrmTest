@@ -297,23 +297,23 @@ class modHrmTest extends DolibarrModules
 		$this->rights[$r][4] = 'job';
 		$this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->hrmtest->poste->delete)
 		$r++;
-
+		//Eval
 		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1); // Permission id (must not be already used)
 		$this->rights[$r][1] = 'Read eval'; // Permission label
-		$this->rights[$r][4] = 'eval';
+		$this->rights[$r][4] = 'evaluation';
 		$this->rights[$r][5] = 'read'; // In php code, permission will be checked by test if ($user->rights->hrmtest->poste->read)
 		$r++;
 		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1); // Permission id (must not be already used)
 		$this->rights[$r][1] = 'Create/Update eval'; // Permission label
-		$this->rights[$r][4] = 'eval';
+		$this->rights[$r][4] = 'evaluation';
 		$this->rights[$r][5] = 'write'; // In php code, permission will be checked by test if ($user->rights->hrmtest->poste->write)
 		$r++;
 		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1); // Permission id (must not be already used)
 		$this->rights[$r][1] = 'Delete eval'; // Permission label
-		$this->rights[$r][4] = 'eval';
+		$this->rights[$r][4] = 'evaluation';
 		$this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->hrmtest->poste->delete)
 		$r++;
-
+		//SKILL
 		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1); // Permission id (must not be already used)
 		$this->rights[$r][1] = 'Read skill'; // Permission label
 		$this->rights[$r][4] = 'skill';
@@ -636,7 +636,7 @@ class modHrmTest extends DolibarrModules
 			// Define condition to show or hide menu entry. Use '$conf->hrmtest->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
 			'enabled'=>'$conf->hrmtest->enabled',
 			// Use 'perms'=>'$user->rights->hrmtest->level1->level2' if you want your menu with a permission rules
-			'perms'=>'$user->rights->hrmtest->eval->read',
+			'perms'=>'$user->rights->hrmtest->evaluation->read',
 			'target'=>'',
 			// 0=Menu for internal users, 1=external users, 2=both
 			'user'=>2,
@@ -656,7 +656,7 @@ class modHrmTest extends DolibarrModules
 			// Define condition to show or hide menu entry. Use '$conf->hrmtest->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
 			'enabled'=>'$conf->hrmtest->enabled',
 			// Use 'perms'=>'$user->rights->hrmtest->level1->level2' if you want your menu with a permission rules
-			'perms'=>'$user->rights->hrmtest->eval->write',
+			'perms'=>'$user->rights->hrmtest->evaluation->write',
 			'target'=>'',
 			// 0=Menu for internal users, 1=external users, 2=both
 			'user'=>2,
@@ -716,7 +716,7 @@ class modHrmTest extends DolibarrModules
 			// Define condition to show or hide menu entry. Use '$conf->hrmtest->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
 			'enabled'=>'$conf->hrmtest->enabled',
 			// Use 'perms'=>'$user->rights->hrmtest->level1->level2' if you want your menu with a permission rules
-			'perms'=>'$user->rights->hrmtest->eval->read',
+			'perms'=>'$user->rights->hrmtest->evaluation->read',
 			'target'=>'',
 			// 0=Menu for internal users, 1=external users, 2=both
 			'user'=>2,
