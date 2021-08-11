@@ -1,0 +1,93 @@
+# Copyright (C) 2021 SuperAdmin
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#
+# Generic
+#
+
+# Module label 'ModuleHrmTestName'
+ModuleHrmTestName = HrmTest
+# Module description 'ModuleHrmTestDesc'
+ModuleHrmTestDesc = HrmTest description
+
+#
+# Admin page
+#
+HrmTestSetup = HrmTest setup
+Settings = Settings
+HrmTestSetupPage = HrmTest setup page
+HRMTEST_MYPARAM1 = My param 1
+HRMTEST_MYPARAM1Tooltip = My param 1 tooltip
+HRMTEST_MYPARAM2=My param 2
+HRMTEST_MYPARAM2Tooltip=My param 2 tooltip
+
+
+#
+# About page
+#
+About = About
+HrmTestAbout = About HrmTest
+HrmTestAboutPage = HrmTest about page
+
+#
+# Sample page
+#
+MyPageName = My page name
+
+#
+# Sample widget
+#
+MyWidget = My widget
+MyWidgetDescription = My widget description
+
+
+traduction_note=Traduction
+description=Description
+deplacement=Déplacement
+list=Liste
+
+# Job
+Job=Emploi
+fkJob=Emploi
+fkUser=Utilisateur
+DateEval= Date d'évaluation
+
+
+# Skill
+Skill= Compétence
+NewSkill= Nouvelle Compétence
+SKILL_TYPE_EXPERTISE= Savoir-être
+SKILL_TYPE_SOFT_SKILL= Savoir faire
+SKILL_TYPE_KNOWLEDGE= Savoir
+SkillType=Type de compétence
+
+
+
+NoUser=Sans Utilisateur
+Deleted=Supprimé
+NewJob=Nouvel emploi
+Eval=Évaluation
+NewEval=Nouvelle évaluation
+Draft=brouillon
+Validate=Validé
+
+# Position
+Position=Poste
+date_end=Date de fin
+date_start=Date de début
+fk_user=Utilisateur
+fk_job=Emploi
+commentaire_abandon =Commentaire abandon
+EndContract=Fin de contrat
