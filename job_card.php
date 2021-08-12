@@ -491,11 +491,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 
 		if (empty($reshook)) {
-			// Send
-			if (empty($user->socid)) {
-				print dolGetButtonAction($langs->trans('SendMail'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=presend&mode=init&token='.newToken().'#formmailbeforetitle');
-			}
-
 			// Back to draft
 			if ($object->status == $object::STATUS_VALIDATED) {
 				print dolGetButtonAction($langs->trans('SetToDraft'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=confirm_setdraft&confirm=yes&token='.newToken(), '', $permissiontoadd);
@@ -503,18 +498,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			print dolGetButtonAction($langs->trans('Modify'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=edit&token='.newToken(), '', $permissiontoadd);
 
-			// Validate
-			if ($object->status == $object::STATUS_DRAFT) {
-				if (empty($object->table_element_line) || (is_array($object->lines) && count($object->lines) > 0)) {
-					print dolGetButtonAction($langs->trans('Validate'), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=confirm_validate&confirm=yes&token='.newToken(), '', $permissiontoadd);
-				} else {
-					$langs->load("errors");
-					print dolGetButtonAction($langs->trans("ErrorAddAtLeastOneLineFirst"), $langs->trans("Validate"), 'default', '#', '', 0);
-				}
-			}
-
-			// Clone
-			print dolGetButtonAction($langs->trans('ToClone'), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&socid='.$object->socid.'&action=clone&token='.newToken(), '', $permissiontoadd);
 
 			/*
 			if ($permissiontoadd) {
@@ -541,49 +524,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 
 	// Select mail models is same action as presend
-	if (GETPOST('modelselected')) {
-		$action = 'presend';
-	}
-
-	if ($action != 'presend') {
-		print '<div class="fichecenter"><div class="fichehalfleft">';
-		print '<a name="builddoc"></a>'; // ancre
-
-		$includedocgeneration = 0;
-
-		// Documents
-		if ($includedocgeneration) {
-			$objref = dol_sanitizeFileName($object->ref);
-			$relativepath = $objref.'/'.$objref.'.pdf';
-			$filedir = $conf->hrmtest->dir_output.'/'.$object->element.'/'.$objref;
-			$urlsource = $_SERVER["PHP_SELF"]."?id=".$object->id;
-			$genallowed = $user->rights->hrmtest->job->read; // If you can read, you can build the PDF to read content
-			$delallowed = $user->rights->hrmtest->job->write; // If you can create/edit, you can remove a file on card
-			print $formfile->showdocuments('hrmtest:Job', $object->element.'/'.$objref, $filedir, $urlsource, $genallowed, $delallowed, $object->model_pdf, 1, 0, 0, 28, 0, '', '', '', $langs->defaultlang);
-		}
-
-		// Show links to link elements
-		$linktoelem = $form->showLinkToObjectBlock($object, null, array('job'));
-		$somethingshown = $form->showLinkedObjectBlock($object, $linktoelem);
-
-
-		print '</div><div class="fichehalfright"><div class="ficheaddleft">';
-
-		$MAXEVENT = 10;
-
-		$morehtmlright = '<a href="'.dol_buildpath('/hrmtest/job_agenda.php', 1).'?id='.$object->id.'">';
-		$morehtmlright .= $langs->trans("SeeAll");
-		$morehtmlright .= '</a>';
-
-		// List of actions on element
-		include_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';
-		$formactions = new FormActions($db);
-		$somethingshown = $formactions->showactions($object, $object->element.'@'.$object->module, (is_object($object->thirdparty) ? $object->thirdparty->id : 0), 1, '', $MAXEVENT, '', $morehtmlright);
-
-		print '</div></div></div>';
-	}
-
-	//Select mail models is same action as presend
 	if (GETPOST('modelselected')) {
 		$action = 'presend';
 	}
