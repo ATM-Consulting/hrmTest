@@ -330,6 +330,22 @@ class modHrmTest extends DolibarrModules
 		$this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->hrmtest->poste->delete)
 		$r++;
 
+		//SKILLDET
+		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1); // Permission id (must not be already used)
+		$this->rights[$r][1] = 'Read skilldet'; // Permission label
+		$this->rights[$r][4] = 'skilldet';
+		$this->rights[$r][5] = 'read'; // In php code, permission will be checked by test if ($user->rights->hrmtest->poste->read)
+		$r++;
+		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1); // Permission id (must not be already used)
+		$this->rights[$r][1] = 'Create/Update skill'; // Permission label
+		$this->rights[$r][4] = 'skilldet';
+		$this->rights[$r][5] = 'write'; // In php code, permission will be checked by test if ($user->rights->hrmtest->poste->write)
+		$r++;
+		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1); // Permission id (must not be already used)
+		$this->rights[$r][1] = 'Delete skill'; // Permission label
+		$this->rights[$r][4] = 'skilldet';
+		$this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->hrmtest->poste->delete)
+		$r++;
 
 		/* END MODULEBUILDER PERMISSIONS */
 
