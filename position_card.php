@@ -234,6 +234,8 @@ llxHeader('', $title, $help_url);
 
 // Part to create
 if ($action == 'create') {
+//	var_dump($object);
+	$object = new Position($db);
 	print load_fiche_titre($langs->trans("NewObject", $langs->transnoentitiesnoconv("Position")), '', 'object_'.$object->picto);
 
 	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
@@ -373,14 +375,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$morehtmlref .= '</div>';
 
 
-//	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
-
-
-/*
- * a moi
- */
-
-//	$linkback = '<a href="'.DOL_URL_ROOT.'/hrmtest/position_list.php?restore_lastsearch_values=1">'.$langs->trans("BackToList").'</a>';
 	dol_banner_tab($object, 'fk_job', $linkback, 1, 'ref', 'ref', $morehtmlref, '', 0, '', '', 'arearefnobottom');
 
 
@@ -452,9 +446,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 
 	/*
-	 * TESTMIAOU
+	 * LIST OF POSITIONS
 	 */
-
 
 
 	require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
@@ -959,7 +952,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 // Action column
 	print getTitleFieldOfList($selectedfields, 0, $_SERVER["PHP_SELF"], '', '', '', '', $sortfield, $sortorder, 'center maxwidthsearch ')."\n";
 	print '</tr>'."\n";
-
 
 // Detect if we need a fetch on each output line
 	$needToFetchEachLine = 0;
