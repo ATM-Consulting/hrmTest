@@ -99,9 +99,12 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 //$lineid   = GETPOST('lineid', 'int');
 
 // Initialize technical objects
-$object = new Job($db);
+$object = new Position($db);
+$job = new Job($db);
+
 
 $extrafields = new ExtraFields($db);
+
 $diroutputmassaction = $conf->hrmtest->dir_output.'/temp/massgeneration/'.$user->id;
 $hookmanager->initHooks(array('positioncard', 'globalcard')); // Note that conf->hooks_modules contains array
 
@@ -128,7 +131,7 @@ include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php'; // Must be includ
 
 
 $permissiontoread = $user->rights->hrmtest->position->read;
-$permissiontoadd = $user->rights->hrmtest->position->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
+//$permissiontoadd = $user->rights->hrmtest->position->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
 $permissiontodelete = $user->rights->hrmtest->position->delete || ($permissiontoadd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
 $permissionnote = $user->rights->hrmtest->position->write; // Used by the include of actions_setnotes.inc.php
 $permissiondellink = $user->rights->hrmtest->position->write; // Used by the include of actions_dellink.inc.php
@@ -234,8 +237,6 @@ llxHeader('', $title, $help_url);
 
 // Part to create
 if ($action == 'create') {
-//	var_dump($object);
-	$object = new Position($db);
 	print load_fiche_titre($langs->trans("NewObject", $langs->transnoentitiesnoconv("Position")), '', 'object_'.$object->picto);
 
 	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
@@ -244,6 +245,7 @@ if ($action == 'create') {
 	if ($backtopage) {
 		print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
 	}
+
 	if ($backtopageforcancel) {
 		print '<input type="hidden" name="backtopageforcancel" value="'.$backtopageforcancel.'">';
 	}
@@ -330,12 +332,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	if ($action == 'deleteline') {
 		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id.'&lineid='.$lineid, $langs->trans('DeleteLine'), $langs->trans('ConfirmDeleteLine'), 'confirm_deleteline', '', 0, 1);
 	}
-	// Clone confirmation
-	if ($action == 'clone') {
-		// Create an array for form
-		$formquestion = array();
-		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('ToClone'), $langs->trans('ConfirmCloneAsk', $object->ref), 'confirm_clone', $formquestion, 'yes', 1);
-	}
 
 	// Confirmation of action xxxx
 	if ($action == 'xxx') {
@@ -368,16 +364,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Object card
 	// ------------------------------------------------------------
-	$linkback = '<a href="'.dol_buildpath('/hrmtest/position_list.php', 1).'?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
+	$linkback = '<a href="'.dol_buildpath('/hrmtest/position_list.php', 1).'?restore_lastsearch_values=1'.(!empty($fk_job) ? '&fk_job='.$fk_job : '').'">'.$langs->trans("BackToList").'</a>';
 
 	$morehtmlref = '<div class="refidno">';
 
 	$morehtmlref .= '</div>';
 
-
-	dol_banner_tab($object, 'fk_job', $linkback, 1, 'ref', 'ref', $morehtmlref, '', 0, '', '', 'arearefnobottom');
-
-
+	dol_banner_tab($job, 'fk_job', $linkback, 1, 'ref', 'ref', $morehtmlref, '', 0, '', '', 'arearefnobottom');
 
 
 
