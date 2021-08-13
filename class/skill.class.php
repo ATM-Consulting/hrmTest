@@ -73,7 +73,7 @@ class Skill extends CommonObject
 	const STATUS_DRAFT = 0;
 	const STATUS_VALIDATED = 1;
 	const STATUS_CANCELED = 9;
-
+    const NB_TRADUCTION_LEVEL_PER_SKILL = 5;
 
 	/**
 	 *  'type' field format ('integer', 'integer:ObjectClass:PathToClass[:AddCreateButtonOrNot[:Filter]]', 'sellist:TableName:LabelFieldName[:KeyFieldName[:KeyFieldParent[:Filter]]]', 'varchar(x)', 'double(24,8)', 'real', 'price', 'text', 'text:none', 'html', 'date', 'datetime', 'timestamp', 'duration', 'mail', 'phone', 'url', 'password')
@@ -220,7 +220,28 @@ class Skill extends CommonObject
 	 */
 	public function create(User $user, $notrigger = false)
 	{
+		global $langs;
 		$resultcreate = $this->createCommon($user, $notrigger);
+
+
+
+		if ($resultcreate > 0){
+			// skillDet create
+			require_once ( __DIR__ . '/skilldet.class.php');
+			for($i = 1 ; $i <= $this::NB_TRADUCTION_LEVEL_PER_SKILL ; $i++){
+
+				$skilldet = new Skilldet($this->db);
+				$skilldet->description = "Description ".$i . " -- ".$this->label;
+				$skilldet->rank = $i;
+				$skilldet->fk_skill = $resultcreate;
+
+				$result =  $skilldet->create($user);
+
+				if ($result > 0){
+					setEventMessage($langs->trans('TraductionCreadted'),$i);
+				}
+			}
+		}
 
 		//$resultvalidate = $this->validate($user, $notrigger);
 
@@ -345,14 +366,16 @@ class Skill extends CommonObject
 	/**
 	 * Load object lines in memory from the database
 	 *
-	 * @return int         <0 if KO, 0 if not found, >0 if OK
+	 * @return int | array         <0 if KO, 0 if not found, array if OK
 	 */
 	public function fetchLines()
 	{
 		$this->lines = array();
+		require_once ( __DIR__ . '/skilldet.class.php');
+		$skilldet = new Skilldet($this->db);
+		$records = $skilldet->fetchAll('ASC','','','',array('fk_skill' => $this->id),'');
 
-		$result = $this->fetchLinesCommon();
-		return $result;
+		return (count($records) > 0 ) ? $records : 0;
 	}
 
 
@@ -457,8 +480,18 @@ class Skill extends CommonObject
 	 */
 	public function delete(User $user, $notrigger = false)
 	{
+		// delete Skilldet
+		$records = $this->fetchLines();
+		if (is_array($records) && count($records) > 0){
+			// deleleall
+			foreach ($records as $r){
+				$r->delete($user);
+			}
+
+
 		return $this->deleteCommon($user, $notrigger);
 		//return $this->deleteCommon($user, $notrigger, 1);
+	   }
 	}
 
 	/**

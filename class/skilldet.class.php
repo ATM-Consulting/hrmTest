@@ -105,7 +105,7 @@ class Skilldet extends CommonObject
 		'fk_user_creat' => array('type'=>'integer:User:user/class/user.class.php', 'label'=>'UserAuthor', 'enabled'=>'1', 'position'=>510, 'notnull'=>1, 'visible'=>-2, 'foreignkey'=>'user.rowid',),
 		'fk_user_modif' => array('type'=>'integer:User:user/class/user.class.php', 'label'=>'UserModif', 'enabled'=>'1', 'position'=>511, 'notnull'=>-1, 'visible'=>0,),
 		'fk_skill' => array('type'=>'integer:Skill:/hrmtest/class/skill.class.php', 'label'=>'fk_skill', 'enabled'=>'1', 'position'=>513, 'notnull'=>1, 'visible'=>0,),
-		'rank' => array('type'=>'integer', 'label'=>'rank', 'enabled'=>'1', 'position'=>514, 'notnull'=>0, 'visible'=>1,),
+		'rank' => array('type'=>'integer', 'label'=>'rank', 'enabled'=>'1', 'position'=>514, 'notnull'=>0, 'visible'=>0,),
 	);
 	public $rowid;
 	public $description;
@@ -1027,28 +1027,3 @@ class Skilldet extends CommonObject
 }
 
 
-require_once DOL_DOCUMENT_ROOT.'/core/class/commonobjectline.class.php';
-
-/**
- * Class SkilldetLine. You can also remove this and generate a CRUD class for lines objects.
- */
-class SkilldetLine extends CommonObjectLine
-{
-	// To complete with content of an object SkilldetLine
-	// We should have a field rowid, fk_skilldet and position
-
-	/**
-	 * @var int  Does object support extrafields ? 0=No, 1=Yes
-	 */
-	public $isextrafieldmanaged = 0;
-
-	/**
-	 * Constructor
-	 *
-	 * @param DoliDb $db Database handler
-	 */
-	public function __construct(DoliDB $db)
-	{
-		$this->db = $db;
-	}
-}
