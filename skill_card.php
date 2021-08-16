@@ -1150,6 +1150,19 @@ if ($action != "create" &&  $action != "edit") {
 		print $formfile->showdocuments('massfilesarea_hrmtest', '', $filedir, $urlsource, 0, $delallowed, '', 1, 1, 0, 48, 1, $param, $title, '', '', '', null, $hidegeneratedfilelistifempty);
 	}
 
+	print '<div class="fichecenter"><div class="fichehalfleft">';
+	// Show links to link elements
+	$linktoelem = $form->showLinkToObjectBlock($object, null, array('skill'));
+	$somethingshown = $form->showLinkedObjectBlock($object, $linktoelem);
+
+	print '</div><div class="fichehalfright"><div class="ficheaddleft">';
+	// List of actions on element
+	include_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';
+	$formactions = new FormActions($db);
+	$somethingshown = $formactions->showactions($object, $object->element.'@'.$object->module, (is_object($object->thirdparty) ? $object->thirdparty->id : 0), 1, '', $MAXEVENT, '', $morehtmlright);
+
+	print '</div></div></div>';
+
 }
 
 // End of page

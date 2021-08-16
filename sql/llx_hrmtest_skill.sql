@@ -26,6 +26,8 @@ CREATE TABLE llx_hrmtest_skill(
 	required_level integer NOT NULL, 
 	date_validite integer NOT NULL, 
 	temps_theorique double(24,8) NOT NULL, 
-	skill_type integer NOT NULL
+	skill_type integer NOT NULL, 
+	note_public text, 
+	note_private text
 	-- END MODULEBUILDER FIELDS
 ) ENGINE=innodb;

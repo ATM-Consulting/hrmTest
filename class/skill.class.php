@@ -117,6 +117,8 @@ class Skill extends CommonObject
 		'date_validite' => array('type'=>'integer', 'label'=>'date_validite', 'enabled'=>'1', 'position'=>52, 'notnull'=>1, 'visible'=>0,),
 		'temps_theorique' => array('type'=>'double(24,8)', 'label'=>'temps_theorique', 'enabled'=>'1', 'position'=>54, 'notnull'=>1, 'visible'=>0,),
 		'skill_type' => array('type'=>'integer', 'label'=>'SkillType', 'enabled'=>'1', 'position'=>55, 'notnull'=>1, 'visible'=>1, 'index'=>1, 'arrayofkeyval'=>array('0'=>'Savoir faire', '1'=>'Savoir-&ecirc;tre', '9'=>'Savoir'),),
+		'note_public' => array('type'=>'html', 'label'=>'NotePublic', 'enabled'=>'1', 'position'=>70, 'notnull'=>0, 'visible'=>0,),
+		'note_private' => array('type'=>'html', 'label'=>'NotePrivate', 'enabled'=>'1', 'position'=>71, 'notnull'=>0, 'visible'=>0,),
 	);
 	public $rowid;
 	public $label;
@@ -129,6 +131,8 @@ class Skill extends CommonObject
 	public $date_validite;
 	public $temps_theorique;
 	public $skill_type;
+	public $note_public;
+	public $note_private;
 	// END MODULEBUILDER PROPERTIES
 
 
