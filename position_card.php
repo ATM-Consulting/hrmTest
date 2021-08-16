@@ -81,6 +81,64 @@ dol_include_once('/hrmtest/class/position.class.php');
 dol_include_once('/hrmtest/class/job.class.php');
 dol_include_once('/hrmtest/lib/hrmtest_position.lib.php');
 
+$action = GETPOST('action', 'aZ09') ? GETPOST('action', 'aZ09') : 'view'; // The action 'add', 'create', 'edit', 'update', 'view', ...
+$backtopage = GETPOST('backtopage', 'alpha');
+$backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
+
+
+
+DisplayJob($langs, $db, $conf, $user, $hookmanager, $permissiontoadd, $lineid, $text);
+
+
+$object = new Position($db);
+// Part to create
+if ($action == 'create') {
+	print load_fiche_titre($langs->trans("NewObject", $langs->transnoentitiesnoconv("Position")), '', 'object_' . $object->picto);
+
+	print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
+	print '<input type="hidden" name="token" value="' . newToken() . '">';
+	print '<input type="hidden" name="action" value="add">';
+	if ($backtopage) {
+		print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';
+	}
+
+	if ($backtopageforcancel) {
+		print '<input type="hidden" name="backtopageforcancel" value="' . $backtopageforcancel . '">';
+	}
+
+	print dol_get_fiche_head(array(), '');
+
+	// Set some default values
+	//if (! GETPOSTISSET('fieldname')) $_POST['fieldname'] = 'myvalue';
+
+	print '<table class="border centpercent tableforfieldcreate">' . "\n";
+
+	// Common attributes
+	include DOL_DOCUMENT_ROOT . '/core/tpl/commonfields_add.tpl.php';
+
+	// Other attributes
+	include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_add.tpl.php';
+
+	print '</table>' . "\n";
+
+	print dol_get_fiche_end();
+
+	print '<div class="center">';
+
+	print '<input type="submit" class="button" name="add" value="' . dol_escape_htmltag($langs->trans("Create")) . '">';
+	print '&nbsp; ';
+	print '<input type="' . ($backtopage ? "submit" : "button") . '" class="button button-cancel" name="cancel" value="' . dol_escape_htmltag($langs->trans("Cancel")) . '"' . ($backtopage ? '' : ' onclick="javascript:history.go(-1)"') . '>'; // Cancel for create does not post form if we don't know the backtopage
+	print '</div>';
+
+	print '</form>';
+
+	//dol_set_focus('input[name="ref"]');
+}
+
+if ($action == 'view')
+	DisplayPositionList($conf, $db, $user, $hookmanager, $langs);
+
+
 
 /**
  * @param $langs
@@ -245,50 +303,6 @@ function DisplayJob($langs, DoliDB $db, $conf, $user, HookManager $hookmanager, 
 	// </script>';
 
 
-	// Part to create
-	if ($action == 'create') {
-		print load_fiche_titre($langs->trans("NewObject", $langs->transnoentitiesnoconv("Position")), '', 'object_' . $object->picto);
-
-		print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
-		print '<input type="hidden" name="token" value="' . newToken() . '">';
-		print '<input type="hidden" name="action" value="add">';
-		if ($backtopage) {
-			print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';
-		}
-
-		if ($backtopageforcancel) {
-			print '<input type="hidden" name="backtopageforcancel" value="' . $backtopageforcancel . '">';
-		}
-
-		print dol_get_fiche_head(array(), '');
-
-		// Set some default values
-		//if (! GETPOSTISSET('fieldname')) $_POST['fieldname'] = 'myvalue';
-
-		print '<table class="border centpercent tableforfieldcreate">' . "\n";
-
-		// Common attributes
-		include DOL_DOCUMENT_ROOT . '/core/tpl/commonfields_add.tpl.php';
-
-		// Other attributes
-		include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_add.tpl.php';
-
-		print '</table>' . "\n";
-
-		print dol_get_fiche_end();
-
-		print '<div class="center">';
-
-		print '<input type="submit" class="button" name="add" value="' . dol_escape_htmltag($langs->trans("Create")) . '">';
-		print '&nbsp; ';
-		print '<input type="' . ($backtopage ? "submit" : "button") . '" class="button button-cancel" name="cancel" value="' . dol_escape_htmltag($langs->trans("Cancel")) . '"' . ($backtopage ? '' : ' onclick="javascript:history.go(-1)"') . '>'; // Cancel for create does not post form if we don't know the backtopage
-		print '</div>';
-
-		print '</form>';
-
-		//dol_set_focus('input[name="ref"]');
-	}
-
 	// Part to edit record
 	if (($id || $ref) && $action == 'edit') {
 		print load_fiche_titre($langs->trans("Position"), '', 'object_' . $object->picto);
@@ -410,8 +424,6 @@ function DisplayJob($langs, DoliDB $db, $conf, $user, HookManager $hookmanager, 
 	return array($fk_job, $object, $action);
 }
 
-list($fk_job, $object, $action) = DisplayJob($langs, $db, $conf, $user, $hookmanager, $permissiontoadd, $lineid, $text);
-
 
 /**
  * @param $conf
@@ -422,7 +434,7 @@ list($fk_job, $object, $action) = DisplayJob($langs, $db, $conf, $user, $hookman
  * @param array $fk_job
  * @return array|void
  */
-function DisplayPositionList($conf, DoliDB $db, $user, HookManager $hookmanager, $langs, $fk_job)
+function DisplayPositionList($conf, DoliDB $db, $user, HookManager $hookmanager, $langs)
 {
 	require_once DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php';
 	require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
@@ -446,8 +458,12 @@ function DisplayPositionList($conf, DoliDB $db, $user, HookManager $hookmanager,
 	$contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'positionlist'; // To manage different context of search
 	$backtopage = GETPOST('backtopage', 'alpha'); // Go back to a dedicated page
 	$optioncss = GETPOST('optioncss', 'aZ'); // Option for the css output (always '' except when 'print')
+	$backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
+
+
 
 	$id = GETPOST('id', 'int');
+	$fk_job = GETPOST('fk_job', 'int');
 
 	// Load variable for pagination
 	$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
@@ -536,7 +552,7 @@ function DisplayPositionList($conf, DoliDB $db, $user, HookManager $hookmanager,
 	}
 
 	// Security check (enable the most restrictive one)
-		if ($user->socid > 0) accessforbidden();
+	if ($user->socid > 0) accessforbidden();
 	//if ($user->socid > 0) accessforbidden();
 	//$socid = 0; if ($user->socid > 0) $socid = $user->socid;
 	//$isdraft = (($object->status == $object::STATUS_DRAFT) ? 1 : 0);
@@ -590,6 +606,8 @@ function DisplayPositionList($conf, DoliDB $db, $user, HookManager $hookmanager,
 		$uploaddir = $conf->hrmtest->dir_output;
 		include DOL_DOCUMENT_ROOT . '/core/actions_massactions.inc.php';
 	}
+
+
 
 
 	/*
@@ -1071,9 +1089,6 @@ function DisplayPositionList($conf, DoliDB $db, $user, HookManager $hookmanager,
 	}
 	return array($arrayfields, $object, $action, $obj, $totalarray);
 }
-
-list($arrayfields, $object, $action, $obj, $totalarray) = DisplayPositionList($conf, $db, $user, $hookmanager, $langs, $fk_job);
-
 
 // End of page
 llxFooter();
