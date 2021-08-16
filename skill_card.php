@@ -1151,11 +1151,18 @@ if ($action != "create" &&  $action != "edit") {
 	}
 
 	print '<div class="fichecenter"><div class="fichehalfleft">';
+	var_dump(get_class($object));
 	// Show links to link elements
 	$linktoelem = $form->showLinkToObjectBlock($object, null, array('skill'));
 	$somethingshown = $form->showLinkedObjectBlock($object, $linktoelem);
 
 	print '</div><div class="fichehalfright"><div class="ficheaddleft">';
+
+	$MAXEVENT = 10;
+
+	$morehtmlright = '<a href="'.dol_buildpath('/hrmtest/skill_agenda.php', 1).'?id='.$object->id.'">';
+	$morehtmlright .= $langs->trans("SeeAll");
+	$morehtmlright .= '</a>';
 	// List of actions on element
 	include_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';
 	$formactions = new FormActions($db);
