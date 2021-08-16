@@ -557,21 +557,20 @@ if ($action != "create" &&  $action != "edit") {
 	$pagenext = $page + 1;
 
 // Initialize technical objects
-	$object = new Skilldet($db);
+	$objectline = new Skilldet($db);
 	$extrafields = new ExtraFields($db);
 	$diroutputmassaction = $conf->hrmtest->dir_output . '/temp/massgeneration/' . $user->id;
 	$hookmanager->initHooks(array('skilldetlist')); // Note that conf->hooks_modules contains array
 
 // Fetch optionals attributes and labels
-	$extrafields->fetch_name_optionals_label($object->table_element);
-//$extrafields->fetch_name_optionals_label($object->table_element_line);
+	$extrafields->fetch_name_optionals_label($objectline->table_element);
 
-	$search_array_options = $extrafields->getOptionalsFromPost($object->table_element, '', 'search_');
+	$search_array_options = $extrafields->getOptionalsFromPost($objectline->table_element, '', 'search_');
 
 // Default sort order (if not yet defined by previous GETPOST)
 	if (!$sortfield) {
-		reset($object->fields);                    // Reset is required to avoid key() to return null.
-		$sortfield = "t." . key($object->fields); // Set here default search field. By default 1st field in definition.
+		reset($objectline->fields);                    // Reset is required to avoid key() to return null.
+		$sortfield = "t." . key($objectline->fields); // Set here default search field. By default 1st field in definition.
 	}
 	if (!$sortorder) {
 		$sortorder = "ASC";
@@ -580,7 +579,7 @@ if ($action != "create" &&  $action != "edit") {
 // Initialize array of search criterias
 	$search_all = GETPOST('search_all', 'alphanohtml') ? GETPOST('search_all', 'alphanohtml') : GETPOST('sall', 'alphanohtml');
 	$search = array();
-	foreach ($object->fields as $key => $val) {
+	foreach ($objectline->fields as $key => $val) {
 		if (GETPOST('search_' . $key, 'alpha') !== '') {
 			$search[$key] = GETPOST('search_' . $key, 'alpha');
 		}
@@ -592,7 +591,7 @@ if ($action != "create" &&  $action != "edit") {
 
 // List of fields to search into when doing a "search in all"
 	$fieldstosearchall = array();
-	foreach ($object->fields as $key => $val) {
+	foreach ($objectline->fields as $key => $val) {
 		if (!empty($val['searchall'])) {
 			$fieldstosearchall['t.' . $key] = $val['label'];
 		}
@@ -600,7 +599,7 @@ if ($action != "create" &&  $action != "edit") {
 
 // Definition of array of fields for columns
 	$arrayfields = array();
-	foreach ($object->fields as $key => $val) {
+	foreach ($objectline->fields as $key => $val) {
 		// If $val['visible']==0, then we never show the field
 		if (!empty($val['visible'])) {
 			$visible = (int)dol_eval($val['visible'], 1);
@@ -616,7 +615,7 @@ if ($action != "create" &&  $action != "edit") {
 // Extra fields
 	include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_array_fields.tpl.php';
 
-	$object->fields = dol_sort_array($object->fields, 'position');
+	$objectline->fields = dol_sort_array($objectline->fields, 'position');
 	$arrayfields = dol_sort_array($arrayfields, 'position');
 
 	$permissiontoread = $user->rights->hrmtest->skilldet->read;
@@ -644,7 +643,7 @@ if ($action != "create" &&  $action != "edit") {
 	}
 
 	$parameters = array();
-	$reshook = $hookmanager->executeHooks('doActions', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks
+	$reshook = $hookmanager->executeHooks('doActions', $parameters, $objectline, $action); // Note that $action and $objectline may have been modified by some hooks
 	if ($reshook < 0) {
 		setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 	}
@@ -655,7 +654,7 @@ if ($action != "create" &&  $action != "edit") {
 
 		// Purge search criteria
 		if (GETPOST('button_removefilter_x', 'alpha') || GETPOST('button_removefilter.x', 'alpha') || GETPOST('button_removefilter', 'alpha')) { // All tests are required to be compatible with all browsers
-			foreach ($object->fields as $key => $val) {
+			foreach ($objectline->fields as $key => $val) {
 				$search[$key] = '';
 				if (preg_match('/^(date|timestamp|datetime)/', $val['type'])) {
 					$search[$key . '_dtstart'] = '';
@@ -696,28 +695,28 @@ if ($action != "create" &&  $action != "edit") {
 // Build and execute select
 // --------------------------------------------------------------------
 	$sql = 'SELECT ';
-	$sql .= $object->getFieldList('t');
+	$sql .= $objectline->getFieldList('t');
 // Add fields from extrafields
-	if (!empty($extrafields->attributes[$object->table_element]['label'])) {
-		foreach ($extrafields->attributes[$object->table_element]['label'] as $key => $val) {
-			$sql .= ($extrafields->attributes[$object->table_element]['type'][$key] != 'separate' ? ", ef." . $key . ' as options_' . $key . ', ' : '');
+	if (!empty($extrafields->attributes[$objectline->table_element]['label'])) {
+		foreach ($extrafields->attributes[$objectline->table_element]['label'] as $key => $val) {
+			$sql .= ($extrafields->attributes[$objectline->table_element]['type'][$key] != 'separate' ? ", ef." . $key . ' as options_' . $key . ', ' : '');
 		}
 	}
 // Add fields from hooks
 	$parameters = array();
-	$reshook = $hookmanager->executeHooks('printFieldListSelect', $parameters, $object); // Note that $action and $object may have been modified by hook
+	$reshook = $hookmanager->executeHooks('printFieldListSelect', $parameters, $objectline); // Note that $action and $objectline may have been modified by hook
 	$sql .= preg_replace('/^,/', '', $hookmanager->resPrint);
 	$sql = preg_replace('/,\s*$/', '', $sql);
-	$sql .= " FROM " . MAIN_DB_PREFIX . $object->table_element . " as t";
-	if (isset($extrafields->attributes[$object->table_element]['label']) && is_array($extrafields->attributes[$object->table_element]['label']) && count($extrafields->attributes[$object->table_element]['label'])) {
-		$sql .= " LEFT JOIN " . MAIN_DB_PREFIX . $object->table_element . "_extrafields as ef on (t.rowid = ef.fk_object)";
+	$sql .= " FROM " . MAIN_DB_PREFIX . $objectline->table_element . " as t";
+	if (isset($extrafields->attributes[$objectline->table_element]['label']) && is_array($extrafields->attributes[$objectline->table_element]['label']) && count($extrafields->attributes[$objectline->table_element]['label'])) {
+		$sql .= " LEFT JOIN " . MAIN_DB_PREFIX . $objectline->table_element . "_extrafields as ef on (t.rowid = ef.fk_object)";
 	}
 // Add table from hooks
 	$parameters = array();
-	$reshook = $hookmanager->executeHooks('printFieldListFrom', $parameters, $object); // Note that $action and $object may have been modified by hook
+	$reshook = $hookmanager->executeHooks('printFieldListFrom', $parameters, $objectline); // Note that $action and $objectline may have been modified by hook
 	$sql .= $hookmanager->resPrint;
-	if ($object->ismultientitymanaged == 1) {
-		$sql .= " WHERE t.entity IN (" . getEntity($object->element) . ")";
+	if ($objectline->ismultientitymanaged == 1) {
+		$sql .= " WHERE t.entity IN (" . getEntity($objectline->element) . ")";
 	} else {
 		$sql .= " WHERE 1 = 1 ";
 	}
@@ -727,12 +726,12 @@ if ($action != "create" &&  $action != "edit") {
 	}
 
 	foreach ($search as $key => $val) {
-		if (array_key_exists($key, $object->fields)) {
+		if (array_key_exists($key, $objectline->fields)) {
 			if ($key == 'status' && $search[$key] == -1) {
 				continue;
 			}
-			$mode_search = (($object->isInt($object->fields[$key]) || $object->isFloat($object->fields[$key])) ? 1 : 0);
-			if ((strpos($object->fields[$key]['type'], 'integer:') === 0) || (strpos($object->fields[$key]['type'], 'sellist:') === 0) || !empty($object->fields[$key]['arrayofkeyval'])) {
+			$mode_search = (($objectline->isInt($objectline->fields[$key]) || $objectline->isFloat($objectline->fields[$key])) ? 1 : 0);
+			if ((strpos($objectline->fields[$key]['type'], 'integer:') === 0) || (strpos($objectline->fields[$key]['type'], 'sellist:') === 0) || !empty($objectline->fields[$key]['arrayofkeyval'])) {
 				if ($search[$key] == '-1' || $search[$key] === '0') {
 					$search[$key] = '';
 				}
@@ -744,7 +743,7 @@ if ($action != "create" &&  $action != "edit") {
 		} else {
 			if (preg_match('/(_dtstart|_dtend)$/', $key) && $search[$key] != '') {
 				$columnName = preg_replace('/(_dtstart|_dtend)$/', '', $key);
-				if (preg_match('/^(date|timestamp|datetime)/', $object->fields[$columnName]['type'])) {
+				if (preg_match('/^(date|timestamp|datetime)/', $objectline->fields[$columnName]['type'])) {
 					if (preg_match('/_dtstart$/', $key)) {
 						$sql .= " AND t." . $columnName . " >= '" . $db->idate($search[$key]) . "'";
 					}
@@ -763,7 +762,7 @@ if ($action != "create" &&  $action != "edit") {
 	include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_search_sql.tpl.php';
 // Add where from hooks
 	$parameters = array();
-	$reshook = $hookmanager->executeHooks('printFieldListWhere', $parameters, $object); // Note that $action and $object may have been modified by hook
+	$reshook = $hookmanager->executeHooks('printFieldListWhere', $parameters, $objectline); // Note that $action and $objectline may have been modified by hook
 	$sql .= $hookmanager->resPrint;
 	$sql .= $db->order($sortfield, $sortorder);
 
@@ -812,6 +811,7 @@ if ($action != "create" &&  $action != "edit") {
 	if ($limit > 0 && $limit != $conf->liste_limit) {
 		$param .= '&limit=' . urlencode($limit);
 	}
+	if (!empty($object->id)) $param .= '&id='.$object->id;
 	foreach ($search as $key => $val) {
 		if (is_array($search[$key]) && count($search[$key])) {
 			foreach ($search[$key] as $skey) {
@@ -828,7 +828,7 @@ if ($action != "create" &&  $action != "edit") {
 	include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_search_param.tpl.php';
 // Add $param from hooks
 	$parameters = array();
-	$reshook = $hookmanager->executeHooks('printFieldListSearchParam', $parameters, $object); // Note that $action and $object may have been modified by hook
+	$reshook = $hookmanager->executeHooks('printFieldListSearchParam', $parameters, $objectline); // Note that $action and $objectline may have been modified by hook
 	$param .= $hookmanager->resPrint;
 
 // List of mass actions available
@@ -887,7 +887,7 @@ if ($action != "create" &&  $action != "edit") {
 	$moreforfilter.= '</div>';*/
 
 	$parameters = array();
-	$reshook = $hookmanager->executeHooks('printFieldPreListTitle', $parameters, $object); // Note that $action and $object may have been modified by hook
+	$reshook = $hookmanager->executeHooks('printFieldPreListTitle', $parameters, $objectline); // Note that $action and $objectline may have been modified by hook
 	if (empty($reshook)) {
 		$moreforfilter .= $hookmanager->resPrint;
 	} else {
@@ -911,7 +911,7 @@ if ($action != "create" &&  $action != "edit") {
 // Fields title search
 // --------------------------------------------------------------------
 	print '<tr class="liste_titre">';
-	foreach ($object->fields as $key => $val) {
+	foreach ($objectline->fields as $key => $val) {
 		$cssforfield = (empty($val['csslist']) ? (empty($val['css']) ? '' : $val['css']) : $val['csslist']);
 		if ($key == 'status') {
 			$cssforfield .= ($cssforfield ? ' ' : '') . 'center';
@@ -927,7 +927,7 @@ if ($action != "create" &&  $action != "edit") {
 			if (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) {
 				print $form->selectarray('search_' . $key, $val['arrayofkeyval'], (isset($search[$key]) ? $search[$key] : ''), $val['notnull'], 0, 0, '', 1, 0, 0, '', 'maxwidth100', 1);
 			} elseif ((strpos($val['type'], 'integer:') === 0) || (strpos($val['type'], 'sellist:') === 0)) {
-				print $object->showInputField($val, $key, (isset($search[$key]) ? $search[$key] : ''), '', '', 'search_', 'maxwidth125', 1);
+				print $objectline->showInputField($val, $key, (isset($search[$key]) ? $search[$key] : ''), '', '', 'search_', 'maxwidth125', 1);
 			} elseif (!preg_match('/^(date|timestamp|datetime)/', $val['type'])) {
 				print '<input type="text" class="flat maxwidth75" name="search_' . $key . '" value="' . dol_escape_htmltag(isset($search[$key]) ? $search[$key] : '') . '">';
 			} elseif (preg_match('/^(date|timestamp|datetime)/', $val['type'])) {
@@ -948,7 +948,7 @@ if ($action != "create" &&  $action != "edit") {
 
 // Fields from hook
 	$parameters = array('arrayfields' => $arrayfields);
-	$reshook = $hookmanager->executeHooks('printFieldListOption', $parameters, $object); // Note that $action and $object may have been modified by hook
+	$reshook = $hookmanager->executeHooks('printFieldListOption', $parameters, $objectline); // Note that $action and $objectline may have been modified by hook
 	print $hookmanager->resPrint;
 // Action column
 	print '<td class="liste_titre maxwidthsearch">';
@@ -961,7 +961,7 @@ if ($action != "create" &&  $action != "edit") {
 // Fields title label
 // --------------------------------------------------------------------
 	print '<tr class="liste_titre">';
-	foreach ($object->fields as $key => $val) {
+	foreach ($objectline->fields as $key => $val) {
 		$cssforfield = (empty($val['csslist']) ? (empty($val['css']) ? '' : $val['css']) : $val['csslist']);
 		if ($key == 'status') {
 			$cssforfield .= ($cssforfield ? ' ' : '') . 'center';
@@ -982,7 +982,7 @@ if ($action != "create" &&  $action != "edit") {
 	include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_search_title.tpl.php';
 // Hook fields
 	$parameters = array('arrayfields' => $arrayfields, 'param' => $param, 'sortfield' => $sortfield, 'sortorder' => $sortorder);
-	$reshook = $hookmanager->executeHooks('printFieldListTitle', $parameters, $object); // Note that $action and $object may have been modified by hook
+	$reshook = $hookmanager->executeHooks('printFieldListTitle', $parameters, $objectline); // Note that $action and $objectline may have been modified by hook
 	print $hookmanager->resPrint;
 // Action column
 	print getTitleFieldOfList($selectedfields, 0, $_SERVER["PHP_SELF"], '', '', '', '', $sortfield, $sortorder, 'center maxwidthsearch ') . "\n";
@@ -991,10 +991,10 @@ if ($action != "create" &&  $action != "edit") {
 
 // Detect if we need a fetch on each output line
 	$needToFetchEachLine = 0;
-	if (isset($extrafields->attributes[$object->table_element]['computed']) && is_array($extrafields->attributes[$object->table_element]['computed']) && count($extrafields->attributes[$object->table_element]['computed']) > 0) {
-		foreach ($extrafields->attributes[$object->table_element]['computed'] as $key => $val) {
-			if (preg_match('/\$object/', $val)) {
-				$needToFetchEachLine++; // There is at least one compute field that use $object
+	if (isset($extrafields->attributes[$objectline->table_element]['computed']) && is_array($extrafields->attributes[$objectline->table_element]['computed']) && count($extrafields->attributes[$objectline->table_element]['computed']) > 0) {
+		foreach ($extrafields->attributes[$objectline->table_element]['computed'] as $key => $val) {
+			if (preg_match('/\$objectline/', $val)) {
+				$needToFetchEachLine++; // There is at least one compute field that use $objectline
 			}
 		}
 	}
@@ -1011,12 +1011,12 @@ if ($action != "create" &&  $action != "edit") {
 			break; // Should not happen
 		}
 
-		// Store properties in $object
-		$object->setVarsFromFetchObj($obj);
+		// Store properties in $objectline
+		$objectline->setVarsFromFetchObj($obj);
 
 		// Show here line of result
 		print '<tr class="oddeven">';
-		foreach ($object->fields as $key => $val) {
+		foreach ($objectline->fields as $key => $val) {
 			$cssforfield = (empty($val['csslist']) ? (empty($val['css']) ? '' : $val['css']) : $val['csslist']);
 			if (in_array($val['type'], array('date', 'datetime', 'timestamp'))) {
 				$cssforfield .= ($cssforfield ? ' ' : '') . 'center';
@@ -1038,14 +1038,14 @@ if ($action != "create" &&  $action != "edit") {
 			if (!empty($arrayfields['t.' . $key]['checked'])) {
 				print '<td' . ($cssforfield ? ' class="' . $cssforfield . '"' : '') . '>';
 				if ($key == 'status') {
-					print $object->getLibStatut(5);
+					print $objectline->getLibStatut(5);
 				} elseif ($key == 'rowid') {
-					print $object->showOutputField($val, $key, $object->id, '');
+					print $objectline->showOutputField($val, $key, $objectline->id, '');
 					// ajout pencil
-					print '<a class="timeline-btn" href="' . DOL_MAIN_URL_ROOT . '/comm/action/skilldet_card.php?action=edit&id=' . $object->id . '"><i class="fa fa-pencil" title="' . $langs->trans("Modify") . '" ></i></a>';
+					print '<a class="timeline-btn" href="' . DOL_MAIN_URL_ROOT . '/comm/action/skilldet_card.php?action=edit&id=' . $objectline->id . '"><i class="fa fa-pencil" title="' . $langs->trans("Modify") . '" ></i></a>';
 
 				} else {
-					print $object->showOutputField($val, $key, $object->$key, '');
+					print $objectline->showOutputField($val, $key, $objectline->$key, '');
 				}
 				print '</td>';
 
@@ -1063,7 +1063,7 @@ if ($action != "create" &&  $action != "edit") {
 					if (!isset($totalarray['val']['t.' . $key])) {
 						$totalarray['val']['t.' . $key] = 0;
 					}
-					$totalarray['val']['t.' . $key] += $object->$key;
+					$totalarray['val']['t.' . $key] += $objectline->$key;
 				}
 
 
@@ -1082,16 +1082,16 @@ if ($action != "create" &&  $action != "edit") {
 		print '<td>';
 		// add pencil
 		//@todo change to proper call dol_
-		//print '<a class="timeline-btn" href="' . dol_buildpath("custom/hrmtest/skilldet_card.php?action=edit&id=" . $object->id, 1) . '"><i class="fa fa-pencil" title="' . $langs->trans("Modify") . '" ></i></a>';
+		//print '<a class="timeline-btn" href="' . dol_buildpath("custom/hrmtest/skilldet_card.php?action=edit&id=" . $objectline->id, 1) . '"><i class="fa fa-pencil" title="' . $langs->trans("Modify") . '" ></i></a>';
 		// add trash
 		//@todo change to proper call dol_
-		//print '<a class="timeline-btn" href="'.dol_buildpath("custom/hrmtest/skilldet_card.php?action=delete&id=".$object->id,1)  .'"><i class="fa fa-trash" title="'.$langs->trans("Delete").'" ></i></a>';
+		//print '<a class="timeline-btn" href="'.dol_buildpath("custom/hrmtest/skilldet_card.php?action=delete&id=".$objectline->id,1)  .'"><i class="fa fa-trash" title="'.$langs->trans("Delete").'" ></i></a>';
 		//print '</td>';
 
 
 		// Fields from hook
-		$parameters = array('arrayfields' => $arrayfields, 'object' => $object, 'obj' => $obj, 'i' => $i, 'totalarray' => &$totalarray);
-		$reshook = $hookmanager->executeHooks('printFieldListValue', $parameters, $object); // Note that $action and $object may have been modified by hook
+		$parameters = array('arrayfields' => $arrayfields, 'object' => $objectline, 'obj' => $obj, 'i' => $i, 'totalarray' => &$totalarray);
+		$reshook = $hookmanager->executeHooks('printFieldListValue', $parameters, $objectline); // Note that $action and $objectline may have been modified by hook
 		print $hookmanager->resPrint;
 		// Action column
 		print '<td class="nowrap center">';
@@ -1122,7 +1122,7 @@ if ($action != "create" &&  $action != "edit") {
 	$db->free($resql);
 
 	$parameters = array('arrayfields' => $arrayfields, 'sql' => $sql);
-	$reshook = $hookmanager->executeHooks('printFieldListFooter', $parameters, $object); // Note that $action and $object may have been modified by hook
+	$reshook = $hookmanager->executeHooks('printFieldListFooter', $parameters, $objectline); // Note that $action and $objectline may have been modified by hook
 	print $hookmanager->resPrint;
 
 	print '</table>' . "\n";
@@ -1151,7 +1151,7 @@ if ($action != "create" &&  $action != "edit") {
 	}
 
 	print '<div class="fichecenter"><div class="fichehalfleft">';
-	var_dump(get_class($object));
+
 	// Show links to link elements
 	$linktoelem = $form->showLinkToObjectBlock($object, null, array('skill'));
 	$somethingshown = $form->showLinkedObjectBlock($object, $linktoelem);
