@@ -168,16 +168,13 @@ if (empty($reshook)) {
 	$triggermodname = 'HRMTEST_SKILL_MODIFY'; // Name of trigger action code to execute when we modify record
 
 
-
-
-
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
 	// action update on Skilldet
 
 	$skilldetArray =  GETPOST("description","array");
-	if ($action == "update" && is_array($skilldetArray) && count($skilldetArray > 0) ) {
+	if (is_array($skilldetArray) && count($skilldetArray > 0) ) {
 		foreach ($skilldetArray as $key => $SkValueToUpdate){
 			$skilldetObj = new Skilldet($object->db);
 			$res = $skilldetObj->fetch($key);
