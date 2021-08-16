@@ -181,7 +181,7 @@ function show_positions($conf, $langs, $db, $object, $backtopage = '')
 	$newcardbutton = '';
 	if ($user->rights->job->position->creer) {
 		$addposition = $langs->trans("AddPosition");
-		$newcardbutton .= dolGetButtonTitle($addposition, '', 'fa fa-plus-circle', DOL_URL_ROOT.'/hrmtest/position_card.php?fk_job='.$object->id.'&amp;action=create&amp;backtopage='.urlencode($backtopage));
+		$newcardbutton .= dolGetButtonTitle($addposition, '', 'fa fa-plus-circle', DOL_URL_ROOT.'/hrmtest/position.php?fk_job='.$object->id.'&amp;action=create&amp;backtopage='.urlencode($backtopage));
 	}
 
 	print "\n";
