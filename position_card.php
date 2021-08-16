@@ -97,7 +97,7 @@ if ($action == 'create') {
 
 	print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
 	print '<input type="hidden" name="token" value="' . newToken() . '">';
-	print '<input type="hidden" name="action" value="add">';
+	print '<input type="hidden" name="action" value="addposition">';
 	if ($backtopage) {
 		print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';
 	}
@@ -201,7 +201,7 @@ function DisplayJob($langs, DoliDB $db, $conf, $user, HookManager $hookmanager, 
 
 
 	$permissiontoread = $user->rights->hrmtest->position->read;
-	//$permissiontoadd = $user->rights->hrmtest->position->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
+	$permissiontoadd = $user->rights->hrmtest->position->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
 	$permissiontodelete = $user->rights->hrmtest->position->delete || ($permissiontoadd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
 	$permissionnote = $user->rights->hrmtest->position->write; // Used by the include of actions_setnotes.inc.php
 	$permissiondellink = $user->rights->hrmtest->position->write; // Used by the include of actions_dellink.inc.php
@@ -242,6 +242,12 @@ function DisplayJob($langs, DoliDB $db, $conf, $user, HookManager $hookmanager, 
 		}
 
 		$triggermodname = 'HRMTEST_POSITION_MODIFY'; // Name of trigger action code to execute when we modify record
+
+		if ($action == 'addposition')
+		{
+			$object = new Position($db);
+			$action = 'add';
+		}
 
 		// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 		include DOL_DOCUMENT_ROOT . '/core/actions_addupdatedelete.inc.php';
