@@ -108,7 +108,7 @@ class Evaluation extends CommonObject
 		'status' => array('type'=>'smallint', 'label'=>'Status', 'enabled'=>'1', 'position'=>1000, 'notnull'=>1, 'visible'=>1, 'index'=>1, 'arrayofkeyval'=>array('0'=>'Brouillon', '1'=>'Valid&eacute;', '9'=>'Annul&eacute;'),),
 		'date_eval' => array('type'=>'datetime', 'label'=>'DateEval', 'enabled'=>'1', 'position'=>502, 'notnull'=>0, 'visible'=>1,),
 		'fk_user' => array('type'=>'integer:User:user/class/user.class.php', 'label'=>'fkUser', 'enabled'=>'1', 'position'=>504, 'notnull'=>1, 'visible'=>1,),
-		'fk_job' => array('type'=>'integer:Job:/hrmtest/class/job.class.php', 'label'=>'fkJob', 'enabled'=>'1', 'position'=>505, 'notnull'=>1, 'visible'=>1,),
+		'fk_job' => array('type'=>'integer:Job:/hrmtest/class/job.class.php', 'label'=>'Job', 'enabled'=>'1', 'position'=>505, 'notnull'=>1, 'visible'=>1,),
 	);
 	public $rowid;
 	public $date_creation;

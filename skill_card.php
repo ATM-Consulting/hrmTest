@@ -98,7 +98,7 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 // Initialize technical objects
 $object = new Skill($db);
 $extrafields = new ExtraFields($db);
-$diroutputmassaction = $conf->hrmtest->dir_output.'/temp/massgeneration/'.$user->id;
+//$diroutputmassaction = $conf->hrmtest->dir_output.'/temp/massgeneration/'.$user->id;
 $hookmanager->initHooks(array('skillcard', 'globalcard')); // Note that conf->hooks_modules contains array
 
 // Fetch optionals attributes and labels
@@ -556,8 +556,8 @@ if ($action != "create" &&  $action != "edit") {
 // Initialize technical objects
 	$objectline = new Skilldet($db);
 	$extrafields = new ExtraFields($db);
-	$diroutputmassaction = $conf->hrmtest->dir_output . '/temp/massgeneration/' . $user->id;
-	$hookmanager->initHooks(array('skilldetlist')); // Note that conf->hooks_modules contains array
+//	$diroutputmassaction = $conf->hrmtest->dir_output . '/temp/massgeneration/' . $user->id;
+//	$hookmanager->initHooks(array('skilldetlist')); // Note that conf->hooks_modules contains array
 
 // Fetch optionals attributes and labels
 	$extrafields->fetch_name_optionals_label($objectline->table_element);
@@ -639,7 +639,7 @@ if ($action != "create" &&  $action != "edit") {
 		$massaction = '';
 	}
 
-	$parameters = array();
+	/*$parameters = array();
 	$reshook = $hookmanager->executeHooks('doActions', $parameters, $objectline, $action); // Note that $action and $objectline may have been modified by some hooks
 	if ($reshook < 0) {
 		setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
@@ -671,7 +671,7 @@ if ($action != "create" &&  $action != "edit") {
 		$objectlabel = 'Skilldet';
 		$uploaddir = $conf->hrmtest->dir_output;
 		//include DOL_DOCUMENT_ROOT.'/core/actions_massactions.inc.php';
-	}
+	}*/
 
 
 	/*
@@ -791,12 +791,12 @@ if ($action != "create" &&  $action != "edit") {
 	}
 
 // Direct jump if only one record found
-	if ($num == 1 && !empty($conf->global->MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE) && $search_all && !$page) {
-		$obj = $db->fetch_object($resql);
-		$id = $obj->rowid;
-		header("Location: " . dol_buildpath('/hrmtest/skilldet_card.php', 1) . '?id=' . $id);
-		exit;
-	}
+//	if ($num == 1 && !empty($conf->global->MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE) && $search_all && !$page) {
+//		$obj = $db->fetch_object($resql);
+//		$id = $obj->rowid;
+//		header("Location: " . dol_buildpath('/hrmtest/skilldet_card.php', 1) . '?id=' . $id);
+//		exit;
+//	}
 
 
 	$arrayofselected = is_array($toselect) ? $toselect : array();
@@ -829,7 +829,7 @@ if ($action != "create" &&  $action != "edit") {
 	$param .= $hookmanager->resPrint;
 
 // List of mass actions available
-	$arrayofmassactions = array(
+	/*$arrayofmassactions = array(
 		//'validate'=>img_picto('', 'check', 'class="pictofixedwidth"').$langs->trans("Validate"),
 		//'generate_doc'=>img_picto('', 'pdf', 'class="pictofixedwidth"').$langs->trans("ReGeneratePDF"),
 		//'builddoc'=>img_picto('', 'pdf', 'class="pictofixedwidth"').$langs->trans("PDFMerge"),
@@ -840,7 +840,7 @@ if ($action != "create" &&  $action != "edit") {
 	}
 	if (GETPOST('nomassaction', 'int') || in_array($massaction, array('presend', 'predelete'))) {
 		$arrayofmassactions = array();
-	}
+	}*/
 //$massactionbutton = $form->selectMassAction('', $arrayofmassactions);
 
 	print '<form method="POST" id="searchFormList" action="' . $_SERVER["PHP_SELF"] . '">' . "\n";
@@ -898,8 +898,8 @@ if ($action != "create" &&  $action != "edit") {
 	}
 
 	$varpage = empty($contextpage) ? $_SERVER["PHP_SELF"] : $contextpage;
-	$selectedfields = $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage); // This also change content of $arrayfields
-	$selectedfields .= (count($arrayofmassactions) ? $form->showCheckAddButtons('checkforselect', 1) : '');
+//	$selectedfields = $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage); // This also change content of $arrayfields
+//	$selectedfields .= (count($arrayofmassactions) ? $form->showCheckAddButtons('checkforselect', 1) : '');
 
 	print '<div class="div-table-responsive">'; // You can use div-table-responsive-no-min if you dont need reserved height for your table
 	print '<table class="tagtable nobottomiftotal liste' . ($moreforfilter ? " listwithfilterbefore" : "") . '">' . "\n";
@@ -907,7 +907,7 @@ if ($action != "create" &&  $action != "edit") {
 
 // Fields title search
 // --------------------------------------------------------------------
-	print '<tr class="liste_titre">';
+	/*print '<tr class="liste_titre">';
 	foreach ($objectline->fields as $key => $val) {
 		$cssforfield = (empty($val['csslist']) ? (empty($val['css']) ? '' : $val['css']) : $val['csslist']);
 		if ($key == 'status') {
@@ -952,7 +952,7 @@ if ($action != "create" &&  $action != "edit") {
 	$searchpicto = $form->showFilterButtons();
 	print $searchpicto;
 	print '</td>';
-	print '</tr>' . "\n";
+	print '</tr>' . "\n";*/
 
 
 // Fields title label
@@ -975,18 +975,18 @@ if ($action != "create" &&  $action != "edit") {
 	}
 	print '<td></td>';
 	print '<td></td>';
-// Extra fields
+	// Extra fields
 	include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_search_title.tpl.php';
-// Hook fields
+	// Hook fields
 	$parameters = array('arrayfields' => $arrayfields, 'param' => $param, 'sortfield' => $sortfield, 'sortorder' => $sortorder);
 	$reshook = $hookmanager->executeHooks('printFieldListTitle', $parameters, $objectline); // Note that $action and $objectline may have been modified by hook
 	print $hookmanager->resPrint;
-// Action column
-	print getTitleFieldOfList($selectedfields, 0, $_SERVER["PHP_SELF"], '', '', '', '', $sortfield, $sortorder, 'center maxwidthsearch ') . "\n";
+	// Action column
+//	print getTitleFieldOfList($selectedfields, 0, $_SERVER["PHP_SELF"], '', '', '', '', $sortfield, $sortorder, 'center maxwidthsearch ') . "\n";
 	print '</tr>' . "\n";
 
 
-// Detect if we need a fetch on each output line
+	// Detect if we need a fetch on each output line
 	$needToFetchEachLine = 0;
 	if (isset($extrafields->attributes[$objectline->table_element]['computed']) && is_array($extrafields->attributes[$objectline->table_element]['computed']) && count($extrafields->attributes[$objectline->table_element]['computed']) > 0) {
 		foreach ($extrafields->attributes[$objectline->table_element]['computed'] as $key => $val) {
@@ -1090,10 +1090,10 @@ if ($action != "create" &&  $action != "edit") {
 		$parameters = array('arrayfields' => $arrayfields, 'object' => $objectline, 'obj' => $obj, 'i' => $i, 'totalarray' => &$totalarray);
 		$reshook = $hookmanager->executeHooks('printFieldListValue', $parameters, $objectline); // Note that $action and $objectline may have been modified by hook
 		print $hookmanager->resPrint;
-		// Action column
+		/*// Action column
 		print '<td class="nowrap center">';
 
-		print '</td>';
+		print '</td>';*/
 		if (!$i) {
 			$totalarray['nbfield']++;
 		}
@@ -1127,25 +1127,25 @@ if ($action != "create" &&  $action != "edit") {
 
 	print '</form>' . "\n";
 
-	if (in_array('builddoc', $arrayofmassactions) && ($nbtotalofrecords === '' || $nbtotalofrecords)) {
-		$hidegeneratedfilelistifempty = 1;
-		if ($massaction == 'builddoc' || $action == 'remove_file' || $show_files) {
-			$hidegeneratedfilelistifempty = 0;
-		}
-
-		require_once DOL_DOCUMENT_ROOT . '/core/class/html.formfile.class.php';
-		$formfile = new FormFile($db);
-
-		// Show list of available documents
-		$urlsource = $_SERVER['PHP_SELF'] . '?sortfield=' . $sortfield . '&sortorder=' . $sortorder;
-		$urlsource .= str_replace('&amp;', '&', $param);
-
-		$filedir = $diroutputmassaction;
-		$genallowed = $permissiontoread;
-		$delallowed = $permissiontoadd;
-
-		print $formfile->showdocuments('massfilesarea_hrmtest', '', $filedir, $urlsource, 0, $delallowed, '', 1, 1, 0, 48, 1, $param, $title, '', '', '', null, $hidegeneratedfilelistifempty);
-	}
+//	if (in_array('builddoc', $arrayofmassactions) && ($nbtotalofrecords === '' || $nbtotalofrecords)) {
+//		$hidegeneratedfilelistifempty = 1;
+//		if ($massaction == 'builddoc' || $action == 'remove_file' || $show_files) {
+//			$hidegeneratedfilelistifempty = 0;
+//		}
+//
+//		require_once DOL_DOCUMENT_ROOT . '/core/class/html.formfile.class.php';
+//		$formfile = new FormFile($db);
+//
+//		// Show list of available documents
+//		$urlsource = $_SERVER['PHP_SELF'] . '?sortfield=' . $sortfield . '&sortorder=' . $sortorder;
+//		$urlsource .= str_replace('&amp;', '&', $param);
+//
+//		$filedir = $diroutputmassaction;
+//		$genallowed = $permissiontoread;
+//		$delallowed = $permissiontoadd;
+//
+//		print $formfile->showdocuments('massfilesarea_hrmtest', '', $filedir, $urlsource, 0, $delallowed, '', 1, 1, 0, 48, 1, $param, $title, '', '', '', null, $hidegeneratedfilelistifempty);
+//	}
 
 	print '<div class="fichecenter"><div class="fichehalfleft">';
 
