@@ -88,6 +88,7 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 
 
 
+
 DisplayPositionCard($langs, $db, $conf, $user, $hookmanager, $permissiontoadd, $lineid, $text, $fk_job);
 
 

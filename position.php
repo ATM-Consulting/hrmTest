@@ -84,6 +84,8 @@ dol_include_once('/hrmtest/lib/hrmtest_position.lib.php');
 $action = GETPOST('action', 'aZ09') ? GETPOST('action', 'aZ09') : 'view'; // The action 'add', 'create', 'edit', 'update', 'view', ...
 $backtopage = GETPOST('backtopage', 'alpha');
 $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
+$fk_job = GETPOST('fk_job', 'int');
+
 
 
 
@@ -247,6 +249,7 @@ function DisplayJob($langs, DoliDB $db, $conf, $user, HookManager $hookmanager, 
 		{
 			$object = new Position($db);
 			$action = 'add';
+			$backtopage = dol_buildpath('/hrmtest/position.php', 1) . '?fk_job=' . ($fk_job > 0 ? $fk_job : '__ID__');
 		}
 
 		// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
@@ -658,6 +661,7 @@ function DisplayPositionList($conf, DoliDB $db, $user, HookManager $hookmanager,
 		$sql .= " WHERE 1 = 1";
 	}
 	$sql .= " AND t.fk_job =  ".$fk_job." ";
+
 	foreach ($search as $key => $val) {
 		if (array_key_exists($key, $object->fields)) {
 			if ($key == 'status' && $search[$key] == -1) {
