@@ -350,13 +350,13 @@ function DisplayPositionCard($langs, DoliDB $db, $conf, $user, HookManager $hook
 
 		// Object card
 		// ------------------------------------------------------------
-		$linkback = '<a href="' . dol_buildpath('/hrmtest/position_list.php', 1) . '?restore_lastsearch_values=1' . (!empty($fk_job) ? '&fk_job=' . $fk_job : '') . '">' . $langs->trans("BackToList") . '</a>';
+		$linkback = '<a href="' . dol_buildpath('/hrmtest/position.php', 1) . '?restore_lastsearch_values=1' . (!empty($object->fk_job) ? '&fk_job=' . $object->fk_job : '') . '">' . $langs->trans("BackToList") . '</a>';
 
 		$morehtmlref = '<div class="refidno">';
 
 		$morehtmlref .= '</div>';
 
-		dol_banner_tab($object, 'fk_job', $linkback, 1, 'ref', 'ref', $morehtmlref, '', 0, '', '', 'arearefnobottom');
+		dol_banner_tab($object, 'id', $linkback, 1, 'rowid', $ref, $morehtmlref);
 
 
 		print '<div class="fichecenter">';

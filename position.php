@@ -400,7 +400,7 @@ function DisplayJob($langs, DoliDB $db, $conf, $user, HookManager $hookmanager, 
 
 		$morehtmlref .= '</div>';
 
-		dol_banner_tab($object, 'fk_job', $linkback, 1, 'ref', 'ref', $morehtmlref, '', 0, '', '', 'arearefnobottom');
+		dol_banner_tab($object, 'fk_job', $linkback, 1, 'rowid', $object->fk_job, $morehtmlref);
 
 
 		print '<div class="fichecenter">';
@@ -654,11 +654,10 @@ function DisplayPositionList($conf, DoliDB $db, $user, HookManager $hookmanager,
 	$sql .= $hookmanager->resPrint;
 	if ($object->ismultientitymanaged == 1) {
 		$sql .= " WHERE t.entity IN (" . getEntity($object->element) . ")";
-		$sql .= " AND t.fk_job =  ". $fk_job ." ";
 	} else {
 		$sql .= " WHERE 1 = 1";
-		$sql .= " AND t.fk_job =  ". $fk_job ." ";
 	}
+	$sql .= " AND t.fk_job =  ".$fk_job." ";
 	foreach ($search as $key => $val) {
 		if (array_key_exists($key, $object->fields)) {
 			if ($key == 'status' && $search[$key] == -1) {
@@ -829,7 +828,7 @@ function DisplayPositionList($conf, DoliDB $db, $user, HookManager $hookmanager,
 	print '<input type="hidden" name="page" value="' . $page . '">';
 	print '<input type="hidden" name="contextpage" value="' . $contextpage . '">';
 
-	$newcardbutton = dolGetButtonTitle($langs->trans('New'), '', 'fa fa-plus-circle', dol_buildpath('/hrmtest/position.php', 1) . '?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?fk_job=' . $fk_job), '', $permissiontoadd);
+	$newcardbutton = dolGetButtonTitle($langs->trans('New'), '', 'fa fa-plus-circle', dol_buildpath('/hrmtest/position.php', 1) . '?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF']) . '&fk_job=' . $fk_job, '', $permissiontoadd);
 
 	print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, $massactionbutton, $num, $nbtotalofrecords, 'object_' . $object->picto, 0, $newcardbutton, '', $limit, 0, 0, 1);
 
