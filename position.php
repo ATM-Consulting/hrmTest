@@ -138,7 +138,7 @@ if ($action == 'create') {
 }
 
 if ($action == 'view')
-	DisplayPositionList($conf, $db, $user, $hookmanager, $langs);
+	DisplayPositionList($conf, $db, $user, $hookmanager, $langs, $fk_job);
 
 
 
@@ -443,7 +443,7 @@ function DisplayJob($langs, DoliDB $db, $conf, $user, HookManager $hookmanager, 
  * @param array $fk_job
  * @return array|void
  */
-function DisplayPositionList($conf, DoliDB $db, $user, HookManager $hookmanager, $langs)
+function DisplayPositionList($conf, DoliDB $db, $user, HookManager $hookmanager, $langs, $fk_job)
 {
 	require_once DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php';
 	require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
@@ -779,7 +779,7 @@ function DisplayPositionList($conf, DoliDB $db, $user, HookManager $hookmanager,
 
 	$arrayofselected = is_array($toselect) ? $toselect : array();
 
-	$param = '';
+	$param = 'fk_job='.$fk_job;
 	if (!empty($contextpage) && $contextpage != $_SERVER["PHP_SELF"]) {
 		$param .= '&contextpage=' . urlencode($contextpage);
 	}
