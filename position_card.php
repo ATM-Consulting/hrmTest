@@ -123,7 +123,9 @@ function DisplayPositionCard($langs, DoliDB $db, $conf, $user, HookManager $hook
 	// Initialize technical objects
 	$object = new Position($db);
 	$res = $object->fetch($id);
-
+	if ($res < 0) {
+		dol_print_error($db, $object->error);
+	}
 
 	$extrafields = new ExtraFields($db);
 
@@ -302,7 +304,8 @@ function DisplayPositionCard($langs, DoliDB $db, $conf, $user, HookManager $hook
 	if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create'))) {
 		$res = $object->fetch_optionals();
 
-		$head = positionPrepareHead($object);
+
+		$head = positionCardPrepareHead($object);
 		print dol_get_fiche_head($head, 'position', $langs->trans("Workstation"), -1, $object->picto);
 
 		$formconfirm = '';
@@ -378,6 +381,23 @@ function DisplayPositionCard($langs, DoliDB $db, $conf, $user, HookManager $hook
 
 		print dol_get_fiche_end();
 
+		/*
+		 * Action bar
+		 */
+		print '<div class="tabsAction">';
+
+		$parameters = array();
+		$reshook = $hookmanager->executeHooks('addMoreActionsButtons', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
+
+
+		//Modify
+		if ($user->rights->societe->contact->creer) {
+			print '<a class="butAction" href="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'&action=edit">'.$langs->trans('Modify').'</a>';
+		}
+		// Delete
+		if ($user->rights->societe->contact->supprimer) {
+			print '<a class="butActionDelete" href="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete&token='.newToken().''.($backtopage ? '&backtopage='.urlencode($backtopage) : '').'">'.$langs->trans('Delete').'</a>';
+		}
 
 	}
 	return array($fk_job, $object, $action);
