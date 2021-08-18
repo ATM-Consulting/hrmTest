@@ -78,7 +78,7 @@ Skilldets=Niveaux de compétence
 Skilldet=Niveau de compétence
 rank=Niveau
 ErrNoSkillSelected=Vous n'avez pas sélectionné de compétence
-ErrSkillAlreadyAdded=Cet compétence est déjà dans la liste
+ErrSkillAlreadyAdded=Cette compétence est déjà dans la liste
 
 ErrorBadObjectType=Mauvais type d'objet fourni
 RequiredRank=Niveau requis
