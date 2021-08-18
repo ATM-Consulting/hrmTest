@@ -71,6 +71,9 @@ SkillType=Skill type
 Skilldets=Skill levels
 Skilldet=Skill level
 rank=Rank
+ErrNoSkillSelected=No skill selected
+ErrSkillAlreadyAdded=This skill is already in the list
+SkillHasNoLines=This skill has no lines
 
 NoUser=No user
 NewJob=New Job
@@ -83,3 +86,5 @@ date_start=Start date
 fk_user=User
 fk_job=Job
 EndContract=End of contract
+ErrorBadObjectType= Bad object type provided
+RequiredRank=Required rank

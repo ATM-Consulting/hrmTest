@@ -107,7 +107,7 @@ class modHrmTest extends DolibarrModules
 			'theme' => 0,
 			// Set this to relative path of css file if module has its own css file
 			'css' => array(
-				//    '/hrmtest/css/hrmtest.css.php',
+				    '/hrmtest/css/radio_js_number.css',
 			),
 			// Set this to relative path of js file if module must load a js on all pages
 			'js' => array(
