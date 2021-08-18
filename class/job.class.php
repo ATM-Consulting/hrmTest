@@ -105,7 +105,7 @@ class Job extends CommonObject
 		'description' => array('type'=>'text', 'label'=>'description', 'enabled'=>'1', 'position'=>21, 'notnull'=>0, 'visible'=>1,),
 		'date_creation' => array('type'=>'datetime', 'label'=>'DateCreation', 'enabled'=>'1', 'position'=>500, 'notnull'=>1, 'visible'=>2,),
 		'tms' => array('type'=>'timestamp', 'label'=>'DateModification', 'enabled'=>'1', 'position'=>501, 'notnull'=>0, 'visible'=>2,),
-		'deplacement' => array('type'=>'varchar(255)', 'label'=>'deplacement', 'enabled'=>'1', 'position'=>502, 'notnull'=>0, 'visible'=>1,),
+		'deplacement' => array('type'=>'select', 'required'=> 1,'label'=> 'deplacement', 'enabled'=> 1, 'position'=> 90, 'notnull'=> 0, 'visible'=> 1, 'arrayofkeyval'=> array('0' =>"Yes", '1'=>"No")),
 	);
 	public $rowid;
 	public $ref;

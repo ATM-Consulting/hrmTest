@@ -45,12 +45,42 @@ function positionPrepareHead($object)
 	$head[$h][2] = 'skill_card';
 	$h++;
 
-	$head[$h][0] = dol_buildpath("/hrmtest/position_card.php", 1).'?id='.$object->id;
+	$head[$h][0] = dol_buildpath("/hrmtest/position.php", 1).'?fk_job='.$object->fk_job;
 	$head[$h][1] = $langs->trans("Position");
-	$head[$h][2] = 'position_card';
+	$head[$h][2] = 'position';
 	$h++;
 
 
+
+	// Show more tabs from modules
+	// Entries must be declared in modules descriptor with line
+	//$this->tabs = array(
+	//	'entity:+tabname:Title:@hrmtest:/hrmtest/mypage.php?id=__ID__'
+	//); // to add new tab
+	//$this->tabs = array(
+	//	'entity:-tabname:Title:@hrmtest:/hrmtest/mypage.php?id=__ID__'
+	//); // to remove a tab
+	complete_head_from_modules($conf, $langs, $object, $head, $h, 'position@hrmtest');
+
+	complete_head_from_modules($conf, $langs, $object, $head, $h, 'position@hrmtest', 'remove');
+
+	return $head;
+}
+
+
+function positionCardPrepareHead($object)
+{
+	global $db, $langs, $conf;
+
+	$langs->load("hrmtest@hrmtest");
+
+	$h = 0;
+	$head = array();
+
+	$head[$h][0] = dol_buildpath("/hrmtest/position_card.php", 1).'?id='.$object->id;
+	$head[$h][1] = $langs->trans("Card");
+	$head[$h][2] = 'position';
+	$h++;
 
 	// Show more tabs from modules
 	// Entries must be declared in modules descriptor with line
