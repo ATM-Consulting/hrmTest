@@ -183,7 +183,7 @@ if (empty($reshook)) {
 			foreach ($TNote as $skillId => $rank)
 			{
 				$TSkills = $skill->fetchAll('ASC', 't.rowid', 0, 0, array('customsql' => 'fk_object='.$id.' AND objecttype="'.$objecttype.'" AND fk_skill = '.$skillId));
-				if (!empty($TSkills))
+				if (is_array($TSkills) && !empty($TSkills))
 				{
 					foreach ($TSkills as $tmpObj)
 					{
@@ -289,7 +289,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$TSkills = $skill->fetchAll('ASC', 't.rowid', 0, 0, array('customsql' => 'fk_object='.$id.' AND objecttype="'.$objecttype.'"'));
 
 	$TAlreadyUsedSkill = array();
-	if (!empty($TSkills))
+	if (is_array($TSkills) && !empty($TSkills))
 	{
 		foreach ($TSkills as $skillElement)
 		{
@@ -338,9 +338,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<th class="linecoledit"></th>';
 	print '<th class="linecoldelete"></th>';
 	print '</tr>';
-	if (empty($TSkills))
+	if (!is_array($TSkills) || empty($TSkills))
 	{
-
+		print '<tr><td>'.$langs->trans("NoRecordFound").'</td></tr>';
 	}
 	else
 	{

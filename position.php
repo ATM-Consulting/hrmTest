@@ -84,6 +84,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/class/html.formprojet.class.php';
 dol_include_once('/hrmtest/class/position.class.php');
 dol_include_once('/hrmtest/class/job.class.php');
 dol_include_once('/hrmtest/lib/hrmtest_position.lib.php');
+dol_include_once('/hrmtest/lib/hrmtest_job.lib.php');
 
 $action = GETPOST('action', 'aZ09') ? GETPOST('action', 'aZ09') : 'view'; // The action 'add', 'create', 'edit', 'update', 'view', ...
 $backtopage = GETPOST('backtopage', 'alpha');
@@ -353,7 +354,7 @@ function DisplayJob($langs, DoliDB $db, $conf, $user, HookManager $hookmanager, 
 	if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create'))) {
 		$res = $object->fetch_optionals();
 
-		$head = positionPrepareHead($object, $fk_job);
+		$head = jobPrepareHead($object, $object->fk_job);
 		print dol_get_fiche_head($head, 'position', $langs->trans("Workstation"), -1, $object->picto);
 
 		$formconfirm = '';
