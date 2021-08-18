@@ -27,7 +27,7 @@
  * @param	Position	$object		Position
  * @return 	array					Array of tabs
  */
-function positionPrepareHead($object, $fk_job)
+function positionPrepareHead($object)
 {
 	global $db, $langs, $conf;
 
