@@ -45,7 +45,7 @@ function positionPrepareHead($object)
 	$head[$h][2] = 'skill_card';
 	$h++;
 
-	$head[$h][0] = dol_buildpath("/hrmtest/position.php", 1).'?fk_job='.$fk_job;
+	$head[$h][0] = dol_buildpath("/hrmtest/position.php", 1).'?fk_job='.$object->fk_job;
 	$head[$h][1] = $langs->trans("Position");
 	$head[$h][2] = 'position';
 	$h++;
