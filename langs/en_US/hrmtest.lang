@@ -58,8 +58,7 @@ deplacement=shift
 list=List
 
 # Job
-Job=Emploi
-fkUser=Utilisateur
+fkUser=User
 DateEval=Evaluation date
 
 
@@ -72,7 +71,6 @@ SkillType=Skill type
 Skilldets=Skill levels
 Skilldet=Skill level
 rank=Rank
-
 
 NoUser=No user
 NewJob=New Job
