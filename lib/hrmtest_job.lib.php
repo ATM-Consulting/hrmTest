@@ -41,9 +41,9 @@ function jobPrepareHead($object)
 	$head[$h][2] = 'job_card';
 	$h++;
 
-	$head[$h][0] = dol_buildpath("/hrmtest/skill_card.php", 1).'?id='.$object->id;
+	$head[$h][0] = dol_buildpath("/hrmtest/skill_tab.php", 1).'?id='.$object->id.'&objecttype=job';
 	$head[$h][1] = $langs->trans("Skill");
-	$head[$h][2] = 'skill_card';
+	$head[$h][2] = 'skill_tab';
 	$h++;
 
 	$head[$h][0] = dol_buildpath("/hrmtest/position_card.php", 1).'?fk_job='.$object->id;
