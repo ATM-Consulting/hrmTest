@@ -17,7 +17,7 @@
  */
 
 /**
- *    \file       position.php
+ *    \file       position_card.php
  *        \ingroup    hrmtest
  *        \brief      Page to create/edit/view position
  */
