@@ -17,9 +17,9 @@
  */
 
 /**
- *   	\file       position.php
- *		\ingroup    hrmtest
- *		\brief      Page to create/edit/view position
+ *    \file       position.php
+ *        \ingroup    hrmtest
+ *        \brief      Page to create/edit/view position
  */
 
 //if (! defined('NOREQUIREDB'))              define('NOREQUIREDB', '1');				// Do not create database handler $db
@@ -47,18 +47,22 @@
 $res = 0;
 // Try main.inc.php into web root known defined into CONTEXT_DOCUMENT_ROOT (not always defined)
 if (!$res && !empty($_SERVER["CONTEXT_DOCUMENT_ROOT"])) {
-	$res = @include $_SERVER["CONTEXT_DOCUMENT_ROOT"]."/main.inc.php";
+	$res = @include $_SERVER["CONTEXT_DOCUMENT_ROOT"] . "/main.inc.php";
 }
 // Try main.inc.php into web root detected using web root calculated from SCRIPT_FILENAME
-$tmp = empty($_SERVER['SCRIPT_FILENAME']) ? '' : $_SERVER['SCRIPT_FILENAME']; $tmp2 = realpath(__FILE__); $i = strlen($tmp) - 1; $j = strlen($tmp2) - 1;
+$tmp = empty($_SERVER['SCRIPT_FILENAME']) ? '' : $_SERVER['SCRIPT_FILENAME'];
+$tmp2 = realpath(__FILE__);
+$i = strlen($tmp) - 1;
+$j = strlen($tmp2) - 1;
 while ($i > 0 && $j > 0 && isset($tmp[$i]) && isset($tmp2[$j]) && $tmp[$i] == $tmp2[$j]) {
-	$i--; $j--;
+	$i--;
+	$j--;
 }
-if (!$res && $i > 0 && file_exists(substr($tmp, 0, ($i + 1))."/main.inc.php")) {
-	$res = @include substr($tmp, 0, ($i + 1))."/main.inc.php";
+if (!$res && $i > 0 && file_exists(substr($tmp, 0, ($i + 1)) . "/main.inc.php")) {
+	$res = @include substr($tmp, 0, ($i + 1)) . "/main.inc.php";
 }
-if (!$res && $i > 0 && file_exists(dirname(substr($tmp, 0, ($i + 1)))."/main.inc.php")) {
-	$res = @include dirname(substr($tmp, 0, ($i + 1)))."/main.inc.php";
+if (!$res && $i > 0 && file_exists(dirname(substr($tmp, 0, ($i + 1))) . "/main.inc.php")) {
+	$res = @include dirname(substr($tmp, 0, ($i + 1))) . "/main.inc.php";
 }
 // Try main.inc.php using relative path
 if (!$res && file_exists("../main.inc.php")) {
@@ -74,9 +78,9 @@ if (!$res) {
 	die("Include of main fails");
 }
 
-require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
-require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
-require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.formfile.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.formprojet.class.php';
 dol_include_once('/hrmtest/class/position.class.php');
 dol_include_once('/hrmtest/class/job.class.php');
 dol_include_once('/hrmtest/lib/hrmtest_position.lib.php');
@@ -85,8 +89,6 @@ $action = GETPOST('action', 'aZ09') ? GETPOST('action', 'aZ09') : 'view'; // The
 $backtopage = GETPOST('backtopage', 'alpha');
 $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 $fk_job = GETPOST('fk_job', 'int');
-
-
 
 
 DisplayJob($langs, $db, $conf, $user, $hookmanager, $permissiontoadd, $lineid, $text);
@@ -245,8 +247,7 @@ function DisplayJob($langs, DoliDB $db, $conf, $user, HookManager $hookmanager, 
 
 		$triggermodname = 'HRMTEST_POSITION_MODIFY'; // Name of trigger action code to execute when we modify record
 
-		if ($action == 'addposition')
-		{
+		if ($action == 'addposition') {
 			$object = new Position($db);
 			$action = 'add';
 			$backtopage = dol_buildpath('/hrmtest/position.php', 1) . '?fk_job=' . ($fk_job > 0 ? $fk_job : '__ID__');
@@ -614,10 +615,6 @@ function DisplayPositionList($conf, DoliDB $db, $user, HookManager $hookmanager,
 	}
 
 
-
-
-
-
 	/*
 	 * View
 	 */
@@ -661,7 +658,7 @@ function DisplayPositionList($conf, DoliDB $db, $user, HookManager $hookmanager,
 	} else {
 		$sql .= " WHERE 1 = 1";
 	}
-	$sql .= " AND t.fk_job =  ".$fk_job." ";
+	$sql .= " AND t.fk_job =  " . $fk_job . " ";
 
 	foreach ($search as $key => $val) {
 		if (array_key_exists($key, $object->fields)) {
@@ -780,7 +777,7 @@ function DisplayPositionList($conf, DoliDB $db, $user, HookManager $hookmanager,
 
 	$arrayofselected = is_array($toselect) ? $toselect : array();
 
-	$param = 'fk_job='.$fk_job;
+	$param = 'fk_job=' . $fk_job;
 	if (!empty($contextpage) && $contextpage != $_SERVER["PHP_SELF"]) {
 		$param .= '&contextpage=' . urlencode($contextpage);
 	}
@@ -821,14 +818,14 @@ function DisplayPositionList($conf, DoliDB $db, $user, HookManager $hookmanager,
 	}
 	$massactionbutton = $form->selectMassAction('', $arrayofmassactions);
 
-	print '<form method="POST" id="searchFormList" action="' . $_SERVER["PHP_SELF"] . '?fk_job='.$fk_job.'">' . "\n";
+	print '<form method="POST" id="searchFormList" action="' . $_SERVER["PHP_SELF"] . '?fk_job=' . $fk_job . '">' . "\n";
 	if ($optioncss != '') {
 		print '<input type="hidden" name="optioncss" value="' . $optioncss . '">';
 	}
 	print '<input type="hidden" name="token" value="' . newToken() . '">';
 	print '<input type="hidden" name="formfilteraction" id="formfilteraction" value="list">';
 	print '<input type="hidden" name="action" value="list">';
-	print '<input type="hidden" name="massaction" value="'.$massaction.'">';
+	print '<input type="hidden" name="massaction" value="' . $massaction . '">';
 	print '<input type="hidden" name="sortfield" value="' . $sortfield . '">';
 	print '<input type="hidden" name="sortorder" value="' . $sortorder . '">';
 	print '<input type="hidden" name="page" value="' . $page . '">';
