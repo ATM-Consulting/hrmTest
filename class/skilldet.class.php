@@ -17,9 +17,9 @@
  */
 
 /**
- * \file        class/skill.class.php
+ * \file        class/skilldet.class.php
  * \ingroup     hrmtest
- * \brief       This file is a CRUD class file for Skill (Create/Read/Update/Delete)
+ * \brief       This file is a CRUD class file for Skilldet (Create/Read/Update/Delete)
  */
 
 // Put here all includes required by your class file
@@ -28,9 +28,9 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/commonobject.class.php';
 //require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
 
 /**
- * Class for Skill
+ * Class for Skilldet
  */
-class Skill extends CommonObject
+class Skilldet extends CommonObject
 {
 	/**
 	 * @var string ID of module.
@@ -40,18 +40,12 @@ class Skill extends CommonObject
 	/**
 	 * @var string ID to identify managed object.
 	 */
-	public $element = 'skill';
+	public $element = 'skilldet';
 
 	/**
 	 * @var string Name of table without prefix where object is stored. This is also the key used for extrafields management.
 	 */
-	public $table_element = 'hrmtest_skill';
-
-
-	/**
-	 * @var string Name of subtable line
-	 */
-	public $table_element_line = 'skilldet';
+	public $table_element = 'hrmtest_skilldet';
 
 	/**
 	 * @var int  Does this object support multicompany module ?
@@ -65,15 +59,15 @@ class Skill extends CommonObject
 	public $isextrafieldmanaged = 1;
 
 	/**
-	 * @var string String with name of icon for skill. Must be the part after the 'object_' into object_skill.png
+	 * @var string String with name of icon for skilldet. Must be the part after the 'object_' into object_skilldet.png
 	 */
-	public $picto = 'skill@hrmtest';
+	public $picto = 'skilldet@hrmtest';
 
 
 	const STATUS_DRAFT = 0;
 	const STATUS_VALIDATED = 1;
 	const STATUS_CANCELED = 9;
-    const NB_TRADUCTION_LEVEL_PER_SKILL = 5;
+
 
 	/**
 	 *  'type' field format ('integer', 'integer:ObjectClass:PathToClass[:AddCreateButtonOrNot[:Filter]]', 'sellist:TableName:LabelFieldName[:KeyFieldName[:KeyFieldParent[:Filter]]]', 'varchar(x)', 'double(24,8)', 'real', 'price', 'text', 'text:none', 'html', 'date', 'datetime', 'timestamp', 'duration', 'mail', 'phone', 'url', 'password')
@@ -107,32 +101,18 @@ class Skill extends CommonObject
 	 */
 	public $fields=array(
 		'rowid' => array('type'=>'integer', 'label'=>'TechnicalID', 'enabled'=>'1', 'position'=>1, 'notnull'=>1, 'visible'=>0, 'noteditable'=>'1', 'index'=>1, 'css'=>'left', 'comment'=>"Id"),
-		'label' => array('type'=>'varchar(255)', 'label'=>'Label', 'enabled'=>'1', 'position'=>30, 'notnull'=>0, 'visible'=>1, 'searchall'=>1, 'css'=>'minwidth300', 'cssview'=>'wordbreak', 'help'=>"Help text", 'showoncombobox'=>'2',),
-		'description' => array('type'=>'text', 'label'=>'Description', 'enabled'=>'1', 'position'=>60, 'notnull'=>0, 'visible'=>3,),
-		'date_creation' => array('type'=>'datetime', 'label'=>'DateCreation', 'enabled'=>'1', 'position'=>500, 'notnull'=>1, 'visible'=>-2,),
-		'tms' => array('type'=>'timestamp', 'label'=>'DateModification', 'enabled'=>'1', 'position'=>501, 'notnull'=>0, 'visible'=>-2,),
+		'rank' => array('type'=>'integer', 'label'=>'rank', 'enabled'=>'1', 'position'=>2, 'notnull'=>0, 'visible'=>2,),
+		'description' => array('type'=>'text', 'label'=>'Description', 'enabled'=>'1', 'position'=>60, 'notnull'=>0, 'visible'=>1,),
 		'fk_user_creat' => array('type'=>'integer:User:user/class/user.class.php', 'label'=>'UserAuthor', 'enabled'=>'1', 'position'=>510, 'notnull'=>1, 'visible'=>-2, 'foreignkey'=>'user.rowid',),
-		'fk_user_modif' => array('type'=>'integer:User:user/class/user.class.php', 'label'=>'UserModif', 'enabled'=>'1', 'position'=>511, 'notnull'=>-1, 'visible'=>-2,),
-		'required_level' => array('type'=>'integer', 'label'=>'requiredLevel', 'enabled'=>'1', 'position'=>50, 'notnull'=>1, 'visible'=>0,),
-		'date_validite' => array('type'=>'integer', 'label'=>'date_validite', 'enabled'=>'1', 'position'=>52, 'notnull'=>1, 'visible'=>0,),
-		'temps_theorique' => array('type'=>'double(24,8)', 'label'=>'temps_theorique', 'enabled'=>'1', 'position'=>54, 'notnull'=>1, 'visible'=>0,),
-		'skill_type' => array('type'=>'integer', 'label'=>'SkillType', 'enabled'=>'1', 'position'=>55, 'notnull'=>1, 'visible'=>1, 'index'=>1, 'arrayofkeyval'=>array('0'=>'Savoir faire', '1'=>'Savoir-&ecirc;tre', '9'=>'Savoir'),),
-		'note_public' => array('type'=>'html', 'label'=>'NotePublic', 'enabled'=>'1', 'position'=>70, 'notnull'=>0, 'visible'=>0,),
-		'note_private' => array('type'=>'html', 'label'=>'NotePrivate', 'enabled'=>'1', 'position'=>71, 'notnull'=>0, 'visible'=>0,),
+		'fk_user_modif' => array('type'=>'integer:User:user/class/user.class.php', 'label'=>'UserModif', 'enabled'=>'1', 'position'=>511, 'notnull'=>-1, 'visible'=>0,),
+		'fk_skill' => array('type'=>'integer:Skill:/hrmtest/class/skill.class.php', 'label'=>'fk_skill', 'enabled'=>'1', 'position'=>513, 'notnull'=>1, 'visible'=>0,),
 	);
 	public $rowid;
-	public $label;
 	public $description;
-	public $date_creation;
-	public $tms;
 	public $fk_user_creat;
 	public $fk_user_modif;
-	public $required_level;
-	public $date_validite;
-	public $temps_theorique;
-	public $skill_type;
-	public $note_public;
-	public $note_private;
+	public $fk_skill;
+	public $rank;
 	// END MODULEBUILDER PROPERTIES
 
 
@@ -141,17 +121,17 @@ class Skill extends CommonObject
 	// /**
 	//  * @var string    Name of subtable line
 	//  */
-	// public $table_element_line = 'hrmtest_skillline';
+	// public $table_element_line = 'hrmtest_skilldetline';
 
 	// /**
 	//  * @var string    Field with ID of parent key if this object has a parent
 	//  */
-	// public $fk_element = 'fk_skill';
+	// public $fk_element = 'fk_skilldet';
 
 	// /**
 	//  * @var string    Name of subtable class that manage subtable lines
 	//  */
-	// public $class_element_line = 'Skillline';
+	// public $class_element_line = 'Skilldetline';
 
 	// /**
 	//  * @var array	List of child tables. To test if we can delete object.
@@ -163,10 +143,10 @@ class Skill extends CommonObject
 	//  *               If name matches '@ClassNAme:FilePathClass;ParentFkFieldName' it will
 	//  *               call method deleteByParentField(parentId, ParentFkFieldName) to fetch and delete child object
 	//  */
-	// protected $childtablesoncascade = array('hrmtest_skilldet');
+	// protected $childtablesoncascade = array('hrmtest_skilldetdet');
 
 	// /**
-	//  * @var SkillLine[]     Array of subtable lines
+	//  * @var SkilldetLine[]     Array of subtable lines
 	//  */
 	// public $lines = array();
 
@@ -191,7 +171,7 @@ class Skill extends CommonObject
 		}
 
 		// Example to show how to set values of fields definition dynamically
-		/*if ($user->rights->hrmtest->skill->read) {
+		/*if ($user->rights->hrmtest->skilldet->read) {
 			$this->fields['myfield']['visible'] = 1;
 			$this->fields['myfield']['noteditable'] = 0;
 		}*/
@@ -224,28 +204,7 @@ class Skill extends CommonObject
 	 */
 	public function create(User $user, $notrigger = false)
 	{
-		global $langs;
 		$resultcreate = $this->createCommon($user, $notrigger);
-
-
-
-		if ($resultcreate > 0){
-			// skillDet create
-			require_once ( __DIR__ . '/skilldet.class.php');
-			for($i = 1 ; $i <= $this::NB_TRADUCTION_LEVEL_PER_SKILL ; $i++){
-
-				$skilldet = new Skilldet($this->db);
-				$skilldet->description = "Description ".$i . " -- ".$this->label;
-				$skilldet->rank = $i;
-				$skilldet->fk_skill = $resultcreate;
-
-				$result =  $skilldet->create($user);
-
-				if ($result > 0){
-					setEventMessage($langs->trans('TraductionCreadted'),$i);
-				}
-			}
-		}
 
 		//$resultvalidate = $this->validate($user, $notrigger);
 
@@ -370,16 +329,14 @@ class Skill extends CommonObject
 	/**
 	 * Load object lines in memory from the database
 	 *
-	 * @return int | array         <0 if KO, 0 if not found, array if OK
+	 * @return int         <0 if KO, 0 if not found, >0 if OK
 	 */
 	public function fetchLines()
 	{
 		$this->lines = array();
-		require_once ( __DIR__ . '/skilldet.class.php');
-		$skilldet = new Skilldet($this->db);
-		$this->lines = $skilldet->fetchAll('ASC','','','',array('fk_skill' => $this->id),'');
 
-		return (count($this->lines) > 0 ) ? $this->lines : 0;
+		$result = $this->fetchLinesCommon();
+		return $result;
 	}
 
 
@@ -484,18 +441,8 @@ class Skill extends CommonObject
 	 */
 	public function delete(User $user, $notrigger = false)
 	{
-		// delete Skilldet
-		$records = $this->fetchLines();
-		if (is_array($records) && count($records) > 0){
-			// deleleall
-			foreach ($records as $r){
-				$r->delete($user);
-			}
-
-
 		return $this->deleteCommon($user, $notrigger);
 		//return $this->deleteCommon($user, $notrigger, 1);
-	   }
 	}
 
 	/**
@@ -538,8 +485,8 @@ class Skill extends CommonObject
 			return 0;
 		}
 
-		/*if (! ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->hrmtest->skill->write))
-		 || (! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->hrmtest->skill->skill_advance->validate))))
+		/*if (! ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->hrmtest->skilldet->write))
+		 || (! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->hrmtest->skilldet->skilldet_advance->validate))))
 		 {
 		 $this->error='NotEnoughPermissions';
 		 dol_syslog(get_class($this)."::valid ".$this->error, LOG_ERR);
@@ -581,7 +528,7 @@ class Skill extends CommonObject
 
 			if (!$error && !$notrigger) {
 				// Call trigger
-				$result = $this->call_trigger('SKILL_VALIDATE', $user);
+				$result = $this->call_trigger('SKILLDET_VALIDATE', $user);
 				if ($result < 0) {
 					$error++;
 				}
@@ -595,8 +542,8 @@ class Skill extends CommonObject
 			// Rename directory if dir was a temporary ref
 			if (preg_match('/^[\(]?PROV/i', $this->ref)) {
 				// Now we rename also files into index
-				$sql = 'UPDATE '.MAIN_DB_PREFIX."ecm_files set filename = CONCAT('".$this->db->escape($this->newref)."', SUBSTR(filename, ".(strlen($this->ref) + 1).")), filepath = 'skill/".$this->db->escape($this->newref)."'";
-				$sql .= " WHERE filename LIKE '".$this->db->escape($this->ref)."%' AND filepath = 'skill/".$this->db->escape($this->ref)."' and entity = ".$conf->entity;
+				$sql = 'UPDATE '.MAIN_DB_PREFIX."ecm_files set filename = CONCAT('".$this->db->escape($this->newref)."', SUBSTR(filename, ".(strlen($this->ref) + 1).")), filepath = 'skilldet/".$this->db->escape($this->newref)."'";
+				$sql .= " WHERE filename LIKE '".$this->db->escape($this->ref)."%' AND filepath = 'skilldet/".$this->db->escape($this->ref)."' and entity = ".$conf->entity;
 				$resql = $this->db->query($sql);
 				if (!$resql) {
 					$error++; $this->error = $this->db->lasterror();
@@ -605,15 +552,15 @@ class Skill extends CommonObject
 				// We rename directory ($this->ref = old ref, $num = new ref) in order not to lose the attachments
 				$oldref = dol_sanitizeFileName($this->ref);
 				$newref = dol_sanitizeFileName($num);
-				$dirsource = $conf->hrmtest->dir_output.'/skill/'.$oldref;
-				$dirdest = $conf->hrmtest->dir_output.'/skill/'.$newref;
+				$dirsource = $conf->hrmtest->dir_output.'/skilldet/'.$oldref;
+				$dirdest = $conf->hrmtest->dir_output.'/skilldet/'.$newref;
 				if (!$error && file_exists($dirsource)) {
 					dol_syslog(get_class($this)."::validate() rename dir ".$dirsource." into ".$dirdest);
 
 					if (@rename($dirsource, $dirdest)) {
 						dol_syslog("Rename ok");
 						// Rename docs starting with $oldref with $newref
-						$listoffiles = dol_dir_list($conf->hrmtest->dir_output.'/skill/'.$newref, 'files', 1, '^'.preg_quote($oldref, '/'));
+						$listoffiles = dol_dir_list($conf->hrmtest->dir_output.'/skilldet/'.$newref, 'files', 1, '^'.preg_quote($oldref, '/'));
 						foreach ($listoffiles as $fileentry) {
 							$dirsource = $fileentry['name'];
 							$dirdest = preg_replace('/^'.preg_quote($oldref, '/').'/', $newref, $dirsource);
@@ -663,7 +610,7 @@ class Skill extends CommonObject
 		 return -1;
 		 }*/
 
-		return $this->setStatusCommon($user, self::STATUS_DRAFT, $notrigger, 'SKILL_UNVALIDATE');
+		return $this->setStatusCommon($user, self::STATUS_DRAFT, $notrigger, 'SKILLDET_UNVALIDATE');
 	}
 
 	/**
@@ -687,7 +634,7 @@ class Skill extends CommonObject
 		 return -1;
 		 }*/
 
-		return $this->setStatusCommon($user, self::STATUS_CANCELED, $notrigger, 'SKILL_CANCEL');
+		return $this->setStatusCommon($user, self::STATUS_CANCELED, $notrigger, 'SKILLDET_CANCEL');
 	}
 
 	/**
@@ -711,7 +658,7 @@ class Skill extends CommonObject
 		 return -1;
 		 }*/
 
-		return $this->setStatusCommon($user, self::STATUS_VALIDATED, $notrigger, 'SKILL_REOPEN');
+		return $this->setStatusCommon($user, self::STATUS_VALIDATED, $notrigger, 'SKILLDET_REOPEN');
 	}
 
 	/**
@@ -726,7 +673,107 @@ class Skill extends CommonObject
 	 */
 	public function getNomUrl($withpicto = 0, $option = '', $notooltip = 0, $morecss = '', $save_lastsearch_value = -1)
 	{
-		return '<a href="'.dol_buildpath('/hrmtest/skill_card.php?id='.$this->id,1).'">'.$this->label.'</a>';
+		global $conf, $langs, $hookmanager;
+
+		if (!empty($conf->dol_no_mouse_hover)) {
+			$notooltip = 1; // Force disable tooltips
+		}
+
+		$result = '';
+
+		$label = img_picto('', $this->picto).' <u>'.$langs->trans("Skilldet").'</u>';
+		if (isset($this->status)) {
+			$label .= ' '.$this->getLibStatut(5);
+		}
+		$label .= '<br>';
+		$label .= '<b>'.$langs->trans('Ref').':</b> '.$this->ref;
+
+		$url = dol_buildpath('/hrmtest/skilldet_card.php', 1).'?id='.$this->id;
+
+		if ($option != 'nolink') {
+			// Add param to save lastsearch_values or not
+			$add_save_lastsearch_values = ($save_lastsearch_value == 1 ? 1 : 0);
+			if ($save_lastsearch_value == -1 && preg_match('/list\.php/', $_SERVER["PHP_SELF"])) {
+				$add_save_lastsearch_values = 1;
+			}
+			if ($add_save_lastsearch_values) {
+				$url .= '&save_lastsearch_values=1';
+			}
+		}
+
+		$linkclose = '';
+		if (empty($notooltip)) {
+			if (!empty($conf->global->MAIN_OPTIMIZEFORTEXTBROWSER)) {
+				$label = $langs->trans("ShowSkilldet");
+				$linkclose .= ' alt="'.dol_escape_htmltag($label, 1).'"';
+			}
+			$linkclose .= ' title="'.dol_escape_htmltag($label, 1).'"';
+			$linkclose .= ' class="classfortooltip'.($morecss ? ' '.$morecss : '').'"';
+		} else {
+			$linkclose = ($morecss ? ' class="'.$morecss.'"' : '');
+		}
+
+		if ($option == 'nolink') {
+			$linkstart = '<span';
+		} else {
+			$linkstart = '<a href="'.$url.'"';
+		}
+		$linkstart .= $linkclose.'>';
+		if ($option == 'nolink') {
+			$linkend = '</span>';
+		} else {
+			$linkend = '</a>';
+		}
+
+		$result .= $linkstart;
+
+		if (empty($this->showphoto_on_popup)) {
+			if ($withpicto) {
+				$result .= img_object(($notooltip ? '' : $label), ($this->picto ? $this->picto : 'generic'), ($notooltip ? (($withpicto != 2) ? 'class="paddingright"' : '') : 'class="'.(($withpicto != 2) ? 'paddingright ' : '').'classfortooltip"'), 0, 0, $notooltip ? 0 : 1);
+			}
+		} else {
+			if ($withpicto) {
+				require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
+
+				list($class, $module) = explode('@', $this->picto);
+				$upload_dir = $conf->$module->multidir_output[$conf->entity]."/$class/".dol_sanitizeFileName($this->ref);
+				$filearray = dol_dir_list($upload_dir, "files");
+				$filename = $filearray[0]['name'];
+				if (!empty($filename)) {
+					$pospoint = strpos($filearray[0]['name'], '.');
+
+					$pathtophoto = $class.'/'.$this->ref.'/thumbs/'.substr($filename, 0, $pospoint).'_mini'.substr($filename, $pospoint);
+					if (empty($conf->global->{strtoupper($module.'_'.$class).'_FORMATLISTPHOTOSASUSERS'})) {
+						$result .= '<div class="floatleft inline-block valignmiddle divphotoref"><div class="photoref"><img class="photo'.$module.'" alt="No photo" border="0" src="'.DOL_URL_ROOT.'/viewimage.php?modulepart='.$module.'&entity='.$conf->entity.'&file='.urlencode($pathtophoto).'"></div></div>';
+					} else {
+						$result .= '<div class="floatleft inline-block valignmiddle divphotoref"><img class="photouserphoto userphoto" alt="No photo" border="0" src="'.DOL_URL_ROOT.'/viewimage.php?modulepart='.$module.'&entity='.$conf->entity.'&file='.urlencode($pathtophoto).'"></div>';
+					}
+
+					$result .= '</div>';
+				} else {
+					$result .= img_object(($notooltip ? '' : $label), ($this->picto ? $this->picto : 'generic'), ($notooltip ? (($withpicto != 2) ? 'class="paddingright"' : '') : 'class="'.(($withpicto != 2) ? 'paddingright ' : '').'classfortooltip"'), 0, 0, $notooltip ? 0 : 1);
+				}
+			}
+		}
+
+		if ($withpicto != 2) {
+			$result .= $this->ref;
+		}
+
+		$result .= $linkend;
+		//if ($withpicto != 2) $result.=(($addlabel && $this->label) ? $sep . dol_trunc($this->label, ($addlabel > 1 ? $addlabel : 0)) : '');
+
+		global $action, $hookmanager;
+		$hookmanager->initHooks(array('skilldetdao'));
+		$parameters = array('id'=>$this->id, 'getnomurl'=>$result);
+		$reshook = $hookmanager->executeHooks('getNomUrl', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
+		if ($reshook > 0) {
+			$result = $hookmanager->resPrint;
+		} else {
+			$result .= $hookmanager->resPrint;
+		}
+
+		return $result;
 	}
 
 	/**
@@ -841,8 +888,8 @@ class Skill extends CommonObject
 	{
 		$this->lines = array();
 
-		$objectline = new SkillLine($this->db);
-		$result = $objectline->fetchAll('ASC', 'rank', 0, 0, array('customsql'=>'fk_skill = '.$this->id));
+		$objectline = new SkilldetLine($this->db);
+		$result = $objectline->fetchAll('ASC', 'position', 0, 0, array('customsql'=>'fk_skilldet = '.$this->id));
 
 		if (is_numeric($result)) {
 			$this->error = $this->error;
@@ -864,15 +911,15 @@ class Skill extends CommonObject
 		global $langs, $conf;
 		$langs->load("hrmtest@hrmtest");
 
-		if (empty($conf->global->HRMTEST_SKILL_ADDON)) {
-			$conf->global->HRMTEST_SKILL_ADDON = 'mod_skill_standard';
+		if (empty($conf->global->HRMTEST_SKILLDET_ADDON)) {
+			$conf->global->HRMTEST_SKILLDET_ADDON = 'mod_skilldet_standard';
 		}
 
-		if (!empty($conf->global->HRMTEST_SKILL_ADDON)) {
+		if (!empty($conf->global->HRMTEST_SKILLDET_ADDON)) {
 			$mybool = false;
 
-			$file = $conf->global->HRMTEST_SKILL_ADDON.".php";
-			$classname = $conf->global->HRMTEST_SKILL_ADDON;
+			$file = $conf->global->HRMTEST_SKILLDET_ADDON.".php";
+			$classname = $conf->global->HRMTEST_SKILLDET_ADDON;
 
 			// Include file with class
 			$dirmodels = array_merge(array('/'), (array) $conf->modules_parts['models']);
@@ -930,12 +977,12 @@ class Skill extends CommonObject
 		$langs->load("hrmtest@hrmtest");
 
 		if (!dol_strlen($modele)) {
-			$modele = 'standard_skill';
+			$modele = 'standard_skilldet';
 
 			if (!empty($this->model_pdf)) {
 				$modele = $this->model_pdf;
-			} elseif (!empty($conf->global->SKILL_ADDON_PDF)) {
-				$modele = $conf->global->SKILL_ADDON_PDF;
+			} elseif (!empty($conf->global->SKILLDET_ADDON_PDF)) {
+				$modele = $conf->global->SKILLDET_ADDON_PDF;
 			}
 		}
 
@@ -977,38 +1024,6 @@ class Skill extends CommonObject
 
 		return $error;
 	}
-	/**
-	 * Permet de retourner un select html du dictionnaire llx_c_skill_type
-	 *
-	 * @global type $conf
-	 * @param string $selected
-	 * @param string $htmlname
-	 * @param bool $emptyvalue
-	 * @return string
-	 */
-	public function select_skill_type($selected = '', $htmlname = 'code_c_skill_type', $emptyvalue = true, $moreattr = '', $more_class = '')
-	{
-		global $conf;
-
-		$out = '<select class="flat select_skill_type ' . $more_class . '" name="' . $htmlname . '" id="' . $htmlname . '" ' . $moreattr . '>';
-		if ($emptyvalue)
-			$out .= '<option value=""></options>';
-
-
-		$sql = 'SELECT code, label FROM ' . MAIN_DB_PREFIX . 'c_skill_type WHERE active = 1 AND entity IN (0,' . $conf->entity.')';
-		$resql = $this->db->query($sql);
-		if ($resql) {
-			while ( $obj = $this->db->fetch_object($resql) ) {
-				$out .= '<option value="' . $obj->code . '" ' . ($selected == $obj->code ? 'selected' : '') . '>' . $obj->label . '</options>';
-			}
-		} else {
-			dol_print_error($this->db);
-		}
-
-		$out .= '</select>';
-
-		return $out;
-	}
-
 }
+
 

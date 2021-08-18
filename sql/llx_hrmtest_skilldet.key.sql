@@ -14,20 +14,12 @@
 -- along with this program.  If not, see https://www.gnu.org/licenses/.
 
 
-CREATE TABLE llx_hrmtest_skill(
-	-- BEGIN MODULEBUILDER FIELDS
-	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL, 
-	label varchar(255), 
-	description text, 
-	date_creation datetime NOT NULL, 
-	tms timestamp, 
-	fk_user_creat integer NOT NULL, 
-	fk_user_modif integer, 
-	required_level integer NOT NULL, 
-	date_validite integer NOT NULL, 
-	temps_theorique double(24,8) NOT NULL, 
-	skill_type integer NOT NULL, 
-	note_public text, 
-	note_private text
-	-- END MODULEBUILDER FIELDS
-) ENGINE=innodb;
+-- BEGIN MODULEBUILDER INDEXES
+ALTER TABLE llx_hrmtest_skilldet ADD INDEX idx_hrmtest_skilldet_rowid (rowid);
+ALTER TABLE llx_hrmtest_skilldet ADD CONSTRAINT llx_hrmtest_skilldet_fk_user_creat FOREIGN KEY (fk_user_creat) REFERENCES llx_user(rowid);
+-- END MODULEBUILDER INDEXES
+
+--ALTER TABLE llx_hrmtest_skilldet ADD UNIQUE INDEX uk_hrmtest_skilldet_fieldxy(fieldx, fieldy);
+
+--ALTER TABLE llx_hrmtest_skilldet ADD CONSTRAINT llx_hrmtest_skilldet_fk_field FOREIGN KEY (fk_field) REFERENCES llx_hrmtest_myotherobject(rowid);
+

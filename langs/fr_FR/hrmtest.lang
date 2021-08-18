@@ -60,7 +60,6 @@ list=Liste
 
 # Job
 Job=Emploi
-fkJob=Emploi
 fkUser=Utilisateur
 DateEval= Date d'évaluation
 
@@ -72,6 +71,9 @@ SKILL_TYPE_EXPERTISE= Savoir-être
 SKILL_TYPE_SOFT_SKILL= Savoir faire
 SKILL_TYPE_KNOWLEDGE= Savoir
 SkillType=Type de compétence
+Skilldets=Niveaux de compétence
+Skilldet=Niveau de compétence
+rank=Niveau
 
 
 
