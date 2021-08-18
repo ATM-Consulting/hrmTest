@@ -173,6 +173,7 @@ class modHrmTest extends DolibarrModules
 
 		// Array to add new pages in new tabs
 		$this->tabs = array();
+		$this->tabs[] = array('data'=>'user:+skill_tab:Skills:hrmtest@hrmtest:1:/hrmtest/skill_tab.php?id=__ID__&objecttype=user');  					// To add a new tab identified by code tabname1
 		//$this->tabs[] = array('data'=>'job:+tabname1:Poste:mylangfile@hrmtest:1:/hrmtest/poste_list.php?fk_job=__ID__');  					// To add a new tab identified by code tabname1
 		// Example:
 		// $this->tabs[] = array('data'=>'objecttype:+tabname1:Title1:mylangfile@hrmtest:$user->rights->hrmtest->read:/hrmtest/mynewtab1.php?id=__ID__');  					// To add a new tab identified by code tabname1

@@ -89,6 +89,7 @@ $id = GETPOST('id', 'int');
 $fk_skill = GETPOST('fk_skill', 'int');
 $objecttype = GETPOST('objecttype', 'alpha');
 $TNote = GETPOST('TNote', 'array');
+$lineid=GETPOST('lineid', 'int');
 $action = GETPOST('action', 'aZ09');
 $confirm = GETPOST('confirm', 'alpha');
 $cancel = GETPOST('cancel', 'aZ09');
@@ -172,7 +173,7 @@ if (empty($reshook)) {
 			$skillAdded->objecttype = $objecttype;
 			$ret = $skillAdded->create($user);
 			if ($ret < 0) setEventMessage($skillAdded->error, 'errors');
-			else setEventMessage('yiiiipii !!');
+			else unset($fk_skill);
 		}
 	}
 	else if ($action == 'saveSkill')
@@ -193,6 +194,15 @@ if (empty($reshook)) {
 			}
 		}
 
+	}
+	else if ($action == 'confirm_deleteskill' && $confirm == 'yes')
+	{
+		$skillToDelete = new SkillRank($db);
+		$ret = $skillToDelete->fetch($lineid);
+		if ($ret > 0)
+		{
+			$skillToDelete->delete($user);
+		}
 	}
 }
 
@@ -234,19 +244,19 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$formconfirm = '';
 
 	// Confirmation to delete
-	if ($action == 'delete') {
+	/*if ($action == 'delete') {
 		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('DeleteSkill'), $langs->trans('ConfirmDeleteObject'), 'confirm_delete', '', 0, 1);
-	}
+	}*/
 	// Confirmation to delete line
-	if ($action == 'deleteline') {
-		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id.'&lineid='.$lineid, $langs->trans('DeleteLine'), $langs->trans('ConfirmDeleteLine'), 'confirm_deleteline', '', 0, 1);
+	if ($action == 'ask_deleteskill') {
+		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id.'&objecttype='.$objecttype.'&lineid='.$lineid, $langs->trans('DeleteLine'), $langs->trans('ConfirmDeleteLine'), 'confirm_deleteskill', '', 0, 1);
 	}
 	// Clone confirmation
-	if ($action == 'clone') {
+	/*if ($action == 'clone') {
 		// Create an array for form
 		$formquestion = array();
 		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('ToClone'), $langs->trans('ConfirmCloneAsk', $object->ref), 'confirm_clone', $formquestion, 'yes', 1);
-	}
+	}*/
 
 	// Call Hook formConfirm
 	$parameters = array('formConfirm' => $formconfirm, 'lineid' => $lineid);
@@ -342,7 +352,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				if ($infos['visible'] > 0) print '<td class="linecol'.$key.'">'.$skillElement->showOutputField($infos, $key, $skillElement->{$key}).'</td>';
 			}
 			print '<td class="linecoledit"></td>';
-			print '<td class="linecoldelete"></td>';
+			print '<td class="linecoldelete">';
+			print '<a class="reposition" href="'.$_SERVER["PHP_SELF"].'?id='.$skillElement->fk_object.'&amp;objecttype='.$objecttype.'&amp;action=ask_deleteskill&amp;lineid='.$skillElement->id.'">';
+			print img_delete();
+			print '</a>';
+			print '</td>';
 			print '</tr>';
 		}
 	}

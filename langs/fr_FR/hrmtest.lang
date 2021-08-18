@@ -67,6 +67,7 @@ DateEval= Date d'évaluation
 
 # Skill
 Skill= Compétence
+Skills= Compétences
 NewSkill= Nouvelle Compétence
 AddSkill= Ajouter une compétence
 SKILL_TYPE_EXPERTISE= Savoir-être
