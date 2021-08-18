@@ -93,6 +93,8 @@ DisplayJob($langs, $db, $conf, $user, $hookmanager, $permissiontoadd, $lineid, $
 
 
 $object = new Position($db);
+
+
 // Part to create
 if ($action == 'create') {
 	print load_fiche_titre($langs->trans("NewObject", $langs->transnoentitiesnoconv("Position")), '', 'object_' . $object->picto);
@@ -137,9 +139,8 @@ if ($action == 'create') {
 	//dol_set_focus('input[name="ref"]');
 }
 
-if ($action == 'view')
+if ($action == 'view' || $action == 'list' || $action == 'delete')
 	DisplayPositionList($conf, $db, $user, $hookmanager, $langs, $fk_job);
-
 
 
 /**
@@ -173,7 +174,6 @@ function DisplayJob($langs, DoliDB $db, $conf, $user, HookManager $hookmanager, 
 
 	// Initialize technical objects
 	$object = new Job($db);
-
 
 	$extrafields = new ExtraFields($db);
 
@@ -358,13 +358,13 @@ function DisplayJob($langs, DoliDB $db, $conf, $user, HookManager $hookmanager, 
 		$formconfirm = '';
 
 		// Confirmation to delete
-		if ($action == 'delete') {
+		/*if ($action == 'delete') {
 			$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('DeletePosition'), $langs->trans('ConfirmDeleteObject'), 'confirm_delete', '', 0, 1);
 		}
 		// Confirmation to delete line
 		if ($action == 'deleteline') {
 			$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id . '&lineid=' . $lineid, $langs->trans('DeleteLine'), $langs->trans('ConfirmDeleteLine'), 'confirm_deleteline', '', 0, 1);
-		}
+		}*/
 
 		// Confirmation of action xxxx
 		if ($action == 'xxx') {
@@ -486,7 +486,6 @@ function DisplayPositionList($conf, DoliDB $db, $user, HookManager $hookmanager,
 
 	// Initialize technical objects
 	$object = new Position($db);
-
 
 	$extrafields = new ExtraFields($db);
 	$diroutputmassaction = $conf->hrmtest->dir_output . '/temp/massgeneration/' . $user->id;
@@ -613,6 +612,8 @@ function DisplayPositionList($conf, DoliDB $db, $user, HookManager $hookmanager,
 		$uploaddir = $conf->hrmtest->dir_output;
 		include DOL_DOCUMENT_ROOT . '/core/actions_massactions.inc.php';
 	}
+
+
 
 
 
@@ -820,13 +821,14 @@ function DisplayPositionList($conf, DoliDB $db, $user, HookManager $hookmanager,
 	}
 	$massactionbutton = $form->selectMassAction('', $arrayofmassactions);
 
-	print '<form method="POST" id="searchFormList" action="' . $_SERVER["PHP_SELF"] . '">' . "\n";
+	print '<form method="POST" id="searchFormList" action="' . $_SERVER["PHP_SELF"] . '?fk_job='.$fk_job.'">' . "\n";
 	if ($optioncss != '') {
 		print '<input type="hidden" name="optioncss" value="' . $optioncss . '">';
 	}
 	print '<input type="hidden" name="token" value="' . newToken() . '">';
 	print '<input type="hidden" name="formfilteraction" id="formfilteraction" value="list">';
 	print '<input type="hidden" name="action" value="list">';
+	print '<input type="hidden" name="massaction" value="'.$massaction.'">';
 	print '<input type="hidden" name="sortfield" value="' . $sortfield . '">';
 	print '<input type="hidden" name="sortorder" value="' . $sortorder . '">';
 	print '<input type="hidden" name="page" value="' . $page . '">';
