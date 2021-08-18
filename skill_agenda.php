@@ -19,7 +19,7 @@
 /**
  *  \file       skill_agenda.php
  *  \ingroup    hrmtest
- *  \brief      Tab of events on Skill
+ *  \brief      Tab of events on skill
  */
 
 //if (! defined('NOREQUIREDB'))              define('NOREQUIREDB', '1');				// Do not create database handler $db
@@ -290,7 +290,7 @@ if ($object->id > 0) {
 		}
 
 
-		//print load_fiche_titre($langs->trans("ActionsOnSkill"), '', '');
+		//print load_fiche_titre($langs->trans("ActionsOnskill"), '', '');
 
 		// List of all actions
 		$filters = array();

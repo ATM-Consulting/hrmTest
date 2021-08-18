@@ -80,6 +80,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
 dol_include_once('/hrmtest/class/skill.class.php');
 dol_include_once('/hrmtest/lib/hrmtest_skill.lib.php');
 
+
 // Load translation files required by the page
 $langs->loadLangs(array("hrmtest@hrmtest", "other"));
 
@@ -97,7 +98,7 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 // Initialize technical objects
 $object = new Skill($db);
 $extrafields = new ExtraFields($db);
-$diroutputmassaction = $conf->hrmtest->dir_output.'/temp/massgeneration/'.$user->id;
+//$diroutputmassaction = $conf->hrmtest->dir_output.'/temp/massgeneration/'.$user->id;
 $hookmanager->initHooks(array('skillcard', 'globalcard')); // Note that conf->hooks_modules contains array
 
 // Fetch optionals attributes and labels
@@ -156,7 +157,8 @@ if (empty($reshook)) {
 	if (empty($backtopage) || ($cancel && empty($id))) {
 		if (empty($backtopage) || ($cancel && strpos($backtopage, '__ID__'))) {
 			if (empty($id) && (($action != 'add' && $action != 'create') || $cancel)) {
-				$backtopage = $backurlforlist;
+				//$backtopage = $backurlforlist;
+				$backtopage = dol_buildpath('/hrmtest/skill_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
 			} else {
 				$backtopage = dol_buildpath('/hrmtest/skill_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
 			}
@@ -165,8 +167,29 @@ if (empty($reshook)) {
 
 	$triggermodname = 'HRMTEST_SKILL_MODIFY'; // Name of trigger action code to execute when we modify record
 
+
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
+
+	// action update on Skilldet
+
+	$skilldetArray =  GETPOST("description","array");
+	if (is_array($skilldetArray) && count($skilldetArray > 0) ) {
+		foreach ($skilldetArray as $key => $SkValueToUpdate){
+			$skilldetObj = new Skilldet($object->db);
+			$res = $skilldetObj->fetch($key);
+			if ($res >  0 ){
+				$skilldetObj->description = $SkValueToUpdate;
+				$resupd = $skilldetObj->update($user);
+				if ($resupd <= 0){
+					setEventMessage($langs->trans('errorUpdateSkilldet'));
+				}
+			}
+		}
+	}
+
+
+
 
 	// Actions when linking object each other
 	include DOL_DOCUMENT_ROOT.'/core/actions_dellink.inc.php';
@@ -211,21 +234,6 @@ $title = $langs->trans("Skill");
 $help_url = '';
 llxHeader('', $title, $help_url);
 
-// Example : Adding jquery code
-// print '<script type="text/javascript" language="javascript">
-// jQuery(document).ready(function() {
-// 	function init_myfunc()
-// 	{
-// 		jQuery("#myid").removeAttr(\'disabled\');
-// 		jQuery("#myid").attr(\'disabled\',\'disabled\');
-// 	}
-// 	init_myfunc();
-// 	jQuery("#mybutton").click(function() {
-// 		init_myfunc();
-// 	});
-// });
-// </script>';
-
 
 // Part to create
 if ($action == 'create') {
@@ -251,6 +259,11 @@ if ($action == 'create') {
 	// Common attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_add.tpl.php';
 
+
+	// SKILLDET ADD
+	//@todo je stop ici ... à continuer  (affichage des 5 skilled input pour create action
+	//print $object->showInputField($val, $key, $value, '', '['']', '', 0);
+
 	// Other attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_add.tpl.php';
 
@@ -270,6 +283,7 @@ if ($action == 'create') {
 }
 
 // Part to edit record
+// and skilldet edition
 if (($id || $ref) && $action == 'edit') {
 	print load_fiche_titre($langs->trans("Skill"), '', 'object_'.$object->picto);
 
@@ -296,6 +310,77 @@ if (($id || $ref) && $action == 'edit') {
 
 	print '</table>';
 
+
+	// SKILLDET
+
+	print dol_get_fiche_head(array(), '');
+	$SkilldetRecords =  $object->fetchLines();
+	if (is_array($SkilldetRecords) && count($SkilldetRecords) > 0 ){
+		print '<table>';
+		foreach ($SkilldetRecords as $sk){
+			print '<table class="border centpercent tableforfieldedit">'."\n";
+			$sk->fields = dol_sort_array($sk->fields, 'position');
+			foreach ($sk->fields as $key => $val) {
+				// Discard if extrafield is a hidden field on form
+				if (abs($val['visible']) != 1 && abs($val['visible']) != 3 && abs($val['visible']) != 4) {
+					continue;
+				}
+
+				if (array_key_exists('enabled', $val) && isset($val['enabled']) && !verifCond($val['enabled'])) {
+					continue; // We don't want this field
+				}
+
+				print '<tr class="field_'.$key.'"><td';
+				print ' class="titlefieldcreate';
+				if (isset($val['notnull']) && $val['notnull'] > 0) {
+					print ' fieldrequired';
+				}
+				if (preg_match('/^(text|html)/', $val['type'])) {
+					print ' tdtop';
+				}
+				print '">';
+				if (!empty($val['help'])) {
+					print $form->textwithpicto($langs->trans($val['label']), $langs->trans($val['help']));
+				} else {
+					print $langs->trans($val['label']);
+				}
+				print '</td>';
+				print '<td class="valuefieldcreate">';
+				if (!empty($val['picto'])) {
+					print img_picto('', $val['picto'], '', false, 0, 0, '', 'pictofixedwidth');
+				}
+				if (in_array($val['type'], array('int', 'integer'))) {
+					$value = GETPOSTISSET($key) ?GETPOST($key, 'int') : $sk->$key;
+				} elseif ($val['type'] == 'double') {
+					$value = GETPOSTISSET($key) ? price2num(GETPOST($key, 'alphanohtml')) : $sk->$key;
+				} elseif (preg_match('/^(text|html)/', $val['type'])) {
+					$tmparray = explode(':', $val['type']);
+					if (!empty($tmparray[1])) {
+						$check = $tmparray[1];
+					} else {
+						$check = 'restricthtml';
+					}
+					$value = GETPOSTISSET($key) ? GETPOST($key, $check) : $sk->$key;
+				} elseif ($val['type'] == 'price') {
+					$value = GETPOSTISSET($key) ? price2num(GETPOST($key)) : price2num($sk->$key);
+				} else {
+					$value = GETPOSTISSET($key) ? GETPOST($key, 'alpha') : $sk->$key;
+				}
+				//var_dump($val.' '.$key.' '.$value);
+				if ($val['noteditable']) {
+					print $sk->showOutputField($val, $key, $value, '', '', '', 0);
+				} else {
+					/** @var Skilldet $sk*/
+					print $sk->showInputField($val, $key, $value,"","[".$sk->id."]","","" );
+				}
+				print '</td>';
+				print '</tr>';
+			}
+		}
+		print '</table>';
+	}
+
+
 	print dol_get_fiche_end();
 
 	print '<div class="center"><input type="submit" class="button button-save" name="save" value="'.$langs->trans("Save").'">';
@@ -304,6 +389,9 @@ if (($id || $ref) && $action == 'edit') {
 
 	print '</form>';
 }
+
+
+
 
 // Part to show record
 if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create'))) {
@@ -362,42 +450,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// ------------------------------------------------------------
 	$linkback = '<a href="'.dol_buildpath('/hrmtest/skill_list.php', 1).'?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
 
-	$morehtmlref = '<div class="refidno">';
-	/*
-	 // Ref customer
-	 $morehtmlref.=$form->editfieldkey("RefCustomer", 'ref_client', $object->ref_client, $object, 0, 'string', '', 0, 1);
-	 $morehtmlref.=$form->editfieldval("RefCustomer", 'ref_client', $object->ref_client, $object, 0, 'string', '', null, null, '', 1);
-	 // Thirdparty
-	 $morehtmlref.='<br>'.$langs->trans('ThirdParty') . ' : ' . (is_object($object->thirdparty) ? $object->thirdparty->getNomUrl(1) : '');
-	 // Project
-	 if (! empty($conf->projet->enabled)) {
-	 $langs->load("projects");
-	 $morehtmlref .= '<br>'.$langs->trans('Project') . ' ';
-	 if ($permissiontoadd) {
-	 //if ($action != 'classify') $morehtmlref.='<a class="editfielda" href="' . $_SERVER['PHP_SELF'] . '?action=classify&amp;id=' . $object->id . '">' . img_edit($langs->transnoentitiesnoconv('SetProject')) . '</a> ';
-	 $morehtmlref .= ' : ';
-	 if ($action == 'classify') {
-	 //$morehtmlref .= $form->form_project($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->socid, $object->fk_project, 'projectid', 0, 0, 1, 1);
-	 $morehtmlref .= '<form method="post" action="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'">';
-	 $morehtmlref .= '<input type="hidden" name="action" value="classin">';
-	 $morehtmlref .= '<input type="hidden" name="token" value="'.newToken().'">';
-	 $morehtmlref .= $formproject->select_projects($object->socid, $object->fk_project, 'projectid', $maxlength, 0, 1, 0, 1, 0, 0, '', 1);
-	 $morehtmlref .= '<input type="submit" class="button valignmiddle" value="'.$langs->trans("Modify").'">';
-	 $morehtmlref .= '</form>';
-	 } else {
-	 $morehtmlref.=$form->form_project($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->socid, $object->fk_project, 'none', 0, 0, 0, 1);
-	 }
-	 } else {
-	 if (! empty($object->fk_project)) {
-	 $proj = new Project($db);
-	 $proj->fetch($object->fk_project);
-	 $morehtmlref .= ': '.$proj->getNomUrl();
-	 } else {
-	 $morehtmlref .= '';
-	 }
-	 }
-	 }*/
-	$morehtmlref .= '</div>';
+
 
 
 	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
@@ -408,14 +461,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<div class="underbanner clearboth"></div>';
 	print '<table class="border centpercent tableforfield">'."\n";
 
-	// Common attributes
-	//$keyforbreak='fieldkeytoswitchonsecondcolumn';	// We change column just before this field
-	//unset($object->fields['fk_project']);				// Hide field already shown in banner
-	//unset($object->fields['fk_soc']);					// Hide field already shown in banner
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_view.tpl.php';
+
+
 
 	print '</table>';
 	print '</div>';
@@ -426,56 +477,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print dol_get_fiche_end();
 
 
-	/*
-	 * Lines
-	 */
 
-	if (!empty($object->table_element_line)) {
-		// Show object lines
-		$result = $object->getLinesArray();
-
-		print '	<form name="addproduct" id="addproduct" action="'.$_SERVER["PHP_SELF"].'?id='.$object->id.(($action != 'editline') ? '' : '#line_'.GETPOST('lineid', 'int')).'" method="POST">
-		<input type="hidden" name="token" value="' . newToken().'">
-		<input type="hidden" name="action" value="' . (($action != 'editline') ? 'addline' : 'updateline').'">
-		<input type="hidden" name="mode" value="">
-		<input type="hidden" name="page_y" value="">
-		<input type="hidden" name="id" value="' . $object->id.'">
-		';
-
-		if (!empty($conf->use_javascript_ajax) && $object->status == 0) {
-			include DOL_DOCUMENT_ROOT.'/core/tpl/ajaxrow.tpl.php';
-		}
-
-		print '<div class="div-table-responsive-no-min">';
-		if (!empty($object->lines) || ($object->status == $object::STATUS_DRAFT && $permissiontoadd && $action != 'selectlines' && $action != 'editline')) {
-			print '<table id="tablelines" class="noborder noshadow" width="100%">';
-		}
-
-		if (!empty($object->lines)) {
-			$object->printObjectLines($action, $mysoc, null, GETPOST('lineid', 'int'), 1);
-		}
-
-		// Form to add new line
-		if ($object->status == 0 && $permissiontoadd && $action != 'selectlines') {
-			if ($action != 'editline') {
-				// Add products/services form
-
-				$parameters = array();
-				$reshook = $hookmanager->executeHooks('formAddObjectLine', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
-				if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
-				if (empty($reshook))
-					$object->formAddObjectLine(1, $mysoc, $soc);
-			}
-		}
-
-		if (!empty($object->lines) || ($object->status == $object::STATUS_DRAFT && $permissiontoadd && $action != 'selectlines' && $action != 'editline')) {
-			print '</table>';
-		}
-		print '</div>';
-
-		print "</form>\n";
-	}
-
+	//dol_include_once('/hrmtest/tpl/hrmtest_skillde.fiche.tpl.php');
 
 	// Buttons for actions
 
@@ -489,7 +492,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 		if (empty($reshook)) {
 
-
 			// Back to draft
 			if ($object->status == $object::STATUS_VALIDATED) {
 				print dolGetButtonAction($langs->trans('SetToDraft'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=confirm_setdraft&confirm=yes&token='.newToken(), '', $permissiontoadd);
@@ -502,6 +504,668 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 		print '</div>'."\n";
 	}
+
+}
+
+//*----------------------------------------------------------------------------
+//*----------------------------------------------------------------------------
+
+
+//*---------------------------------------------------------------------------
+
+if ($action != "create" &&  $action != "edit") {
+
+	require_once DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php';
+	require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
+	require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
+
+	// load hrmtest libraries
+	require_once __DIR__ . '/class/skilldet.class.php';
+
+// for other modules
+//dol_include_once('/othermodule/class/otherobject.class.php');
+
+// Load translation files required by the page
+	$langs->loadLangs(array("hrmtest@hrmtest", "other"));
+
+	$action = GETPOST('action', 'aZ09') ? GETPOST('action', 'aZ09') : 'view'; // The action 'add', 'create', 'edit', 'update', 'view', ...
+	$massaction = GETPOST('massaction', 'alpha'); // The bulk action (combo box choice into lists)
+	$show_files = GETPOST('show_files', 'int'); // Show files area generated by bulk actions ?
+	$confirm = GETPOST('confirm', 'alpha'); // Result of a confirmation
+	$cancel = GETPOST('cancel', 'alpha'); // We click on a Cancel button
+	$toselect = GETPOST('toselect', 'array'); // Array of ids of elements selected into a list
+	$contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'skilldetlist'; // To manage different context of search
+	$backtopage = GETPOST('backtopage', 'alpha'); // Go back to a dedicated page
+	$optioncss = GETPOST('optioncss', 'aZ'); // Option for the css output (always '' except when 'print')
+
+	$id = GETPOST('id', 'int');
+
+// Load variable for pagination
+	$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
+	$sortfield = GETPOST('sortfield', 'aZ09comma');
+	$sortorder = GETPOST('sortorder', 'aZ09comma');
+	$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
+	if (empty($page) || $page < 0 || GETPOST('button_search', 'alpha') || GETPOST('button_removefilter', 'alpha')) {
+		// If $page is not defined, or '' or -1 or if we click on clear filters
+		$page = 0;
+	}
+	$offset = $limit * $page;
+	$pageprev = $page - 1;
+	$pagenext = $page + 1;
+
+// Initialize technical objects
+	$objectline = new Skilldet($db);
+	$extrafields = new ExtraFields($db);
+//	$diroutputmassaction = $conf->hrmtest->dir_output . '/temp/massgeneration/' . $user->id;
+//	$hookmanager->initHooks(array('skilldetlist')); // Note that conf->hooks_modules contains array
+
+// Fetch optionals attributes and labels
+	$extrafields->fetch_name_optionals_label($objectline->table_element);
+
+	$search_array_options = $extrafields->getOptionalsFromPost($objectline->table_element, '', 'search_');
+
+// Default sort order (if not yet defined by previous GETPOST)
+	if (!$sortfield) {
+		reset($objectline->fields);                    // Reset is required to avoid key() to return null.
+		$sortfield = "t." . key($objectline->fields); // Set here default search field. By default 1st field in definition.
+	}
+	if (!$sortorder) {
+		$sortorder = "ASC";
+	}
+
+// Initialize array of search criterias
+	$search_all = GETPOST('search_all', 'alphanohtml') ? GETPOST('search_all', 'alphanohtml') : GETPOST('sall', 'alphanohtml');
+	$search = array();
+	foreach ($objectline->fields as $key => $val) {
+		if (GETPOST('search_' . $key, 'alpha') !== '') {
+			$search[$key] = GETPOST('search_' . $key, 'alpha');
+		}
+		if (preg_match('/^(date|timestamp|datetime)/', $val['type'])) {
+			$search[$key . '_dtstart'] = dol_mktime(0, 0, 0, GETPOST('search_' . $key . '_dtstartmonth', 'int'), GETPOST('search_' . $key . '_dtstartday', 'int'), GETPOST('search_' . $key . '_dtstartyear', 'int'));
+			$search[$key . '_dtend'] = dol_mktime(23, 59, 59, GETPOST('search_' . $key . '_dtendmonth', 'int'), GETPOST('search_' . $key . '_dtendday', 'int'), GETPOST('search_' . $key . '_dtendyear', 'int'));
+		}
+	}
+
+// List of fields to search into when doing a "search in all"
+	$fieldstosearchall = array();
+	foreach ($objectline->fields as $key => $val) {
+		if (!empty($val['searchall'])) {
+			$fieldstosearchall['t.' . $key] = $val['label'];
+		}
+	}
+
+// Definition of array of fields for columns
+	$arrayfields = array();
+	foreach ($objectline->fields as $key => $val) {
+		// If $val['visible']==0, then we never show the field
+		if (!empty($val['visible'])) {
+			$visible = (int)dol_eval($val['visible'], 1);
+			$arrayfields['t.' . $key] = array(
+				'label' => $val['label'],
+				'checked' => (($visible < 0) ? 0 : 1),
+				'enabled' => ($visible != 3 && dol_eval($val['enabled'], 1)),
+				'position' => $val['position'],
+				'help' => isset($val['help']) ? $val['help'] : ''
+			);
+		}
+	}
+// Extra fields
+	include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_array_fields.tpl.php';
+
+	$objectline->fields = dol_sort_array($objectline->fields, 'position');
+	$arrayfields = dol_sort_array($arrayfields, 'position');
+
+	$permissiontoread = $user->rights->hrmtest->skilldet->read;
+	$permissiontoadd = $user->rights->hrmtest->skilldet->write;
+	$permissiontodelete = $user->rights->hrmtest->skilldet->delete;
+
+// Security check
+	if (empty($conf->hrmtest->enabled)) {
+		accessforbidden('Module not enabled');
+	}
+
+// Security check (enable the most restrictive one)
+	if ($user->socid > 0) accessforbidden();
+
+	/*
+	 * Actions
+	 */
+
+	if (GETPOST('cancel', 'alpha')) {
+		$action = 'list';
+		$massaction = '';
+	}
+	if (!GETPOST('confirmmassaction', 'alpha') && $massaction != 'presend' && $massaction != 'confirm_presend') {
+		$massaction = '';
+	}
+
+	/*$parameters = array();
+	$reshook = $hookmanager->executeHooks('doActions', $parameters, $objectline, $action); // Note that $action and $objectline may have been modified by some hooks
+	if ($reshook < 0) {
+		setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
+	}
+
+	if (empty($reshook)) {
+		// Selection of new fields
+		include DOL_DOCUMENT_ROOT . '/core/actions_changeselectedfields.inc.php';
+
+		// Purge search criteria
+		if (GETPOST('button_removefilter_x', 'alpha') || GETPOST('button_removefilter.x', 'alpha') || GETPOST('button_removefilter', 'alpha')) { // All tests are required to be compatible with all browsers
+			foreach ($objectline->fields as $key => $val) {
+				$search[$key] = '';
+				if (preg_match('/^(date|timestamp|datetime)/', $val['type'])) {
+					$search[$key . '_dtstart'] = '';
+					$search[$key . '_dtend'] = '';
+				}
+			}
+			$toselect = array();
+			$search_array_options = array();
+		}
+		if (GETPOST('button_removefilter_x', 'alpha') || GETPOST('button_removefilter.x', 'alpha') || GETPOST('button_removefilter', 'alpha')
+			|| GETPOST('button_search_x', 'alpha') || GETPOST('button_search.x', 'alpha') || GETPOST('button_search', 'alpha')) {
+			$massaction = ''; // Protection to avoid mass action if we force a new search during a mass action confirmation
+		}
+
+		// Mass actions
+		$objectclass = 'Skilldet';
+		$objectlabel = 'Skilldet';
+		$uploaddir = $conf->hrmtest->dir_output;
+		//include DOL_DOCUMENT_ROOT.'/core/actions_massactions.inc.php';
+	}*/
+
+
+	/*
+	 * View
+	 */
+
+	$form = new Form($db);
+
+	$now = dol_now();
+
+//$help_url="EN:Module_Skilldet|FR:Module_Skilldet_FR|ES:Módulo_Skilldet";
+	$help_url = '';
+	$title = $langs->trans('ListOf', $langs->transnoentitiesnoconv("Skilldets"));
+	$morejs = array();
+	$morecss = array();
+
+
+// Build and execute select
+// --------------------------------------------------------------------
+	$sql = 'SELECT ';
+	$sql .= $objectline->getFieldList('t');
+// Add fields from extrafields
+	if (!empty($extrafields->attributes[$objectline->table_element]['label'])) {
+		foreach ($extrafields->attributes[$objectline->table_element]['label'] as $key => $val) {
+			$sql .= ($extrafields->attributes[$objectline->table_element]['type'][$key] != 'separate' ? ", ef." . $key . ' as options_' . $key . ', ' : '');
+		}
+	}
+// Add fields from hooks
+	$parameters = array();
+	$reshook = $hookmanager->executeHooks('printFieldListSelect', $parameters, $objectline); // Note that $action and $objectline may have been modified by hook
+	$sql .= preg_replace('/^,/', '', $hookmanager->resPrint);
+	$sql = preg_replace('/,\s*$/', '', $sql);
+	$sql .= " FROM " . MAIN_DB_PREFIX . $objectline->table_element . " as t";
+	if (isset($extrafields->attributes[$objectline->table_element]['label']) && is_array($extrafields->attributes[$objectline->table_element]['label']) && count($extrafields->attributes[$objectline->table_element]['label'])) {
+		$sql .= " LEFT JOIN " . MAIN_DB_PREFIX . $objectline->table_element . "_extrafields as ef on (t.rowid = ef.fk_object)";
+	}
+// Add table from hooks
+	$parameters = array();
+	$reshook = $hookmanager->executeHooks('printFieldListFrom', $parameters, $objectline); // Note that $action and $objectline may have been modified by hook
+	$sql .= $hookmanager->resPrint;
+	if ($objectline->ismultientitymanaged == 1) {
+		$sql .= " WHERE t.entity IN (" . getEntity($objectline->element) . ")";
+	} else {
+		$sql .= " WHERE 1 = 1 ";
+	}
+
+	if (!empty($id)) {
+		$sql .= " AND fk_skill = " . $id . " ";
+	}
+
+	foreach ($search as $key => $val) {
+		if (array_key_exists($key, $objectline->fields)) {
+			if ($key == 'status' && $search[$key] == -1) {
+				continue;
+			}
+			$mode_search = (($objectline->isInt($objectline->fields[$key]) || $objectline->isFloat($objectline->fields[$key])) ? 1 : 0);
+			if ((strpos($objectline->fields[$key]['type'], 'integer:') === 0) || (strpos($objectline->fields[$key]['type'], 'sellist:') === 0) || !empty($objectline->fields[$key]['arrayofkeyval'])) {
+				if ($search[$key] == '-1' || $search[$key] === '0') {
+					$search[$key] = '';
+				}
+				$mode_search = 2;
+			}
+			if ($search[$key] != '') {
+				$sql .= natural_search($key, $search[$key], (($key == 'status') ? 2 : $mode_search));
+			}
+		} else {
+			if (preg_match('/(_dtstart|_dtend)$/', $key) && $search[$key] != '') {
+				$columnName = preg_replace('/(_dtstart|_dtend)$/', '', $key);
+				if (preg_match('/^(date|timestamp|datetime)/', $objectline->fields[$columnName]['type'])) {
+					if (preg_match('/_dtstart$/', $key)) {
+						$sql .= " AND t." . $columnName . " >= '" . $db->idate($search[$key]) . "'";
+					}
+					if (preg_match('/_dtend$/', $key)) {
+						$sql .= " AND t." . $columnName . " <= '" . $db->idate($search[$key]) . "'";
+					}
+				}
+			}
+		}
+	}
+	if ($search_all) {
+		$sql .= natural_search(array_keys($fieldstosearchall), $search_all);
+	}
+//$sql.= dolSqlDateFilter("t.field", $search_xxxday, $search_xxxmonth, $search_xxxyear);
+// Add where from extra fields
+	include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_search_sql.tpl.php';
+// Add where from hooks
+	$parameters = array();
+	$reshook = $hookmanager->executeHooks('printFieldListWhere', $parameters, $objectline); // Note that $action and $objectline may have been modified by hook
+	$sql .= $hookmanager->resPrint;
+	$sql .= $db->order($sortfield, $sortorder);
+
+// Count total nb of records
+	$nbtotalofrecords = '';
+	if (empty($conf->global->MAIN_DISABLE_FULL_SCANLIST)) {
+		$resql = $db->query($sql);
+		$nbtotalofrecords = $db->num_rows($resql);
+		if (($page * $limit) > $nbtotalofrecords) {    // if total of record found is smaller than page * limit, goto and load page 0
+			$page = 0;
+			$offset = 0;
+		}
+	}
+// if total of record found is smaller than limit, no need to do paging and to restart another select with limits set.
+	if (is_numeric($nbtotalofrecords) && ($limit > $nbtotalofrecords || empty($limit))) {
+		$num = $nbtotalofrecords;
+	} else {
+		if ($limit) {
+			$sql .= $db->plimit($limit + 1, $offset);
+		}
+
+		$resql = $db->query($sql);
+		if (!$resql) {
+			dol_print_error($db);
+			exit;
+		}
+
+		$num = $db->num_rows($resql);
+	}
+
+// Direct jump if only one record found
+//	if ($num == 1 && !empty($conf->global->MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE) && $search_all && !$page) {
+//		$obj = $db->fetch_object($resql);
+//		$id = $obj->rowid;
+//		header("Location: " . dol_buildpath('/hrmtest/skilldet_card.php', 1) . '?id=' . $id);
+//		exit;
+//	}
+
+
+	$arrayofselected = is_array($toselect) ? $toselect : array();
+
+	$param = '';
+	if (!empty($contextpage) && $contextpage != $_SERVER["PHP_SELF"]) {
+		$param .= '&contextpage=' . urlencode($contextpage);
+	}
+	if ($limit > 0 && $limit != $conf->liste_limit) {
+		$param .= '&limit=' . urlencode($limit);
+	}
+	if (!empty($object->id)) $param .= '&id='.$object->id;
+	foreach ($search as $key => $val) {
+		if (is_array($search[$key]) && count($search[$key])) {
+			foreach ($search[$key] as $skey) {
+				$param .= '&search_' . $key . '[]=' . urlencode($skey);
+			}
+		} else {
+			$param .= '&search_' . $key . '=' . urlencode($search[$key]);
+		}
+	}
+	if ($optioncss != '') {
+		$param .= '&optioncss=' . urlencode($optioncss);
+	}
+// Add $param from extra fields
+	include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_search_param.tpl.php';
+// Add $param from hooks
+	$parameters = array();
+	$reshook = $hookmanager->executeHooks('printFieldListSearchParam', $parameters, $objectline); // Note that $action and $objectline may have been modified by hook
+	$param .= $hookmanager->resPrint;
+
+// List of mass actions available
+	/*$arrayofmassactions = array(
+		//'validate'=>img_picto('', 'check', 'class="pictofixedwidth"').$langs->trans("Validate"),
+		//'generate_doc'=>img_picto('', 'pdf', 'class="pictofixedwidth"').$langs->trans("ReGeneratePDF"),
+		//'builddoc'=>img_picto('', 'pdf', 'class="pictofixedwidth"').$langs->trans("PDFMerge"),
+		//'presend'=>img_picto('', 'email', 'class="pictofixedwidth"').$langs->trans("SendByMail"),
+	);
+	if ($permissiontodelete) {
+		$arrayofmassactions['predelete'] = img_picto('', 'delete', 'class="pictofixedwidth"') . $langs->trans("Delete");
+	}
+	if (GETPOST('nomassaction', 'int') || in_array($massaction, array('presend', 'predelete'))) {
+		$arrayofmassactions = array();
+	}*/
+//$massactionbutton = $form->selectMassAction('', $arrayofmassactions);
+
+	print '<form method="POST" id="searchFormList" action="' . $_SERVER["PHP_SELF"] . '">' . "\n";
+	if ($optioncss != '') {
+		print '<input type="hidden" name="optioncss" value="' . $optioncss . '">';
+	}
+	print '<input type="hidden" name="token" value="' . newToken() . '">';
+	print '<input type="hidden" name="formfilteraction" id="formfilteraction" value="list">';
+	print '<input type="hidden" name="action" value="list">';
+	print '<input type="hidden" name="sortfield" value="' . $sortfield . '">';
+	print '<input type="hidden" name="sortorder" value="' . $sortorder . '">';
+	print '<input type="hidden" name="page" value="' . $page . '">';
+	print '<input type="hidden" name="contextpage" value="' . $contextpage . '">';
+	if (!empty($id)) {
+		print '<input type="hidden" name="id" value="' . $id . '">';
+	}
+
+	$param_fk = "&fk_skill=" . $id . "&fk_user_creat=" . $user->rowid;
+	$backtopage = dol_buildpath('/hrmtest/skill_card.php', 1) . '?id=' . $id;
+	//$newcardbutton = dolGetButtonTitle($langs->trans('New'), '', 'fa fa-plus-circle', dol_buildpath('/hrmtest/skilldet_card.php', 1) . '?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF']) . $param_fk . '&backtopage=' . $backtopage, '', $permissiontoadd);
+
+	print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, $massactionbutton, $num, $nbtotalofrecords, 'object_' . $object->picto, 0, "", '', '', 0, 0, 1);
+
+// Add code for pre mass action (confirmation or email presend form)
+	$topicmail = "SendSkilldetRef";
+	$modelmail = "skilldet";
+	$objecttmp = new Skilldet($db);
+	$trackid = 'xxxx' . $object->id;
+//include DOL_DOCUMENT_ROOT.'/core/tpl/massactions_pre.tpl.php';
+
+	if ($search_all) {
+		foreach ($fieldstosearchall as $key => $val) {
+			$fieldstosearchall[$key] = $langs->trans($val);
+		}
+		print '<div class="divsearchfieldfilter">' . $langs->trans("FilterOnInto", $search_all) . join(', ', $fieldstosearchall) . '</div>';
+	}
+
+	$moreforfilter = '';
+	/*$moreforfilter.='<div class="divsearchfield">';
+	$moreforfilter.= $langs->trans('MyFilter') . ': <input type="text" name="search_myfield" value="'.dol_escape_htmltag($search_myfield).'">';
+	$moreforfilter.= '</div>';*/
+
+	$parameters = array();
+	$reshook = $hookmanager->executeHooks('printFieldPreListTitle', $parameters, $objectline); // Note that $action and $objectline may have been modified by hook
+	if (empty($reshook)) {
+		$moreforfilter .= $hookmanager->resPrint;
+	} else {
+		$moreforfilter = $hookmanager->resPrint;
+	}
+
+	if (!empty($moreforfilter)) {
+		print '<div class="liste_titre liste_titre_bydiv centpercent">';
+		print $moreforfilter;
+		print '</div>';
+	}
+
+	$varpage = empty($contextpage) ? $_SERVER["PHP_SELF"] : $contextpage;
+//	$selectedfields = $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage); // This also change content of $arrayfields
+//	$selectedfields .= (count($arrayofmassactions) ? $form->showCheckAddButtons('checkforselect', 1) : '');
+
+	print '<div class="div-table-responsive">'; // You can use div-table-responsive-no-min if you dont need reserved height for your table
+	print '<table class="tagtable nobottomiftotal liste' . ($moreforfilter ? " listwithfilterbefore" : "") . '">' . "\n";
+
+
+// Fields title search
+// --------------------------------------------------------------------
+	/*print '<tr class="liste_titre">';
+	foreach ($objectline->fields as $key => $val) {
+		$cssforfield = (empty($val['csslist']) ? (empty($val['css']) ? '' : $val['css']) : $val['csslist']);
+		if ($key == 'status') {
+			$cssforfield .= ($cssforfield ? ' ' : '') . 'center';
+		} elseif (in_array($val['type'], array('date', 'datetime', 'timestamp'))) {
+			$cssforfield .= ($cssforfield ? ' ' : '') . 'center';
+		} elseif (in_array($val['type'], array('timestamp'))) {
+			$cssforfield .= ($cssforfield ? ' ' : '') . 'nowrap';
+		} elseif (in_array($val['type'], array('double(24,8)', 'double(6,3)', 'integer', 'real', 'price')) && $val['label'] != 'TechnicalID' && empty($val['arrayofkeyval'])) {
+			$cssforfield .= ($cssforfield ? ' ' : '') . 'right';
+		}
+		if (!empty($arrayfields['t.' . $key]['checked'])) {
+			print '<td class="liste_titre' . ($cssforfield ? ' ' . $cssforfield : '') . '">';
+			if (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) {
+				print $form->selectarray('search_' . $key, $val['arrayofkeyval'], (isset($search[$key]) ? $search[$key] : ''), $val['notnull'], 0, 0, '', 1, 0, 0, '', 'maxwidth100', 1);
+			} elseif ((strpos($val['type'], 'integer:') === 0) || (strpos($val['type'], 'sellist:') === 0)) {
+				print $objectline->showInputField($val, $key, (isset($search[$key]) ? $search[$key] : ''), '', '', 'search_', 'maxwidth125', 1);
+			} elseif (!preg_match('/^(date|timestamp|datetime)/', $val['type'])) {
+				print '<input type="text" class="flat maxwidth75" name="search_' . $key . '" value="' . dol_escape_htmltag(isset($search[$key]) ? $search[$key] : '') . '">';
+			} elseif (preg_match('/^(date|timestamp|datetime)/', $val['type'])) {
+				print '<div class="nowrap">';
+				print $form->selectDate($search[$key . '_dtstart'] ? $search[$key . '_dtstart'] : '', "search_" . $key . "_dtstart", 0, 0, 1, '', 1, 0, 0, '', '', '', '', 1, '', $langs->trans('From'));
+				print '</div>';
+				print '<div class="nowrap">';
+				print $form->selectDate($search[$key . '_dtend'] ? $search[$key . '_dtend'] : '', "search_" . $key . "_dtend", 0, 0, 1, '', 1, 0, 0, '', '', '', '', 1, '', $langs->trans('to'));
+				print '</div>';
+			}
+			print '</td>';
+		}
+	}
+	print '<td></td>';
+	print '<td></td>';
+// Extra fields
+	include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_search_input.tpl.php';
+
+// Fields from hook
+	$parameters = array('arrayfields' => $arrayfields);
+	$reshook = $hookmanager->executeHooks('printFieldListOption', $parameters, $objectline); // Note that $action and $objectline may have been modified by hook
+	print $hookmanager->resPrint;
+// Action column
+	print '<td class="liste_titre maxwidthsearch">';
+	$searchpicto = $form->showFilterButtons();
+	print $searchpicto;
+	print '</td>';
+	print '</tr>' . "\n";*/
+
+
+// Fields title label
+// --------------------------------------------------------------------
+	print '<tr class="liste_titre">';
+	foreach ($objectline->fields as $key => $val) {
+		$cssforfield = (empty($val['csslist']) ? (empty($val['css']) ? '' : $val['css']) : $val['csslist']);
+		if ($key == 'status') {
+			$cssforfield .= ($cssforfield ? ' ' : '') . 'center';
+		} elseif (in_array($val['type'], array('date', 'datetime', 'timestamp'))) {
+			$cssforfield .= ($cssforfield ? ' ' : '') . 'center';
+		} elseif (in_array($val['type'], array('timestamp'))) {
+			$cssforfield .= ($cssforfield ? ' ' : '') . 'nowrap';
+		} elseif (in_array($val['type'], array('double(24,8)', 'double(6,3)', 'integer', 'real', 'price')) && $val['label'] != 'TechnicalID' && empty($val['arrayofkeyval'])) {
+			$cssforfield .= ($cssforfield ? ' ' : '') . 'right';
+		}
+		if (!empty($arrayfields['t.' . $key]['checked'])) {
+			print getTitleFieldOfList($arrayfields['t.' . $key]['label'], 0, $_SERVER['PHP_SELF'], 't.' . $key, '', $param, ($cssforfield ? 'class="' . $cssforfield . '"' : ''), $sortfield, $sortorder, ($cssforfield ? $cssforfield . ' ' : '')) . "\n";
+		}
+	}
+	print '<td></td>';
+	print '<td></td>';
+	// Extra fields
+	include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_search_title.tpl.php';
+	// Hook fields
+	$parameters = array('arrayfields' => $arrayfields, 'param' => $param, 'sortfield' => $sortfield, 'sortorder' => $sortorder);
+	$reshook = $hookmanager->executeHooks('printFieldListTitle', $parameters, $objectline); // Note that $action and $objectline may have been modified by hook
+	print $hookmanager->resPrint;
+	// Action column
+//	print getTitleFieldOfList($selectedfields, 0, $_SERVER["PHP_SELF"], '', '', '', '', $sortfield, $sortorder, 'center maxwidthsearch ') . "\n";
+	print '</tr>' . "\n";
+
+
+	// Detect if we need a fetch on each output line
+	$needToFetchEachLine = 0;
+	if (isset($extrafields->attributes[$objectline->table_element]['computed']) && is_array($extrafields->attributes[$objectline->table_element]['computed']) && count($extrafields->attributes[$objectline->table_element]['computed']) > 0) {
+		foreach ($extrafields->attributes[$objectline->table_element]['computed'] as $key => $val) {
+			if (preg_match('/\$objectline/', $val)) {
+				$needToFetchEachLine++; // There is at least one compute field that use $objectline
+			}
+		}
+	}
+
+
+// Loop on record
+// --------------------------------------------------------------------
+	$i = 0;
+	$totalarray = array();
+	$totalarray['nbfield'] = 0;
+	while ($i < ($limit ? min($num, $limit) : $num)) {
+		$obj = $db->fetch_object($resql);
+		if (empty($obj)) {
+			break; // Should not happen
+		}
+
+		// Store properties in $objectline
+		$objectline->setVarsFromFetchObj($obj);
+
+		// Show here line of result
+		print '<tr class="oddeven">';
+		foreach ($objectline->fields as $key => $val) {
+			$cssforfield = (empty($val['csslist']) ? (empty($val['css']) ? '' : $val['css']) : $val['csslist']);
+			if (in_array($val['type'], array('date', 'datetime', 'timestamp'))) {
+				$cssforfield .= ($cssforfield ? ' ' : '') . 'center';
+			} elseif ($key == 'status') {
+				$cssforfield .= ($cssforfield ? ' ' : '') . 'center';
+			}
+
+			if (in_array($val['type'], array('timestamp'))) {
+				$cssforfield .= ($cssforfield ? ' ' : '') . 'nowrap';
+			} elseif ($key == 'ref') {
+				$cssforfield .= ($cssforfield ? ' ' : '') . 'nowrap';
+			}
+
+			if (in_array($val['type'], array('double(24,8)', 'double(6,3)', 'integer', 'real', 'price')) && !in_array($key, array('rowid', 'status')) && empty($val['arrayofkeyval'])) {
+				$cssforfield .= ($cssforfield ? ' ' : '') . 'right';
+			}
+			//if (in_array($key, array('fk_soc', 'fk_user', 'fk_warehouse'))) $cssforfield = 'tdoverflowmax100';
+
+			if (!empty($arrayfields['t.' . $key]['checked'])) {
+				print '<td' . ($cssforfield ? ' class="' . $cssforfield . '"' : '') . '>';
+				if ($key == 'status') {
+					print $objectline->getLibStatut(5);
+				} elseif ($key == 'rowid') {
+					print $objectline->showOutputField($val, $key, $objectline->id, '');
+					// ajout pencil
+					print '<a class="timeline-btn" href="' . DOL_MAIN_URL_ROOT . '/comm/action/skilldet_card.php?action=edit&id=' . $objectline->id . '"><i class="fa fa-pencil" title="' . $langs->trans("Modify") . '" ></i></a>';
+
+				} else {
+					print $objectline->showOutputField($val, $key, $objectline->$key, '');
+				}
+				print '</td>';
+
+
+				if (!$i) {
+					$totalarray['nbfield']++;
+				}
+				if (!empty($val['isameasure'])) {
+					if (!$i) {
+						$totalarray['pos'][$totalarray['nbfield']] = 't.' . $key;
+					}
+					if (!isset($totalarray['val'])) {
+						$totalarray['val'] = array();
+					}
+					if (!isset($totalarray['val']['t.' . $key])) {
+						$totalarray['val']['t.' . $key] = 0;
+					}
+					$totalarray['val']['t.' . $key] += $objectline->$key;
+				}
+
+
+			}
+
+		}
+		// Extra fields
+		include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_print_fields.tpl.php';
+
+
+		// LINE EDITION | SUPPRESSION
+
+		print '<td>';
+
+		print '</td>';
+		print '<td>';
+		// add pencil
+		//@todo change to proper call dol_
+		//print '<a class="timeline-btn" href="' . dol_buildpath("custom/hrmtest/skilldet_card.php?action=edit&id=" . $objectline->id, 1) . '"><i class="fa fa-pencil" title="' . $langs->trans("Modify") . '" ></i></a>';
+		// add trash
+		//@todo change to proper call dol_
+		//print '<a class="timeline-btn" href="'.dol_buildpath("custom/hrmtest/skilldet_card.php?action=delete&id=".$objectline->id,1)  .'"><i class="fa fa-trash" title="'.$langs->trans("Delete").'" ></i></a>';
+		//print '</td>';
+
+
+		// Fields from hook
+		$parameters = array('arrayfields' => $arrayfields, 'object' => $objectline, 'obj' => $obj, 'i' => $i, 'totalarray' => &$totalarray);
+		$reshook = $hookmanager->executeHooks('printFieldListValue', $parameters, $objectline); // Note that $action and $objectline may have been modified by hook
+		print $hookmanager->resPrint;
+		/*// Action column
+		print '<td class="nowrap center">';
+
+		print '</td>';*/
+		if (!$i) {
+			$totalarray['nbfield']++;
+		}
+
+		print '</tr>' . "\n";
+
+		$i++;
+	}
+
+
+// If no record found
+	if ($num == 0) {
+		$colspan = 1;
+		foreach ($arrayfields as $key => $val) {
+			if (!empty($val['checked'])) {
+				$colspan++;
+			}
+		}
+		print '<tr><td colspan="' . $colspan . '" class="opacitymedium">' . $langs->trans("NoRecordFound") . '</td></tr>';
+	}
+
+
+	$db->free($resql);
+
+	$parameters = array('arrayfields' => $arrayfields, 'sql' => $sql);
+	$reshook = $hookmanager->executeHooks('printFieldListFooter', $parameters, $objectline); // Note that $action and $objectline may have been modified by hook
+	print $hookmanager->resPrint;
+
+	print '</table>' . "\n";
+	print '</div>' . "\n";
+
+	print '</form>' . "\n";
+
+//	if (in_array('builddoc', $arrayofmassactions) && ($nbtotalofrecords === '' || $nbtotalofrecords)) {
+//		$hidegeneratedfilelistifempty = 1;
+//		if ($massaction == 'builddoc' || $action == 'remove_file' || $show_files) {
+//			$hidegeneratedfilelistifempty = 0;
+//		}
+//
+//		require_once DOL_DOCUMENT_ROOT . '/core/class/html.formfile.class.php';
+//		$formfile = new FormFile($db);
+//
+//		// Show list of available documents
+//		$urlsource = $_SERVER['PHP_SELF'] . '?sortfield=' . $sortfield . '&sortorder=' . $sortorder;
+//		$urlsource .= str_replace('&amp;', '&', $param);
+//
+//		$filedir = $diroutputmassaction;
+//		$genallowed = $permissiontoread;
+//		$delallowed = $permissiontoadd;
+//
+//		print $formfile->showdocuments('massfilesarea_hrmtest', '', $filedir, $urlsource, 0, $delallowed, '', 1, 1, 0, 48, 1, $param, $title, '', '', '', null, $hidegeneratedfilelistifempty);
+//	}
+
+	print '<div class="fichecenter"><div class="fichehalfleft">';
+
+	// Show links to link elements
+	$linktoelem = $form->showLinkToObjectBlock($object, null, array('skill'));
+	$somethingshown = $form->showLinkedObjectBlock($object, $linktoelem);
+
+	print '</div><div class="fichehalfright"><div class="ficheaddleft">';
+
+	$MAXEVENT = 10;
+
+	$morehtmlright = '<a href="'.dol_buildpath('/hrmtest/skill_agenda.php', 1).'?id='.$object->id.'">';
+	$morehtmlright .= $langs->trans("SeeAll");
+	$morehtmlright .= '</a>';
+	// List of actions on element
+	include_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';
+	$formactions = new FormActions($db);
+	$somethingshown = $formactions->showactions($object, $object->element.'@'.$object->module, (is_object($object->thirdparty) ? $object->thirdparty->id : 0), 1, '', $MAXEVENT, '', $morehtmlright);
+
+	print '</div></div></div>';
 
 }
 
