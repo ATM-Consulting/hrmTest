@@ -108,6 +108,8 @@ class Job extends CommonObject
 		'deplacement' => array('type'=>'select', 'required'=> 1,'label'=> 'deplacement', 'enabled'=> 1, 'position'=> 90, 'notnull'=> 0, 'visible'=> 1, 'arrayofkeyval'=> array('0' =>"Yes", '1'=>"No")),
 		'note_public' => array('type'=>'html', 'label'=>'NotePublic', 'enabled'=>'1', 'position'=>70, 'notnull'=>0, 'visible'=>0,),
 		'note_private' => array('type'=>'html', 'label'=>'NotePrivate', 'enabled'=>'1', 'position'=>71, 'notnull'=>0, 'visible'=>0,),
+		'fk_user_creat' => array('type'=>'integer:User:user/class/user.class.php', 'label'=>'UserAuthor', 'enabled'=>'1', 'position'=>510, 'notnull'=>1, 'visible'=>-2, 'foreignkey'=>'user.rowid',),
+		'fk_user_modif' => array('type'=>'integer:User:user/class/user.class.php', 'label'=>'UserModif', 'enabled'=>'1', 'position'=>511, 'notnull'=>-1, 'visible'=>-2,),
 	);
 	public $rowid;
 	public $ref;
