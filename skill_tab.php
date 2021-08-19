@@ -17,9 +17,9 @@
  */
 
 /**
- *   	\file       skill_tab.php
- *		\ingroup    hrmtest
- *		\brief      Page to add/delete/view skill to jobs/users
+ *    \file       skill_tab.php
+ *        \ingroup    hrmtest
+ *        \brief      Page to add/delete/view skill to jobs/users
  */
 
 //if (! defined('NOREQUIREDB'))              define('NOREQUIREDB', '1');				// Do not create database handler $db
@@ -47,18 +47,22 @@
 $res = 0;
 // Try main.inc.php into web root known defined into CONTEXT_DOCUMENT_ROOT (not always defined)
 if (!$res && !empty($_SERVER["CONTEXT_DOCUMENT_ROOT"])) {
-	$res = @include $_SERVER["CONTEXT_DOCUMENT_ROOT"]."/main.inc.php";
+	$res = @include $_SERVER["CONTEXT_DOCUMENT_ROOT"] . "/main.inc.php";
 }
 // Try main.inc.php into web root detected using web root calculated from SCRIPT_FILENAME
-$tmp = empty($_SERVER['SCRIPT_FILENAME']) ? '' : $_SERVER['SCRIPT_FILENAME']; $tmp2 = realpath(__FILE__); $i = strlen($tmp) - 1; $j = strlen($tmp2) - 1;
+$tmp = empty($_SERVER['SCRIPT_FILENAME']) ? '' : $_SERVER['SCRIPT_FILENAME'];
+$tmp2 = realpath(__FILE__);
+$i = strlen($tmp) - 1;
+$j = strlen($tmp2) - 1;
 while ($i > 0 && $j > 0 && isset($tmp[$i]) && isset($tmp2[$j]) && $tmp[$i] == $tmp2[$j]) {
-	$i--; $j--;
+	$i--;
+	$j--;
 }
-if (!$res && $i > 0 && file_exists(substr($tmp, 0, ($i + 1))."/main.inc.php")) {
-	$res = @include substr($tmp, 0, ($i + 1))."/main.inc.php";
+if (!$res && $i > 0 && file_exists(substr($tmp, 0, ($i + 1)) . "/main.inc.php")) {
+	$res = @include substr($tmp, 0, ($i + 1)) . "/main.inc.php";
 }
-if (!$res && $i > 0 && file_exists(dirname(substr($tmp, 0, ($i + 1)))."/main.inc.php")) {
-	$res = @include dirname(substr($tmp, 0, ($i + 1)))."/main.inc.php";
+if (!$res && $i > 0 && file_exists(dirname(substr($tmp, 0, ($i + 1))) . "/main.inc.php")) {
+	$res = @include dirname(substr($tmp, 0, ($i + 1))) . "/main.inc.php";
 }
 // Try main.inc.php using relative path
 if (!$res && file_exists("../main.inc.php")) {
@@ -74,10 +78,10 @@ if (!$res) {
 	die("Include of main fails");
 }
 
-require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
-require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
-require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
-require_once DOL_DOCUMENT_ROOT.'/user/class/user.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.formfile.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.formprojet.class.php';
+require_once DOL_DOCUMENT_ROOT . '/user/class/user.class.php';
 dol_include_once('/hrmtest/class/skill.class.php');
 dol_include_once('/hrmtest/class/skillrank.class.php');
 dol_include_once('/hrmtest/lib/hrmtest_skill.lib.php');
@@ -89,7 +93,7 @@ $id = GETPOST('id', 'int');
 $fk_skill = GETPOST('fk_skill', 'int');
 $objecttype = GETPOST('objecttype', 'alpha');
 $TNote = GETPOST('TNote', 'array');
-$lineid=GETPOST('lineid', 'int');
+$lineid = GETPOST('lineid', 'int');
 $action = GETPOST('action', 'aZ09');
 $confirm = GETPOST('confirm', 'alpha');
 $cancel = GETPOST('cancel', 'aZ09');
@@ -101,24 +105,19 @@ $TAuthorizedObjects = array('job', 'user');
 $skill = new SkillRank($db);
 
 // Initialize technical objects
-if (in_array($objecttype, $TAuthorizedObjects))
-{
-	if ($objecttype == 'job')
-	{
+if (in_array($objecttype, $TAuthorizedObjects)) {
+	if ($objecttype == 'job') {
 		dol_include_once('/hrmtest/class/job.class.php');
 		$object = new Job($db);
-	}
-	else if ($objecttype == "user")
-	{
+	} else if ($objecttype == "user") {
 		$object = new User($db);
 	}
-}
-else accessforbidden($langs->trans('ErrorBadObjectType'));
+} else accessforbidden($langs->trans('ErrorBadObjectType'));
 
 $hookmanager->initHooks(array('skilltab', 'globalcard')); // Note that conf->hooks_modules contains array
 
 // Load object
-include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php'; // Must be include, not include_once.
+include DOL_DOCUMENT_ROOT . '/core/actions_fetchobject.inc.php'; // Must be include, not include_once.
 
 $permissiontoread = $user->rights->hrmtest->skill->read;
 $permissiontoadd = $user->rights->hrmtest->skill->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
@@ -150,23 +149,20 @@ if (empty($reshook)) {
 			if (empty($id) && (($action != 'add' && $action != 'create') || $cancel)) {
 				$backtopage = $backurlforlist;
 			} else {
-				$backtopage = dol_buildpath('/hrmtest/skill_list.php', 1).'?id='.($id > 0 ? $id : '__ID__');
+				$backtopage = dol_buildpath('/hrmtest/skill_list.php', 1) . '?id=' . ($id > 0 ? $id : '__ID__');
 			}
 		}
 	}
 
-	if ($action == 'addSkill')
-	{
+	if ($action == 'addSkill') {
 		$error = 0;
 
-		if ($fk_skill <= 0)
-		{
+		if ($fk_skill <= 0) {
 			setEventMessage('ErrNoSkillSelected', 'errors');
 			$error++;
 		}
 
-		if (!$error)
-		{
+		if (!$error) {
 			$skillAdded = new SkillRank($db);
 			$skillAdded->fk_skill = $fk_skill;
 			$skillAdded->fk_object = $id;
@@ -175,18 +171,12 @@ if (empty($reshook)) {
 			if ($ret < 0) setEventMessage($skillAdded->error, 'errors');
 			else unset($fk_skill);
 		}
-	}
-	else if ($action == 'saveSkill')
-	{
-		if (!empty($TNote))
-		{
-			foreach ($TNote as $skillId => $rank)
-			{
-				$TSkills = $skill->fetchAll('ASC', 't.rowid', 0, 0, array('customsql' => 'fk_object='.$id.' AND objecttype="'.$objecttype.'" AND fk_skill = '.$skillId));
-				if (is_array($TSkills) && !empty($TSkills))
-				{
-					foreach ($TSkills as $tmpObj)
-					{
+	} else if ($action == 'saveSkill') {
+		if (!empty($TNote)) {
+			foreach ($TNote as $skillId => $rank) {
+				$TSkills = $skill->fetchAll('ASC', 't.rowid', 0, 0, array('customsql' => 'fk_object=' . $id . ' AND objecttype="' . $objecttype . '" AND fk_skill = ' . $skillId));
+				if (is_array($TSkills) && !empty($TSkills)) {
+					foreach ($TSkills as $tmpObj) {
 						$tmpObj->rank = $rank;
 						$tmpObj->update($user);
 					}
@@ -194,13 +184,10 @@ if (empty($reshook)) {
 			}
 		}
 
-	}
-	else if ($action == 'confirm_deleteskill' && $confirm == 'yes')
-	{
+	} else if ($action == 'confirm_deleteskill' && $confirm == 'yes') {
 		$skillToDelete = new SkillRank($db);
 		$ret = $skillToDelete->fetch($lineid);
-		if ($ret > 0)
-		{
+		if ($ret > 0) {
 			$skillToDelete->delete($user);
 		}
 	}
@@ -225,15 +212,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$res = $object->fetch_optionals();
 
 	// view configuration
-	if ($objecttype == 'job')
-	{
+	if ($objecttype == 'job') {
 		dol_include_once('/hrmtest/lib/hrmtest_job.lib.php');
 		$head = jobPrepareHead($object);
 		$listLink = dol_buildpath('/hrmtest/job_list.php', 1);
-	}
-	else if ($objecttype == "user")
-	{
-		require_once DOL_DOCUMENT_ROOT."/core/lib/usergroups.lib.php";
+	} else if ($objecttype == "user") {
+		require_once DOL_DOCUMENT_ROOT . "/core/lib/usergroups.lib.php";
 		$head = user_prepare_head($object);
 		$listLink = dol_buildpath('/user/list.php', 1);
 	}
@@ -249,7 +233,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}*/
 	// Confirmation to delete line
 	if ($action == 'ask_deleteskill') {
-		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id.'&objecttype='.$objecttype.'&lineid='.$lineid, $langs->trans('DeleteLine'), $langs->trans('ConfirmDeleteLine'), 'confirm_deleteskill', '', 0, 1);
+		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id . '&objecttype=' . $objecttype . '&lineid=' . $lineid, $langs->trans('DeleteLine'), $langs->trans('ConfirmDeleteLine'), 'confirm_deleteskill', '', 0, 1);
 	}
 	// Clone confirmation
 	/*if ($action == 'clone') {
@@ -273,7 +257,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Object card
 	// ------------------------------------------------------------
-	$linkback = '<a href="'.$listLink.'?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
+	$linkback = '<a href="' . $listLink . '?restore_lastsearch_values=1' . (!empty($socid) ? '&socid=' . $socid : '') . '">' . $langs->trans("BackToList") . '</a>';
 
 	$morehtmlref = '<div class="refidno">';
 	$morehtmlref .= '</div>';
@@ -286,34 +270,30 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<div class="underbanner clearboth"></div>';
 
 	// table of skillRank linked to current object
-	$TSkills = $skill->fetchAll('ASC', 't.rowid', 0, 0, array('customsql' => 'fk_object='.$id.' AND objecttype="'.$objecttype.'"'));
+	$TSkills = $skill->fetchAll('ASC', 't.rowid', 0, 0, array('customsql' => 'fk_object=' . $id . ' AND objecttype="' . $objecttype . '"'));
 
 	$TAlreadyUsedSkill = array();
-	if (is_array($TSkills) && !empty($TSkills))
-	{
-		foreach ($TSkills as $skillElement)
-		{
+	if (is_array($TSkills) && !empty($TSkills)) {
+		foreach ($TSkills as $skillElement) {
 			$TAlreadyUsedSkill[] = $skillElement->fk_skill;
 		}
 	}
 
 	// form pour ajouter des compétences
-	print '<form name="addSkill" method="post" action="'.$_SERVER['PHP_SELF'].'">';
-	print '<input type="hidden" name="objecttype" value="'.$objecttype.'">';
-	print '<input type="hidden" name="id" value="'.$id.'">';
+	print '<form name="addSkill" method="post" action="' . $_SERVER['PHP_SELF'] . '">';
+	print '<input type="hidden" name="objecttype" value="' . $objecttype . '">';
+	print '<input type="hidden" name="id" value="' . $id . '">';
 	print '<input type="hidden" name="action" value="addSkill">';
 	print '<div class="div-table-responsive-no-min">';
 	print '<table id="tablelines" class="noborder noshadow" width="100%">';
-	print '<tr><td>'.$langs->trans('AddSkill').'</td><td>'.$langs->trans('Rank').'</td><td></td></tr>';
+	print '<tr><td>' . $langs->trans('AddSkill') . '</td><td>' . $langs->trans('Rank') . '</td><td></td></tr>';
 	print '<tr>';
-	foreach ($skill->fields as $key => $infos)
-	{
-		if ($key == 'fk_skill')
-		{
-			print '<td>'.$skill->showInputField($infos, $key, $$key).'</td>';
+	foreach ($skill->fields as $key => $infos) {
+		if ($key == 'fk_skill') {
+			print '<td>' . $skill->showInputField($infos, $key, $$key) . '</td>';
 		}
 	}
-	print '<td><input class="button reposition" type="submit" value="'.$langs->trans('Add').'"></td>';
+	print '<td><input class="button reposition" type="submit" value="' . $langs->trans('Add') . '"></td>';
 	print '</tr>';
 	print '</table>';
 	print '</div>';
@@ -324,36 +304,30 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
-	print '<form name="saveSkill" method="post" action="'.$_SERVER['PHP_SELF'].'">';
-	print '<input type="hidden" name="objecttype" value="'.$objecttype.'">';
-	print '<input type="hidden" name="id" value="'.$id.'">';
+	print '<form name="saveSkill" method="post" action="' . $_SERVER['PHP_SELF'] . '">';
+	print '<input type="hidden" name="objecttype" value="' . $objecttype . '">';
+	print '<input type="hidden" name="id" value="' . $id . '">';
 	print '<input type="hidden" name="action" value="saveSkill">';
 	print '<div class="div-table-responsive-no-min">';
 	print '<table id="tablelines" class="noborder noshadow" width="100%">';
 	print '<tr class="liste_titre">';
-	foreach ($skill->fields as $key => $infos)
-	{
-		if ($infos['visible'] > 0) print '<th class="linecol'.$key.'">'.$langs->trans($infos['label']).'</th>';
+	foreach ($skill->fields as $key => $infos) {
+		if ($infos['visible'] > 0) print '<th class="linecol' . $key . '">' . $langs->trans($infos['label']) . '</th>';
 	}
 	print '<th class="linecoledit"></th>';
 	print '<th class="linecoldelete"></th>';
 	print '</tr>';
-	if (!is_array($TSkills) || empty($TSkills))
-	{
-		print '<tr><td>'.$langs->trans("NoRecordFound").'</td></tr>';
-	}
-	else
-	{
-		foreach ($TSkills as $skillElement)
-		{
+	if (!is_array($TSkills) || empty($TSkills)) {
+		print '<tr><td>' . $langs->trans("NoRecordFound") . '</td></tr>';
+	} else {
+		foreach ($TSkills as $skillElement) {
 			print '<tr>';
-			foreach ($skill->fields as $key => $infos)
-			{
-				if ($infos['visible'] > 0) print '<td class="linecol'.$key.'">'.$skillElement->showOutputField($infos, $key, $skillElement->{$key}).'</td>';
+			foreach ($skill->fields as $key => $infos) {
+				if ($infos['visible'] > 0) print '<td class="linecol' . $key . '">' . $skillElement->showOutputField($infos, $key, $skillElement->{$key}) . '</td>';
 			}
 			print '<td class="linecoledit"></td>';
 			print '<td class="linecoldelete">';
-			print '<a class="reposition" href="'.$_SERVER["PHP_SELF"].'?id='.$skillElement->fk_object.'&amp;objecttype='.$objecttype.'&amp;action=ask_deleteskill&amp;lineid='.$skillElement->id.'">';
+			print '<a class="reposition" href="' . $_SERVER["PHP_SELF"] . '?id=' . $skillElement->fk_object . '&amp;objecttype=' . $objecttype . '&amp;action=ask_deleteskill&amp;lineid=' . $skillElement->id . '">';
 			print img_delete();
 			print '</a>';
 			print '</td>';
@@ -362,7 +336,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 
 	print '</table>';
-	print '<td><input class="button pull-right" type="submit" value="'.$langs->trans('Save').'"></td>';
+	print '<td><input class="button pull-right" type="submit" value="' . $langs->trans('Save') . '"></td>';
 	print '</div>';
 	print '</form>';
 
@@ -448,5 +422,5 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 		print '</div>'."\n";
 	}*/
-llxFooter();
+	llxFooter();
 }

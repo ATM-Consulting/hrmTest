@@ -86,13 +86,17 @@ dol_include_once('/hrmtest/class/job.class.php');
 dol_include_once('/hrmtest/lib/hrmtest_position.lib.php');
 dol_include_once('/hrmtest/lib/hrmtest_job.lib.php');
 
-$action = GETPOST('action', 'aZ09') ? GETPOST('action', 'aZ09') : 'view'; // The action 'add', 'create', 'edit', 'update', 'view', ...
+$action 	= GETPOST('action', 'aZ09') ? GETPOST('action', 'aZ09') : 'view'; // The action 'add', 'create', 'edit', 'update', 'view', ...
 $backtopage = GETPOST('backtopage', 'alpha');
 $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
-$fk_job = GETPOST('fk_job', 'int');
+$fk_job 	= GETPOST('fk_job', 'int');
 
+global $langs, $db;
 
-DisplayJob($langs, $db, $conf, $user, $hookmanager, $permissiontoadd, $lineid, $text);
+// Load translation files required by the page
+$langs->loadLangs(array("hrmtest@hrmtest", "other"));
+
+DisplayJob($conf, $langs, $db, $object, $permissiontoadd, $lineid);
 
 
 $object = new Position($db);
@@ -143,37 +147,36 @@ if ($action == 'create') {
 }
 
 if ($action == 'view' || $action == 'list' || $action == 'delete')
-	DisplayPositionList($conf, $db, $user, $hookmanager, $langs, $fk_job);
+	DisplayPositionList($conf, $langs, $db, $object);
 
 
 /**
- * @param $langs
- * @param DoliDB $db
- * @param $conf
- * @param $user
- * @param HookManager $hookmanager
- * @param $permissiontoadd
- * @param array $lineid
- * @param $text
- * @return array
+ * 		Show the top of the page including informations of a job
+ *
+ *		@param	Conf			 $conf			  Object conf
+ * 		@param	Translate		 $langs			  Object langs
+ * 		@param	DoliDB			 $db			  Database handler
+ * 		@param	Job		 	     $object		  Job object
+ * 		@param  $permissiontoadd $permissiontoadd Rights/permissions
+ * 		@param  $lineid			 $lineid		  Id of a job line
+ * 		@return array
  */
-function DisplayJob($langs, DoliDB $db, $conf, $user, HookManager $hookmanager, $permissiontoadd, $lineid, $text)
+function DisplayJob($conf, $langs, $db, $object, $permissiontoadd, $lineid)
 {
-	// Load translation files required by the page
-	$langs->loadLangs(array("hrmtest@hrmtest", "other"));
+	global $user, $langs, $db, $conf, $extrafields, $hookmanager;
 
 	// Get parameters
-	$id = GETPOST('fk_job', 'int');
+	$id 	= GETPOST('fk_job', 'int');
 	$fk_job = GETPOST('fk_job', 'int');
 
-	$ref = GETPOST('ref', 'alpha');
+	$ref 	= GETPOST('ref', 'alpha');
 	$action = GETPOST('action', 'aZ09');
 	$confirm = GETPOST('confirm', 'alpha');
 	$cancel = GETPOST('cancel', 'aZ09');
 	$contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'positioncard'; // To manage different context of search
-	$backtopage = GETPOST('backtopage', 'alpha');
+	$backtopage  = GETPOST('backtopage', 'alpha');
 	$backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
-	//$lineid   = GETPOST('lineid', 'int');
+	$lineid = GETPOST('lineid', 'int');
 
 	// Initialize technical objects
 	$object = new Job($db);
@@ -203,7 +206,6 @@ function DisplayJob($langs, DoliDB $db, $conf, $user, HookManager $hookmanager, 
 
 	// Load object
 	include DOL_DOCUMENT_ROOT . '/core/actions_fetchobject.inc.php'; // Must be include, not include_once.
-
 
 	$permissiontoread = $user->rights->hrmtest->position->read;
 	$permissiontoadd = $user->rights->hrmtest->position->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
@@ -282,7 +284,6 @@ function DisplayJob($langs, DoliDB $db, $conf, $user, HookManager $hookmanager, 
 		$trackid = 'position' . $object->id;
 		include DOL_DOCUMENT_ROOT . '/core/actions_sendmails.inc.php';
 	}
-
 
 	/*
 	 * View
@@ -381,7 +382,7 @@ function DisplayJob($langs, DoliDB $db, $conf, $user, HookManager $hookmanager, 
 				// array('type' => 'other',    'name' => 'idwarehouse',   'label' => $langs->trans("SelectWarehouseForStockDecrease"), 'value' => $formproduct->selectWarehouses(GETPOST('idwarehouse')?GETPOST('idwarehouse'):'ifone', 'idwarehouse', '', 1, 0, 0, '', 0, $forcecombo))
 			);
 			*/
-			$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('XXX'), $text, 'confirm_xxx', $formquestion, 0, 1, 220);
+			$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('XXX'), '', 'confirm_xxx', $formquestion, 0, 1, 220);
 		}
 
 		// Call Hook formConfirm
@@ -437,16 +438,18 @@ function DisplayJob($langs, DoliDB $db, $conf, $user, HookManager $hookmanager, 
 
 
 /**
- * @param $conf
- * @param DoliDB $db
- * @param $user
- * @param HookManager $hookmanager
- * @param $langs
- * @param array $fk_job
- * @return array|void
+ * 		Show a list of positions for the current job
+
+ *		@param	Conf			 $conf			  Object conf
+ * 		@param	Translate		 $langs			  Object langs
+ * 		@param	DoliDB			 $db			  Database handler
+ * 		@param	Position	     $object		  Position object
+ * 		@return array|void
  */
-function DisplayPositionList($conf, DoliDB $db, $user, HookManager $hookmanager, $langs, $fk_job)
+function DisplayPositionList($conf, $langs, $db, $object)
 {
+	global $user,$langs, $db, $conf, $extrafields, $hookmanager;
+
 	require_once DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php';
 	require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
 	require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
@@ -457,34 +460,29 @@ function DisplayPositionList($conf, DoliDB $db, $user, HookManager $hookmanager,
 	// for other modules
 	//dol_include_once('/othermodule/class/otherobject.class.php');
 
-	// Load translation files required by the page
-	$langs->loadLangs(array("hrmtest@hrmtest", "other"));
-
-	$action = GETPOST('action', 'aZ09') ? GETPOST('action', 'aZ09') : 'view'; // The action 'add', 'create', 'edit', 'update', 'view', ...
-	$massaction = GETPOST('massaction', 'alpha'); // The bulk action (combo box choice into lists)
-	$show_files = GETPOST('show_files', 'int'); // Show files area generated by bulk actions ?
-	$confirm = GETPOST('confirm', 'alpha'); // Result of a confirmation
-	$cancel = GETPOST('cancel', 'alpha'); // We click on a Cancel button
-	$toselect = GETPOST('toselect', 'array'); // Array of ids of elements selected into a list
+	$action 	 = GETPOST('action', 'aZ09') ? GETPOST('action', 'aZ09') : 'view'; // The action 'add', 'create', 'edit', 'update', 'view', ...
+	$massaction  = GETPOST('massaction', 'alpha'); // The bulk action (combo box choice into lists)
+	$show_files  = GETPOST('show_files', 'int'); // Show files area generated by bulk actions ?
+	$confirm 	 = GETPOST('confirm', 'alpha'); // Result of a confirmation
+	$cancel 	 = GETPOST('cancel', 'alpha'); // We click on a Cancel button
+	$toselect 	 = GETPOST('toselect', 'array'); // Array of ids of elements selected into a list
 	$contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'positionlist'; // To manage different context of search
-	$backtopage = GETPOST('backtopage', 'alpha'); // Go back to a dedicated page
-	$optioncss = GETPOST('optioncss', 'aZ'); // Option for the css output (always '' except when 'print')
-	$backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
-	$id = GETPOST('id', 'int');
-	$fk_job = GETPOST('fk_job', 'int');
+	$optioncss 	 = GETPOST('optioncss', 'aZ'); // Option for the css output (always '' except when 'print')
+	$id 		 = GETPOST('id', 'int');
+	$fk_job 	 = GETPOST('fk_job', 'int');
 
 	// Load variable for pagination
-	$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
-	$sortfield = GETPOST('sortfield', 'aZ09comma');
-	$sortorder = GETPOST('sortorder', 'aZ09comma');
-	$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
+	$limit 	     = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
+	$sortfield   = GETPOST('sortfield', 'aZ09comma');
+	$sortorder   = GETPOST('sortorder', 'aZ09comma');
+	$page 	     = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
 	if (empty($page) || $page < 0 || GETPOST('button_search', 'alpha') || GETPOST('button_removefilter', 'alpha')) {
 		// If $page is not defined, or '' or -1 or if we click on clear filters
 		$page = 0;
 	}
-	$offset = $limit * $page;
-	$pageprev = $page - 1;
-	$pagenext = $page + 1;
+	$offset     = $limit * $page;
+	$pageprev   = $page - 1;
+	$pagenext   = $page + 1;
 
 	// Initialize technical objects
 	$object = new Position($db);
