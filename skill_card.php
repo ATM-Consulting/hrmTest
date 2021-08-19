@@ -174,7 +174,7 @@ if (empty($reshook)) {
 	// action update on Skilldet
 
 	$skilldetArray =  GETPOST("description","array");
-	if (is_array($skilldetArray) && count($skilldetArray > 0) ) {
+	if (is_array($skilldetArray) && count($skilldetArray) > 0) {
 		foreach ($skilldetArray as $key => $SkValueToUpdate){
 			$skilldetObj = new Skilldet($object->db);
 			$res = $skilldetObj->fetch($key);

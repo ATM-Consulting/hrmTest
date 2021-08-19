@@ -99,18 +99,18 @@ class Position extends CommonObject
 	/**
 	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
 	 */
-	public $fields = array(
-		'rowid' => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => "Id"),
-		'ref' => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "Reference of object"),
-		'description' => array('type' => 'text', 'label' => 'Description', 'enabled' => '1', 'position' => 60, 'notnull' => 0, 'visible' => 3,),
-		'date_creation' => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 500, 'notnull' => 1, 'visible' => -2,),
-		'tms' => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 501, 'notnull' => 0, 'visible' => -2,),
-		'fk_contrat' => array('type' => 'integer:Contrat:contrat/class/contrat.class.php', 'label' => 'fk_contrat', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0,),
-		'fk_user' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'fk_user', 'enabled' => '1', 'position' => 55, 'notnull' => 1, 'visible' => 1,),
-		'fk_job' => array('type' => 'integer:Job:/hrmtest/class/job.class.php', 'label' => 'fk_job', 'enabled' => '1', 'position' => 56, 'notnull' => 1, 'visible' => 1,),
-		'date_start' => array('type' => 'datetime', 'label' => 'date_start', 'enabled' => '1', 'position' => 51, 'notnull' => 0, 'visible' => 1,),
-		'date_end' => array('type' => 'datetime', 'label' => 'date_end', 'enabled' => '1', 'position' => 52, 'notnull' => 0, 'visible' => 1,),
-		'commentaire_abandon' => array('type' => 'varchar(255)', 'label' => 'commentaire_abandon', 'enabled' => '1', 'position' => 502, 'notnull' => 0, 'visible' => 1,),
+	public $fields=array(
+		'rowid' => array('type'=>'integer', 'label'=>'TechnicalID', 'enabled'=>'1', 'position'=>1, 'notnull'=>1, 'visible'=>0, 'noteditable'=>'1', 'index'=>1, 'css'=>'left', 'comment'=>"Id"),
+		'ref' => array('type'=>'varchar(128)', 'label'=>'Ref', 'enabled'=>'1', 'position'=>20, 'notnull'=>1, 'visible'=>1, 'index'=>1, 'searchall'=>1, 'showoncombobox'=>'1', 'comment'=>"Reference of object"),
+		'description' => array('type'=>'text', 'label'=>'Description', 'enabled'=>'1', 'position'=>60, 'notnull'=>0, 'visible'=>3,),
+		'date_creation' => array('type'=>'datetime', 'label'=>'DateCreation', 'enabled'=>'1', 'position'=>500, 'notnull'=>1, 'visible'=>-2,),
+		'tms' => array('type'=>'timestamp', 'label'=>'DateModification', 'enabled'=>'1', 'position'=>501, 'notnull'=>0, 'visible'=>-2,),
+		'fk_contrat' => array('type'=>'integer:Contrat:contrat/class/contrat.class.php', 'label'=>'fk_contrat', 'enabled'=>'1', 'position'=>50, 'notnull'=>0, 'visible'=>0,),
+		'fk_user' => array('type'=>'integer:User:user/class/user.class.php', 'label'=>'fk_user', 'enabled'=>'1', 'position'=>55, 'notnull'=>1, 'visible'=>1,),
+		'fk_job' => array('type'=>'integer:Job:/hrmtest/class/job.class.php', 'label'=>'fk_job', 'enabled'=>'1', 'position'=>56, 'notnull'=>1, 'visible'=>1,),
+		'date_start' => array('type'=>'datetime', 'label'=>'date_start', 'enabled'=>'1', 'position'=>51, 'notnull'=>0, 'visible'=>1,),
+		'date_end' => array('type'=>'datetime', 'label'=>'date_end', 'enabled'=>'1', 'position'=>52, 'notnull'=>0, 'visible'=>1,),
+		'commentaire_abandon' => array('type'=>'varchar(255)', 'label'=>'commentaire_abandon', 'enabled'=>'1', 'position'=>502, 'notnull'=>0, 'visible'=>1,),
 	);
 	public $rowid;
 	public $ref;
@@ -120,8 +120,8 @@ class Position extends CommonObject
 	public $fk_contrat;
 	public $fk_user;
 	public $fk_job;
-	public $date_end;
 	public $date_start;
+	public $date_end;
 	public $commentaire_abandon;
 	// END MODULEBUILDER PROPERTIES
 
