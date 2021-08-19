@@ -19,7 +19,7 @@
 /**
  *  \file       position_agenda.php
  *  \ingroup    hrmtest
- *  \brief      Tab of events on Job
+ *  \brief      Tab of events on Position
  */
 
 //if (! defined('NOREQUIREDB'))              define('NOREQUIREDB', '1');				// Do not create database handler $db
@@ -77,8 +77,8 @@ if (!$res) {
 require_once DOL_DOCUMENT_ROOT.'/contact/class/contact.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
-dol_include_once('/hrmtest/class/job.class.php');
-dol_include_once('/hrmtest/lib/hrmtest_job.lib.php');
+dol_include_once('/hrmtest/class/position.class.php');
+dol_include_once('/hrmtest/lib/hrmtest_position.lib.php');
 
 
 // Load translation files required by the page
@@ -119,10 +119,10 @@ if (!$sortorder) {
 }
 
 // Initialize technical objects
-$object = new Job($db);
+$object = new Position($db);
 $extrafields = new ExtraFields($db);
 $diroutputmassaction = $conf->hrmtest->dir_output.'/temp/massgeneration/'.$user->id;
-$hookmanager->initHooks(array('jobagenda', 'globalcard')); // Note that conf->hooks_modules contains array
+$hookmanager->initHooks(array('positionagenda', 'globalcard')); // Note that conf->hooks_modules contains array
 // Fetch optionals attributes and labels
 $extrafields->fetch_name_optionals_label($object->table_element);
 
@@ -132,7 +132,7 @@ if ($id > 0 || !empty($ref)) {
 	$upload_dir = $conf->hrmtest->multidir_output[$object->entity]."/".$object->id;
 }
 
-$permissiontoadd = $user->rights->hrmtest->job->write; // Used by the include of actions_addupdatedelete.inc.php
+$permissiontoadd = $user->rights->hrmtest->position->write; // Used by the include of actions_addupdatedelete.inc.php
 
 // Security check (enable the most restrictive one)
 //if ($user->socid > 0) accessforbidden();
@@ -184,14 +184,14 @@ if ($object->id > 0) {
 	if (!empty($conf->notification->enabled)) {
 		$langs->load("mails");
 	}
-	$head = jobPrepareHead($object);
+	$head = PositionCardPrepareHead($object);
 
 
 	print dol_get_fiche_head($head, 'agenda', '', -1, $object->picto);
 
 	// Object card
 	// ------------------------------------------------------------
-	$linkback = '<a href="'.dol_buildpath('/hrmtest/job_list.php', 1).'?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
+	$linkback = '<a href="'.dol_buildpath('/hrmtest/position_list.php', 1).'?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
 
 	$morehtmlref = '<div class="refidno">';
 	/*
@@ -290,7 +290,7 @@ if ($object->id > 0) {
 		}
 
 
-		//print load_fiche_titre($langs->trans("ActionsOnJob"), '', '');
+		//print load_fiche_titre($langs->trans("ActionsOnPosition"), '', '');
 
 		// List of all actions
 		$filters = array();

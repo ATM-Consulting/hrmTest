@@ -19,7 +19,7 @@
 /**
  *  \file       position_document.php
  *  \ingroup    hrmtest
- *  \brief      Tab for documents linked to Job
+ *  \brief      Tab for documents linked to Position
  */
 
 //if (! defined('NOREQUIREDB'))              define('NOREQUIREDB', '1');				// Do not create database handler $db
@@ -78,8 +78,8 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/images.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
-dol_include_once('/hrmtest/class/job.class.php');
-dol_include_once('/hrmtest/lib/hrmtest_job.lib.php');
+dol_include_once('/hrmtest/class/position.class.php');
+dol_include_once('/hrmtest/lib/hrmtest_position.lib.php');
 
 // Load translation files required by the page
 $langs->loadLangs(array("hrmtest@hrmtest", "companies", "other", "mails"));
@@ -110,10 +110,10 @@ if (!$sortfield) {
 //if (! $sortfield) $sortfield="position_name";
 
 // Initialize technical objects
-$object = new Job($db);
+$object = new Position($db);
 $extrafields = new ExtraFields($db);
 $diroutputmassaction = $conf->hrmtest->dir_output.'/temp/massgeneration/'.$user->id;
-$hookmanager->initHooks(array('jobdocument', 'globalcard')); // Note that conf->hooks_modules contains array
+$hookmanager->initHooks(array('positiondocument', 'globalcard')); // Note that conf->hooks_modules contains array
 // Fetch optionals attributes and labels
 $extrafields->fetch_name_optionals_label($object->table_element);
 
@@ -121,10 +121,10 @@ $extrafields->fetch_name_optionals_label($object->table_element);
 include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php'; // Must be include, not include_once  // Must be include, not include_once. Include fetch and fetch_thirdparty but not fetch_optionals
 
 if ($id > 0 || !empty($ref)) {
-	$upload_dir = $conf->hrmtest->multidir_output[$object->entity ? $object->entity : $conf->entity]."/job/".get_exdir(0, 0, 0, 1, $object);
+	$upload_dir = $conf->hrmtest->multidir_output[$object->entity ? $object->entity : $conf->entity]."/position/".get_exdir(0, 0, 0, 1, $object);
 }
 
-$permissiontoadd = $user->rights->hrmtest->job->write; // Used by the include of actions_addupdatedelete.inc.php and actions_linkedfiles.inc.php
+$permissiontoadd = $user->rights->hrmtest->position->write; // Used by the include of actions_addupdatedelete.inc.php and actions_linkedfiles.inc.php
 
 // Security check (enable the most restrictive one)
 //if ($user->socid > 0) accessforbidden();
@@ -148,7 +148,7 @@ include DOL_DOCUMENT_ROOT.'/core/actions_linkedfiles.inc.php';
 
 $form = new Form($db);
 
-$title = $langs->trans("Job").' - '.$langs->trans("Files");
+$title = $langs->trans("Position").' - '.$langs->trans("Files");
 $help_url = '';
 //$help_url='EN:Module_Third_Parties|FR:Module_Tiers|ES:Empresas';
 llxHeader('', $title, $help_url);
@@ -157,7 +157,7 @@ if ($object->id) {
 	/*
 	 * Show tabs
 	 */
-	$head = jobPrepareHead($object);
+	$head = PositionCardPrepareHead($object);
 
 	print dol_get_fiche_head($head, 'document', '', -1, $object->picto);
 
@@ -171,7 +171,7 @@ if ($object->id) {
 
 	// Object card
 	// ------------------------------------------------------------
-	$linkback = '<a href="'.dol_buildpath('/hrmtest/job_list.php', 1).'?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
+	$linkback = '<a href="'.dol_buildpath('/hrmtest/position_list.php', 1).'?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
 
 	$morehtmlref = '<div class="refidno">';
 	/*
@@ -233,14 +233,14 @@ if ($object->id) {
 	print dol_get_fiche_end();
 
 	$modulepart = 'hrmtest';
-	//$permissiontoadd = $user->rights->hrmtest->job->write;
+	//$permissiontoadd = $user->rights->hrmtest->position->write;
 	$permissiontoadd = 1;
-	//$permtoedit = $user->rights->hrmtest->job->write;
+	//$permtoedit = $user->rights->hrmtest->position->write;
 	$permtoedit = 1;
 	$param = '&id='.$object->id;
 
-	//$relativepathwithnofile='job/' . dol_sanitizeFileName($object->id).'/';
-	$relativepathwithnofile = 'job/'.dol_sanitizeFileName($object->ref).'/';
+	//$relativepathwithnofile='position/' . dol_sanitizeFileName($object->id).'/';
+	$relativepathwithnofile = 'position/'.dol_sanitizeFileName($object->ref).'/';
 
 	include DOL_DOCUMENT_ROOT.'/core/tpl/document_actions_post_headers.tpl.php';
 } else {

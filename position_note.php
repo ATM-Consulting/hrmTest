@@ -19,7 +19,8 @@
 /**
  *  \file       position_note.php
  *  \ingroup    hrmtest
- *  \brief      Tab for notes on Job
+ *  \ingroup    hrmtest
+ *  \brief      Tab for notes on Position
  */
 
 //if (! defined('NOREQUIREDB'))              define('NOREQUIREDB', '1');				// Do not create database handler $db
@@ -74,8 +75,8 @@ if (!$res) {
 	die("Include of main fails");
 }
 
-dol_include_once('/hrmtest/class/job.class.php');
-dol_include_once('/hrmtest/lib/hrmtest_job.lib.php');
+dol_include_once('/hrmtest/class/position.class.php');
+dol_include_once('/hrmtest/lib/hrmtest_position.lib.php');
 
 // Load translation files required by the page
 $langs->loadLangs(array("hrmtest@hrmtest", "companies"));
@@ -88,10 +89,10 @@ $cancel     = GETPOST('cancel', 'aZ09');
 $backtopage = GETPOST('backtopage', 'alpha');
 
 // Initialize technical objects
-$object = new Job($db);
+$object = new Position($db);
 $extrafields = new ExtraFields($db);
 $diroutputmassaction = $conf->hrmtest->dir_output.'/temp/massgeneration/'.$user->id;
-$hookmanager->initHooks(array('jobnote', 'globalcard')); // Note that conf->hooks_modules contains array
+$hookmanager->initHooks(array('positionnote', 'globalcard')); // Note that conf->hooks_modules contains array
 // Fetch optionals attributes and labels
 $extrafields->fetch_name_optionals_label($object->table_element);
 
@@ -101,8 +102,8 @@ if ($id > 0 || !empty($ref)) {
 	$upload_dir = $conf->hrmtest->multidir_output[$object->entity]."/".$object->id;
 }
 
-$permissionnote = $user->rights->hrmtest->job->write; // Used by the include of actions_setnotes.inc.php
-$permissiontoadd = $user->rights->hrmtest->job->write; // Used by the include of actions_addupdatedelete.inc.php
+$permissionnote = $user->rights->hrmtest->position->write; // Used by the include of actions_setnotes.inc.php
+$permissiontoadd = $user->rights->hrmtest->position->write; // Used by the include of actions_addupdatedelete.inc.php
 
 // Security check (enable the most restrictive one)
 //if ($user->socid > 0) accessforbidden();
@@ -134,18 +135,18 @@ $form = new Form($db);
 
 //$help_url='EN:Customers_Orders|FR:Commandes_Clients|ES:Pedidos de clientes';
 $help_url = '';
-llxHeader('', $langs->trans('Job'), $help_url);
+llxHeader('', $langs->trans('Position'), $help_url);
 
 if ($id > 0 || !empty($ref)) {
 	$object->fetch_thirdparty();
 
-	$head = jobPrepareHead($object);
+	$head = PositionCardPrepareHead($object);
 
 	print dol_get_fiche_head($head, 'note', '', -1, $object->picto);
 
 	// Object card
 	// ------------------------------------------------------------
-	$linkback = '<a href="'.dol_buildpath('/hrmtest/job_list.php', 1).'?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
+	$linkback = '<a href="'.dol_buildpath('/hrmtest/position_list.php', 1).'?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
 
 	$morehtmlref = '<div class="refidno">';
 	/*

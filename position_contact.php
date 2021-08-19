@@ -19,7 +19,7 @@
 /**
  *  \file       position_contact.php
  *  \ingroup    hrmtest
- *  \brief      Tab for contacts linked to Job
+ *  \brief      Tab for contacts linked to Position
  */
 
 // Load Dolibarr environment
@@ -55,8 +55,8 @@ if (!$res) {
 
 require_once DOL_DOCUMENT_ROOT.'/contact/class/contact.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
-dol_include_once('/hrmtest/class/job.class.php');
-dol_include_once('/hrmtest/lib/hrmtest_job.lib.php');
+dol_include_once('/hrmtest/class/position.class.php');
+dol_include_once('/hrmtest/lib/hrmtest_position.lib.php');
 
 // Load translation files required by the page
 $langs->loadLangs(array("hrmtest@hrmtest", "companies", "other", "mails"));
@@ -68,17 +68,17 @@ $socid  = GETPOST('socid', 'int');
 $action = GETPOST('action', 'aZ09');
 
 // Initialize technical objects
-$object = new Job($db);
+$object = new Position($db);
 $extrafields = new ExtraFields($db);
 $diroutputmassaction = $conf->hrmtest->dir_output.'/temp/massgeneration/'.$user->id;
-$hookmanager->initHooks(array('jobcontact', 'globalcard')); // Note that conf->hooks_modules contains array
+$hookmanager->initHooks(array('positioncontact', 'globalcard')); // Note that conf->hooks_modules contains array
 // Fetch optionals attributes and labels
 $extrafields->fetch_name_optionals_label($object->table_element);
 
 // Load object
 include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php'; // Must be include, not include_once  // Must be include, not include_once. Include fetch and fetch_thirdparty but not fetch_optionals
 
-$permission = $user->rights->hrmtest->job->write;
+$permission = $user->rights->hrmtest->position->write;
 
 // Security check (enable the most restrictive one)
 //if ($user->socid > 0) accessforbidden();
@@ -129,7 +129,7 @@ if ($action == 'addcontact' && $permission) {
  * View
  */
 
-$title = $langs->trans('Job')." - ".$langs->trans('ContactsAddresses');
+$title = $langs->trans('Position')." - ".$langs->trans('ContactsAddresses');
 $help_url = '';
 //$help_url='EN:Module_Third_Parties|FR:Module_Tiers|ES:Empresas';
 llxHeader('', $title, $help_url);
@@ -150,11 +150,11 @@ if ($object->id) {
 	/*
 	 * Show tabs
 	 */
-	$head = jobPrepareHead($object);
+	$head = PositionCardPrepareHead($object);
 
 	print dol_get_fiche_head($head, 'contact', '', -1, $object->picto);
 
-	$linkback = '<a href="'.dol_buildpath('/hrmtest/job_list.php', 1).'?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
+	$linkback = '<a href="'.dol_buildpath('/hrmtest/position_list.php', 1).'?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
 
 	$morehtmlref = '<div class="refidno">';
 	/*
