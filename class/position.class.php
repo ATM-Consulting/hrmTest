@@ -111,6 +111,8 @@ class Position extends CommonObject
 		'date_start' => array('type'=>'datetime', 'label'=>'date_start', 'enabled'=>'1', 'position'=>51, 'notnull'=>0, 'visible'=>1,),
 		'date_end' => array('type'=>'datetime', 'label'=>'date_end', 'enabled'=>'1', 'position'=>52, 'notnull'=>0, 'visible'=>1,),
 		'commentaire_abandon' => array('type'=>'varchar(255)', 'label'=>'commentaire_abandon', 'enabled'=>'1', 'position'=>502, 'notnull'=>0, 'visible'=>1,),
+		'note_public' => array('type'=>'html', 'label'=>'NotePublic', 'enabled'=>'1', 'position'=>70, 'notnull'=>0, 'visible'=>0,),
+		'note_private' => array('type'=>'html', 'label'=>'NotePrivate', 'enabled'=>'1', 'position'=>71, 'notnull'=>0, 'visible'=>0,),
 	);
 	public $rowid;
 	public $ref;
