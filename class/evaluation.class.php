@@ -24,6 +24,7 @@
 
 // Put here all includes required by your class file
 require_once DOL_DOCUMENT_ROOT.'/core/class/commonobject.class.php';
+dol_include_once('hrmtest/class/evaluationdet.class.php');
 //require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
 //require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
 
@@ -101,20 +102,32 @@ class Evaluation extends CommonObject
 	 */
 	public $fields=array(
 		'rowid' => array('type'=>'integer', 'label'=>'TechnicalID', 'enabled'=>'1', 'position'=>1, 'notnull'=>1, 'visible'=>0, 'noteditable'=>'1', 'index'=>1, 'css'=>'left', 'comment'=>"Id"),
+		'ref' => array('type'=>'varchar(128)', 'label'=>'Ref', 'enabled'=>'1', 'position'=>20, 'notnull'=>1, 'visible'=>4, 'noteditable'=>'1', 'default'=>'(PROV)', 'index'=>1, 'searchall'=>1, 'showoncombobox'=>'1', 'comment'=>"Reference of object"),
+		'label' => array('type'=>'varchar(255)', 'label'=>'Label', 'enabled'=>'1', 'position'=>30, 'notnull'=>0, 'visible'=>1, 'searchall'=>1, 'css'=>'minwidth300', 'cssview'=>'wordbreak', 'help'=>"Help text", 'showoncombobox'=>'2',),
+		'description' => array('type'=>'text', 'label'=>'Description', 'enabled'=>'1', 'position'=>60, 'notnull'=>0, 'visible'=>3,),
+		'note_public' => array('type'=>'html', 'label'=>'NotePublic', 'enabled'=>'1', 'position'=>61, 'notnull'=>0, 'visible'=>0,),
+		'note_private' => array('type'=>'html', 'label'=>'NotePrivate', 'enabled'=>'1', 'position'=>62, 'notnull'=>0, 'visible'=>0,),
 		'date_creation' => array('type'=>'datetime', 'label'=>'DateCreation', 'enabled'=>'1', 'position'=>500, 'notnull'=>1, 'visible'=>-2,),
 		'tms' => array('type'=>'timestamp', 'label'=>'DateModification', 'enabled'=>'1', 'position'=>501, 'notnull'=>0, 'visible'=>-2,),
 		'fk_user_creat' => array('type'=>'integer:User:user/class/user.class.php', 'label'=>'UserAuthor', 'enabled'=>'1', 'position'=>510, 'notnull'=>1, 'visible'=>-2, 'foreignkey'=>'user.rowid',),
 		'fk_user_modif' => array('type'=>'integer:User:user/class/user.class.php', 'label'=>'UserModif', 'enabled'=>'1', 'position'=>511, 'notnull'=>-1, 'visible'=>-2,),
-		'status' => array('type'=>'smallint', 'label'=>'Status', 'enabled'=>'1', 'position'=>1000, 'notnull'=>1, 'visible'=>1, 'index'=>1, 'arrayofkeyval'=>array('0'=>'Brouillon', '1'=>'Valid&eacute;', '9'=>'Annul&eacute;'),),
+		'import_key' => array('type'=>'varchar(14)', 'label'=>'ImportId', 'enabled'=>'1', 'position'=>1000, 'notnull'=>-1, 'visible'=>-2,),
+		'status' => array('type'=>'smallint', 'label'=>'Status', 'enabled'=>'1', 'position'=>1000, 'notnull'=>1, 'default'=>0, 'visible'=>5, 'index'=>1, 'arrayofkeyval'=>array('0'=>'Brouillon', '1'=>'Valid&eacute;'),),
 		'date_eval' => array('type'=>'datetime', 'label'=>'DateEval', 'enabled'=>'1', 'position'=>502, 'notnull'=>0, 'visible'=>1,),
 		'fk_user' => array('type'=>'integer:User:user/class/user.class.php', 'label'=>'fkUser', 'enabled'=>'1', 'position'=>504, 'notnull'=>1, 'visible'=>1,),
 		'fk_job' => array('type'=>'integer:Job:/hrmtest/class/job.class.php', 'label'=>'Job', 'enabled'=>'1', 'position'=>505, 'notnull'=>1, 'visible'=>1,),
 	);
 	public $rowid;
+	public $ref;
+	public $label;
+	public $description;
+	public $note_public;
+	public $note_private;
 	public $date_creation;
 	public $tms;
 	public $fk_user_creat;
 	public $fk_user_modif;
+	public $import_key;
 	public $status;
 	public $date_eval;
 	public $fk_user;
@@ -124,20 +137,20 @@ class Evaluation extends CommonObject
 
 	// If this object has a subtable with lines
 
-	// /**
-	//  * @var string    Name of subtable line
-	//  */
-	// public $table_element_line = 'hrmtest_evaluationline';
+	 /**
+	  * @var string    Name of subtable line
+	  */
+	 public $table_element_line = 'hrmtest_evaluationldet';
 
-	// /**
-	//  * @var string    Field with ID of parent key if this object has a parent
-	//  */
-	// public $fk_element = 'fk_evaluation';
+	 /**
+	  * @var string    Field with ID of parent key if this object has a parent
+	  */
+	 public $fk_element = 'fk_evaluation';
 
-	// /**
-	//  * @var string    Name of subtable class that manage subtable lines
-	//  */
-	// public $class_element_line = 'Evaluationline';
+	 /**
+	  * @var string    Name of subtable class that manage subtable lines
+	  */
+	 public $class_element_line = 'Evaluationldet';
 
 	// /**
 	//  * @var array	List of child tables. To test if we can delete object.
@@ -149,12 +162,12 @@ class Evaluation extends CommonObject
 	//  *               If name matches '@ClassNAme:FilePathClass;ParentFkFieldName' it will
 	//  *               call method deleteByParentField(parentId, ParentFkFieldName) to fetch and delete child object
 	//  */
-	// protected $childtablesoncascade = array('hrmtest_evaluationdet');
+	 protected $childtablesoncascade = array('@Evaluationdet:hrmtest/class/evaluationdet.class.php:fk_evaluation');
 
-	// /**
-	//  * @var EvaluationLine[]     Array of subtable lines
-	//  */
-	// public $lines = array();
+	 /**
+	  * @var Evaluationdet[]     Array of subtable lines
+	  */
+	 public $lines = array();
 
 
 
@@ -212,7 +225,29 @@ class Evaluation extends CommonObject
 	{
 		$resultcreate = $this->createCommon($user, $notrigger);
 
-		//$resultvalidate = $this->validate($user, $notrigger);
+		if ($resultcreate > 0)
+		{
+			dol_include_once('hrmtest/class/skillrank.class.php');
+			$skillRank = new SkillRank($this->db);
+			$TRequiredRanks = $skillRank->fetchAll('ASC', 't.rowid', 0, 0, array('customsql' => 'fk_object='.$this->fk_job.' AND objecttype="job"'));
+
+			if (is_array($TRequiredRanks) && !empty($TRequiredRanks))
+			{
+				$this->lines = array();
+				foreach ($TRequiredRanks as $required)
+				{
+					$line = new Evaluationdet($this->db);
+					$line->fk_evaluation = $resultcreate;
+					$line->fk_skill = $required->fk_skill;
+					$line->required_rank = $required->rank;
+					$line->fk_rank = 0;
+
+					$res = $line->create($user, $notrigger);
+					if ($res > 0) $this->lines[] = $line;
+				}
+			}
+
+		}
 
 		return $resultcreate;
 	}
@@ -894,7 +929,7 @@ class Evaluation extends CommonObject
 	{
 		$this->lines = array();
 
-		$objectline = new EvaluationLine($this->db);
+		$objectline = new Evaluationdet($this->db);
 		$result = $objectline->fetchAll('ASC', 'position', 0, 0, array('customsql'=>'fk_evaluation = '.$this->id));
 
 		if (is_numeric($result)) {
@@ -1034,27 +1069,3 @@ class Evaluation extends CommonObject
 
 
 require_once DOL_DOCUMENT_ROOT.'/core/class/commonobjectline.class.php';
-
-/**
- * Class EvaluationLine. You can also remove this and generate a CRUD class for lines objects.
- */
-class EvaluationLine extends CommonObjectLine
-{
-	// To complete with content of an object EvaluationLine
-	// We should have a field rowid, fk_evaluation and position
-
-	/**
-	 * @var int  Does object support extrafields ? 0=No, 1=Yes
-	 */
-	public $isextrafieldmanaged = 0;
-
-	/**
-	 * Constructor
-	 *
-	 * @param DoliDb $db Database handler
-	 */
-	public function __construct(DoliDB $db)
-	{
-		$this->db = $db;
-	}
-}
