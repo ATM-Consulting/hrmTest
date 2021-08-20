@@ -91,7 +91,7 @@ function skillrankPrepareHead($object)
 	return $head;
 }
 
-function displayRankInfos(SkillRank $skillRank, $inputname = 'TNote')
+function displayRankInfos(SkillRank $skillRank, $inputname = 'TNote', $mode = 'edit')
 {
 	global $langs;
 
@@ -109,7 +109,10 @@ function displayRankInfos(SkillRank $skillRank, $inputname = 'TNote')
 		$ret.= $line->rank == $skillRank->rank ? ' selected' : '';
 		$ret.= '">'.$line->rank.'</span>';
 	}
-	$ret.= '
+
+	if ($mode == 'edit')
+	{
+		$ret.= '
 		<input type="hidden" id="'.$inputname.'_'.$skillRank->fk_skill.'" name="'.$inputname.'['.$skillRank->fk_skill.']" value="0">
 		<script type="text/javascript">
 			$(document).ready(function(){
@@ -131,6 +134,7 @@ function displayRankInfos(SkillRank $skillRank, $inputname = 'TNote')
 
 			});
 		</script>';
+	}
 
 	return $ret;
 }

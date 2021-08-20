@@ -140,7 +140,7 @@ class Evaluation extends CommonObject
 	 /**
 	  * @var string    Name of subtable line
 	  */
-	 public $table_element_line = 'hrmtest_evaluationldet';
+	 public $table_element_line = 'hrmtest_evaluationdet';
 
 	 /**
 	  * @var string    Field with ID of parent key if this object has a parent
@@ -150,7 +150,7 @@ class Evaluation extends CommonObject
 	 /**
 	  * @var string    Name of subtable class that manage subtable lines
 	  */
-	 public $class_element_line = 'Evaluationldet';
+	 public $class_element_line = 'Evaluationdet';
 
 	// /**
 	//  * @var array	List of child tables. To test if we can delete object.
@@ -376,8 +376,43 @@ class Evaluation extends CommonObject
 	{
 		$this->lines = array();
 
-		$result = $this->fetchLinesCommon();
-		return $result;
+		$objectlineclassname = get_class($this).'det';
+		if (!class_exists($objectlineclassname)) {
+			$this->error = 'Error, class '.$objectlineclassname.' not found during call of fetchLinesCommon';
+			return -1;
+		}
+
+		$objectline = new $objectlineclassname($this->db);
+
+		$sql = 'SELECT '.$objectline->getFieldList('l');
+		$sql .= ' FROM '.MAIN_DB_PREFIX.$objectline->table_element.' as l';
+		$sql .= ' WHERE l.fk_'.$this->element.' = '.$this->id;
+		if (isset($objectline->fields['position'])) {
+			$sql .= $this->db->order('position', 'ASC');
+		}
+
+		$resql = $this->db->query($sql);
+		if ($resql) {
+			$num_rows = $this->db->num_rows($resql);
+			$i = 0;
+			while ($i < $num_rows) {
+				$obj = $this->db->fetch_object($resql);
+				if ($obj) {
+					$newline = new $objectlineclassname($this->db);
+					$newline->setVarsFromFetchObj($obj);
+
+					$this->lines[] = $newline;
+				}
+				$i++;
+			}
+
+			return 1;
+		} else {
+			$this->error = $this->db->lasterror();
+			$this->errors[] = $this->error;
+			return -1;
+		}
+
 	}
 
 
@@ -930,7 +965,7 @@ class Evaluation extends CommonObject
 		$this->lines = array();
 
 		$objectline = new Evaluationdet($this->db);
-		$result = $objectline->fetchAll('ASC', 'position', 0, 0, array('customsql'=>'fk_evaluation = '.$this->id));
+		$result = $objectline->fetchAll('ASC', 'fk_rank', 0, 0, array('customsql'=>'fk_evaluation = '.$this->id));
 
 		if (is_numeric($result)) {
 			$this->error = $this->error;
@@ -1065,7 +1100,130 @@ class Evaluation extends CommonObject
 
 		return $error;
 	}
+
+	public function printObjectLines($action, $seller, $buyer, $selected = 0, $dateSelector = 0, $defaulttpldir = '/core/tpl')
+	{
+		global $conf, $hookmanager, $langs, $user, $form, $extrafields, $object;
+		// TODO We should not use global var for this
+		global $inputalsopricewithtax, $usemargins, $disableedit, $disablemove, $disableremove, $outputalsopricetotalwithtax;
+
+		// Define usemargins
+		$usemargins = 0;
+		if (!empty($conf->margin->enabled) && !empty($this->element) && in_array($this->element, array('facture', 'facturerec', 'propal', 'commande'))) {
+			$usemargins = 1;
+		}
+
+		$num = count($this->lines);
+
+		// Line extrafield
+		if (!is_object($extrafields)) {
+			require_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
+			$extrafields = new ExtraFields($this->db);
+		}
+		$extrafields->fetch_name_optionals_label($this->table_element_line);
+
+		$parameters = array('num'=>$num, 'dateSelector'=>$dateSelector, 'seller'=>$seller, 'buyer'=>$buyer, 'selected'=>$selected, 'table_element_line'=>$this->table_element_line);
+		$reshook = $hookmanager->executeHooks('printObjectLineTitle', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
+		if (empty($reshook)) {
+			// Output template part (modules that overwrite templates must declare this into descriptor)
+			// Use global variables + $dateSelector + $seller and $buyer
+			// Note: This is deprecated. If you need to overwrite the tpl file, use instead the hook.
+			include dol_buildpath('hrmtest/core/tpl/objectline_title.tpl.php');
+		}
+
+		$i = 0;
+
+		print "<!-- begin printObjectLines() --><tbody>\n";
+		foreach ($this->lines as $line) {
+			//Line extrafield
+			$line->fetch_optionals();
+
+			//if (is_object($hookmanager) && (($line->product_type == 9 && ! empty($line->special_code)) || ! empty($line->fk_parent_line)))
+			if (is_object($hookmanager)) {   // Old code is commented on preceding line.
+				if (empty($line->fk_parent_line)) {
+					$parameters = array('line'=>$line, 'num'=>$num, 'i'=>$i, 'dateSelector'=>$dateSelector, 'seller'=>$seller, 'buyer'=>$buyer, 'selected'=>$selected, 'table_element_line'=>$line->table_element);
+					$reshook = $hookmanager->executeHooks('printObjectLine', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
+				} else {
+					$parameters = array('line'=>$line, 'num'=>$num, 'i'=>$i, 'dateSelector'=>$dateSelector, 'seller'=>$seller, 'buyer'=>$buyer, 'selected'=>$selected, 'table_element_line'=>$line->table_element, 'fk_parent_line'=>$line->fk_parent_line);
+					$reshook = $hookmanager->executeHooks('printObjectSubLine', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
+				}
+			}
+			if (empty($reshook)) {
+				$this->printObjectLine($action, $line, '', $num, $i, $dateSelector, $seller, $buyer, $selected, $extrafields, $defaulttpldir);
+			}
+
+			$i++;
+		}
+		print "</tbody><!-- end printObjectLines() -->\n";
+	}
+
+	public function printObjectLine($action, $line, $var, $num, $i, $dateSelector, $seller, $buyer, $selected = 0, $extrafields = null, $defaulttpldir = '/core/tpl')
+	{
+		global $conf, $langs, $user, $object, $hookmanager;
+		global $form;
+		global $object_rights, $disableedit, $disablemove, $disableremove; // TODO We should not use global var for this !
+
+		$object_rights = $this->getRights();
+
+		$element = $this->element;
+
+		$text = '';
+		$description = '';
+
+		// Line in view mode
+		if ($action != 'editline' || $selected != $line->id) {
+			// Product
+			if ($line->fk_product > 0) {
+				$product_static = new Product($this->db);
+				$product_static->fetch($line->fk_product);
+
+				$product_static->ref = $line->ref; //can change ref in hook
+				$product_static->label = $line->label; //can change label in hook
+
+				$text = $product_static->getNomUrl(1);
+
+				// Define output language and label
+				if (!empty($conf->global->MAIN_MULTILANGS)) {
+					if (property_exists($this, 'socid') && !is_object($this->thirdparty)) {
+						dol_print_error('', 'Error: Method printObjectLine was called on an object and object->fetch_thirdparty was not done before');
+						return;
+					}
+
+					$prod = new Product($this->db);
+					$prod->fetch($line->fk_product);
+
+					$outputlangs = $langs;
+					$newlang = '';
+					if (empty($newlang) && GETPOST('lang_id', 'aZ09')) {
+						$newlang = GETPOST('lang_id', 'aZ09');
+					}
+					if (!empty($conf->global->PRODUIT_TEXTS_IN_THIRDPARTY_LANGUAGE) && empty($newlang) && is_object($this->thirdparty)) {
+						$newlang = $this->thirdparty->default_lang; // To use language of customer
+					}
+					if (!empty($newlang)) {
+						$outputlangs = new Translate("", $conf);
+						$outputlangs->setDefaultLang($newlang);
+					}
+
+					$label = (!empty($prod->multilangs[$outputlangs->defaultlang]["label"])) ? $prod->multilangs[$outputlangs->defaultlang]["label"] : $line->product_label;
+				} else {
+					$label = $line->product_label;
+				}
+
+				$text .= ' - '.(!empty($line->label) ? $line->label : $label);
+				$description .= (!empty($conf->global->PRODUIT_DESC_IN_FORM) ? '' : dol_htmlentitiesbr($line->description)); // Description is what to show on popup. We shown nothing if already into desc.
+			}
+
+			$line->pu_ttc = price2num($line->subprice * (1 + ($line->tva_tx / 100)), 'MU');
+
+			// Output template part (modules that overwrite templates must declare this into descriptor)
+			// Use global variables + $dateSelector + $seller and $buyer
+			// Note: This is deprecated. If you need to overwrite the tpl file, use instead the hook printObjectLine and printObjectSubLine.
+			include dol_buildpath('hrmtest/core/tpl/objectline_view.tpl.php');
+		}
+
+	}
+
+
 }
 
-
-require_once DOL_DOCUMENT_ROOT.'/core/class/commonobjectline.class.php';
