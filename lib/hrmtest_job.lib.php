@@ -24,8 +24,8 @@
 /**
  * Prepare array of tabs for Job
  *
- * @param	Job	$object		Job
- * @return 	array					Array of tabs
+ * @param	Job		$object		Job
+ * @return 	array				Array of tabs
  */
 function jobPrepareHead($object)
 {
@@ -51,6 +51,41 @@ function jobPrepareHead($object)
 	$head[$h][2] = 'position';
 	$h++;
 
+
+	if (isset($object->fields['note_public']) || isset($object->fields['note_private'])) {
+		$nbNote = 0;
+		if (!empty($object->note_private)) {
+			$nbNote++;
+		}
+		if (!empty($object->note_public)) {
+			$nbNote++;
+		}
+		$head[$h][0] = dol_buildpath('/hrmtest/job_note.php', 1).'?id='.$object->id;
+		$head[$h][1] = $langs->trans('Notes');
+		if ($nbNote > 0) {
+			$head[$h][1] .= (empty($conf->global->MAIN_OPTIMIZEFORTEXTBROWSER) ? '<span class="badge marginleftonlyshort">'.$nbNote.'</span>' : '');
+		}
+		$head[$h][2] = 'note';
+		$h++;
+	}
+
+	require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
+	require_once DOL_DOCUMENT_ROOT.'/core/class/link.class.php';
+	$upload_dir = $conf->hrmtest->dir_output."/job/".dol_sanitizeFileName($object->ref);
+	$nbFiles = count(dol_dir_list($upload_dir, 'files', 0, '', '(\.meta|_preview.*\.png)$'));
+	$nbLinks = Link::count($db, $object->element, $object->id);
+	$head[$h][0] = dol_buildpath("/hrmtest/job_document.php", 1).'?id='.$object->id;
+	$head[$h][1] = $langs->trans('Documents');
+	if (($nbFiles + $nbLinks) > 0) {
+		$head[$h][1] .= '<span class="badge marginleftonlyshort">'.($nbFiles + $nbLinks).'</span>';
+	}
+	$head[$h][2] = 'document';
+	$h++;
+
+	$head[$h][0] = dol_buildpath("/hrmtest/job_agenda.php", 1).'?id='.$object->id;
+	$head[$h][1] = $langs->trans("Events");
+	$head[$h][2] = 'agenda';
+	$h++;
 
 	// Show more tabs from modules
 	// Entries must be declared in modules descriptor with line

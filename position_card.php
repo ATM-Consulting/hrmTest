@@ -86,49 +86,60 @@ dol_include_once('/hrmtest/class/job.class.php');
 dol_include_once('/hrmtest/lib/hrmtest_position.lib.php');
 //dol_include_once('/hrmtest/position.php');
 
-$action = GETPOST('action', 'aZ09') ? GETPOST('action', 'aZ09') : 'view'; // The action 'add', 'create', 'edit', 'update', 'view', ...
+$action 	= GETPOST('action', 'aZ09') ? GETPOST('action', 'aZ09') : 'view'; // The action 'add', 'create', 'edit', 'update', 'view', ...
 $backtopage = GETPOST('backtopage', 'alpha');
 $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
+$id 	= GETPOST('id', 'int');
+
+// Initialize technical objects
+$form = new Form($db);
+$object = new Position($db);
+$res = $object->fetch($id);
+if ($res < 0) {
+	dol_print_error($db, $object->error);
+}
 
 
-DisplayPositionCard($langs, $db, $conf, $user, $hookmanager, $permissiontoadd, $lineid, $text, $fk_job);
+$langs->loadLangs(array("hrmtest@hrmtest", "other"));
 
+
+DisplayPositionCard($conf, $langs, $db, $object, $permissiontoadd, $lineid);
 
 /**
- * @param $langs
- * @param DoliDB $db
- * @param $conf
- * @param $user
- * @param HookManager $hookmanager
- * @param $permissiontoadd
- * @param array $lineid
- * @param $text
- * @return array
+ * 		Show the card of a position
+ *
+ *		@param	Conf			 $conf			  Object conf
+ * 		@param	Translate		 $langs			  Object langs
+ * 		@param	DoliDB			 $db			  Database handler
+ * 		@param	Position		 $object		  Position object
+ * 		@param $permissiontoadd	 $permissiontoadd Rights/permissions
+ * 		@param $lineid			 $lineid		  Id of a permission line
+ * 		@return array
  */
-function DisplayPositionCard($langs, DoliDB $db, $conf, $user, HookManager $hookmanager, $permissiontoadd, $lineid, $text, $fk_job)
+function DisplayPositionCard($conf, $langs, $db, &$object, $permissiontoadd, $lineid)
 {
-	// Load translation files required by the page
-	$langs->loadLangs(array("hrmtest@hrmtest", "other"));
+
+	global $user,$langs, $db, $conf, $extrafields, $hookmanager;
 
 	// Get parameters
-	$id = GETPOST('id', 'int');
+	$id 	= GETPOST('id', 'int');
 	$fk_job = GETPOST('fk_job', 'int');
 
-	$ref = GETPOST('ref', 'alpha');
+	$ref 	= GETPOST('ref', 'alpha');
 	$action = GETPOST('action', 'aZ09');
 	$confirm = GETPOST('confirm', 'alpha');
 	$cancel = GETPOST('cancel', 'aZ09');
 	$contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'positioncard'; // To manage different context of search
 	$backtopage = GETPOST('backtopage', 'alpha');
 	$backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
-	//$lineid   = GETPOST('lineid', 'int');
+	$lineid   = GETPOST('lineid', 'int');
 
 	// Initialize technical objects
-	$object = new Position($db);
-	$res = $object->fetch($id);
-	if ($res < 0) {
-		dol_print_error($db, $object->error);
-	}
+	//$object = new Position($db);
+	//$res = $object->fetch($id);
+	/*if ($res < 0) {
+		dol_print_error($db, &$object->error);
+	}*/
 
 	$extrafields = new ExtraFields($db);
 
@@ -155,7 +166,6 @@ function DisplayPositionCard($langs, DoliDB $db, $conf, $user, HookManager $hook
 
 	// Load object
 	include DOL_DOCUMENT_ROOT . '/core/actions_fetchobject.inc.php'; // Must be include, not include_once.
-
 
 	$permissiontoread = $user->rights->hrmtest->position->read;
 	$permissiontoadd = $user->rights->hrmtest->position->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
@@ -199,12 +209,6 @@ function DisplayPositionCard($langs, DoliDB $db, $conf, $user, HookManager $hook
 		}
 
 		$triggermodname = 'HRMTEST_POSITION_MODIFY'; // Name of trigger action code to execute when we modify record
-
-//		if ($action == 'addposition')
-//		{
-//			$object = new Position($db);
-//			$action = 'add';
-//		}
 
 		// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 		include DOL_DOCUMENT_ROOT . '/core/actions_addupdatedelete.inc.php';
@@ -268,13 +272,13 @@ function DisplayPositionCard($langs, DoliDB $db, $conf, $user, HookManager $hook
 
 	// Part to edit record
 	if (($id || $ref) && $action == 'edit') {
+
 		print load_fiche_titre($langs->trans("Position"), '', 'object_' . $object->picto);
 
-		print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?ref=' . $object->ref . '">';
+		print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '">';
 		print '<input type="hidden" name="token" value="' . newToken() . '">';
 		print '<input type="hidden" name="action" value="update">';
 		print '<input type="hidden" name="id" value="' . $object->id . '">';
-		print '<input type="hidden" name="ref" value="' . $object->ref . '">';
 
 		if ($backtopage) {
 			print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';
@@ -310,7 +314,7 @@ function DisplayPositionCard($langs, DoliDB $db, $conf, $user, HookManager $hook
 		$res = $object->fetch_optionals();
 
 
-		$head = positionCardPrepareHead($object);
+		$head = PositionCardPrepareHead($object);
 		print dol_get_fiche_head($head, 'position', $langs->trans("Workstation"), -1, $object->picto);
 
 		$formconfirm = '';
@@ -337,7 +341,7 @@ function DisplayPositionCard($langs, DoliDB $db, $conf, $user, HookManager $hook
 				// array('type' => 'other',    'name' => 'idwarehouse',   'label' => $langs->trans("SelectWarehouseForStockDecrease"), 'value' => $formproduct->selectWarehouses(GETPOST('idwarehouse')?GETPOST('idwarehouse'):'ifone', 'idwarehouse', '', 1, 0, 0, '', 0, $forcecombo))
 			);
 			*/
-			$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('XXX'), $text, 'confirm_xxx', $formquestion, 0, 1, 220);
+			$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('XXX'), '', 'confirm_xxx', $formquestion, 0, 1, 220);
 		}
 
 		// Call Hook formConfirm
@@ -407,6 +411,68 @@ function DisplayPositionCard($langs, DoliDB $db, $conf, $user, HookManager $hook
 	}
 	return array($fk_job, $object, $action);
 }
+
+//if ($action != 'presend') {
+//	$formfile = new FormFile($db);
+//	print '<div class="fichecenter"><div class="fichehalfleft">';
+//
+//	if (empty($conf->global->SOCIETE_DISABLE_BUILDDOC)) {
+//		print '<a name="builddoc"></a>'; // ancre
+//
+//		/*
+//		 * Generated documents
+//		 */
+//		$filedir = $conf->societe->multidir_output[$object->entity].'/'.$object->id;
+//		$urlsource = $_SERVER["PHP_SELF"]."?socid=".$object->id;
+//		$genallowed = $user->rights->societe->lire;
+//		$delallowed = $user->rights->societe->creer;
+//
+//		print $formfile->showdocuments('company', $object->id, $filedir, $urlsource, $genallowed, $delallowed, $object->model_pdf, 0, 0, 0, 28, 0, 'entity='.$object->entity, 0, '', $object->default_lang);
+//	}
+//
+//
+//	print '</div><div class="fichehalfright"><div class="ficheaddleft">';
+//
+//	$MAXEVENT = 10;
+//
+//	$morehtmlright = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-list-alt imgforviewmode', DOL_URL_ROOT.'/societe/agenda.php?socid='.$object->id);
+//
+//	// List of actions on element
+//	include_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';
+//	$formactions = new FormActions($db);
+//	$somethingshown = $formactions->showactions($object, '', $object->id, 1, '', $MAXEVENT, '', $morehtmlright); // Show all action for thirdparty
+//
+//	print '</div></div></div>';
+//}
+
+
+print '</table>' . "\n";
+print '</div>' . "\n";
+
+print '</form>' . "\n";
+
+
+print '<div class="fichecenter"><div class="fichehalfleft">';
+
+// Show links to link elements
+$linktoelem = $form->showLinkToObjectBlock($object, null, array('position'));
+$somethingshown = $form->showLinkedObjectBlock($object, $linktoelem);
+
+
+print '</div><div class="fichehalfright"><div class="ficheaddleft">';
+
+$MAXEVENT = 10;
+
+$morehtmlright = '<a href="' . dol_buildpath('/hrmtest/position_agenda.php', 1) . '?id=' . $object->id . '">';
+$morehtmlright .= $langs->trans("SeeAll");
+$morehtmlright .= '</a>';
+// List of actions on element
+include_once DOL_DOCUMENT_ROOT . '/core/class/html.formactions.class.php';
+$formactions = new FormActions($db);
+$somethingshown = $formactions->showactions($object, $object->element . '@' . $object->module, (is_object($object->thirdparty) ? $object->thirdparty->id : 0), 1, '', $MAXEVENT, '', $morehtmlright);
+
+print '</div></div></div>';
+
 
 
 // End of page
