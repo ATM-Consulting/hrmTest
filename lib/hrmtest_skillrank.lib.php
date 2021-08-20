@@ -91,7 +91,7 @@ function skillrankPrepareHead($object)
 	return $head;
 }
 
-function displayRankInfos(SkillRank $skillRank, $inputname = 'TNote', $mode = 'edit')
+function displayRankInfos(SkillRank $skillRank, $inputname = 'TNote', $mode = 'view')
 {
 	global $langs;
 
