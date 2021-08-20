@@ -222,7 +222,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$listLink = dol_buildpath('/user/list.php', 1);
 	}
 
-
 	print dol_get_fiche_head($head, 'skill_tab', $langs->trans("Workstation"), -1, $object->picto);
 
 	$formconfirm = '';

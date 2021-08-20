@@ -330,7 +330,7 @@ function DisplayJob($conf, $langs, $db, $object, $permissiontoadd, $lineid)
 			print '<input type="hidden" name="backtopageforcancel" value="' . $backtopageforcancel . '">';
 		}
 
-		print dol_get_fiche_head();
+//		print dol_get_fiche_head();
 
 		print '<table class="border centpercent tableforfieldedit">' . "\n";
 
@@ -355,7 +355,7 @@ function DisplayJob($conf, $langs, $db, $object, $permissiontoadd, $lineid)
 	if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create'))) {
 		$res = $object->fetch_optionals();
 
-		$head = jobPrepareHead($object, $object->fk_job);
+		$head = jobPrepareHead($object);
 		print dol_get_fiche_head($head, 'position', $langs->trans("Workstation"), -1, $object->picto);
 
 		$formconfirm = '';

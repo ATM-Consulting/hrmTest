@@ -61,7 +61,7 @@ class Position extends CommonObject
 	/**
 	 * @var string String with name of icon for position. Must be the part after the 'object_' into object_position.png
 	 */
-	public $picto = 'title_hrm';
+	public $picto = 'company.png';
 
 
 	const STATUS_DRAFT = 0;

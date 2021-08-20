@@ -24,8 +24,8 @@
 /**
  * Prepare array of tabs for Job
  *
- * @param	Job	$object		Job
- * @return 	array					Array of tabs
+ * @param	Job		$object		Job
+ * @return 	array				Array of tabs
  */
 function jobPrepareHead($object)
 {

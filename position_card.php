@@ -116,7 +116,7 @@ DisplayPositionCard($conf, $langs, $db, $object, $permissiontoadd, $lineid);
  * 		@param $lineid			 $lineid		  Id of a permission line
  * 		@return array
  */
-function DisplayPositionCard($conf, $langs, $db, $object, $permissiontoadd, $lineid)
+function DisplayPositionCard($conf, $langs, $db, &$object, $permissiontoadd, $lineid)
 {
 
 	global $user,$langs, $db, $conf, $extrafields, $hookmanager;
@@ -135,11 +135,11 @@ function DisplayPositionCard($conf, $langs, $db, $object, $permissiontoadd, $lin
 	$lineid   = GETPOST('lineid', 'int');
 
 	// Initialize technical objects
-	$object = new Position($db);
-	$res = $object->fetch($id);
-	if ($res < 0) {
-		dol_print_error($db, $object->error);
-	}
+	//$object = new Position($db);
+	//$res = $object->fetch($id);
+	/*if ($res < 0) {
+		dol_print_error($db, &$object->error);
+	}*/
 
 	$extrafields = new ExtraFields($db);
 
@@ -272,13 +272,13 @@ function DisplayPositionCard($conf, $langs, $db, $object, $permissiontoadd, $lin
 
 	// Part to edit record
 	if (($id || $ref) && $action == 'edit') {
+
 		print load_fiche_titre($langs->trans("Position"), '', 'object_' . $object->picto);
 
-		print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?ref=' . $object->ref . '">';
+		print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '">';
 		print '<input type="hidden" name="token" value="' . newToken() . '">';
 		print '<input type="hidden" name="action" value="update">';
 		print '<input type="hidden" name="id" value="' . $object->id . '">';
-		print '<input type="hidden" name="ref" value="' . $object->ref . '">';
 
 		if ($backtopage) {
 			print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';

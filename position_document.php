@@ -159,7 +159,7 @@ if ($object->id) {
 	 */
 	$head = PositionCardPrepareHead($object);
 
-	print dol_get_fiche_head($head, 'document', '', -1, $object->picto);
+	print dol_get_fiche_head($head, 'document', $langs->trans("Document"), -1, $object->picto);
 
 
 	// Build file list

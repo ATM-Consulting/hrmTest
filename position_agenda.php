@@ -187,7 +187,7 @@ if ($object->id > 0) {
 	$head = PositionCardPrepareHead($object);
 
 
-	print dol_get_fiche_head($head, 'agenda', '', -1, $object->picto);
+	print dol_get_fiche_head($head, 'agenda', $langs->trans("Agenda"), -1, $object->picto);
 
 	// Object card
 	// ------------------------------------------------------------
