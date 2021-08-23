@@ -242,8 +242,9 @@ if ($action == 'create') {
 	print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
 	print '<input type="hidden" name="token" value="' . newToken() . '">';
 	print '<input type="hidden" name="action" value="add">';
+	$backtopage .= "&objecttype=job";
 	if ($backtopage) {
-		print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';
+		print '<input type="hidden" name="backtopage" value="' . $backtopage . ' &objecttype=job ">';
 	}
 	if ($backtopageforcancel) {
 		print '<input type="hidden" name="backtopageforcancel" value="' . $backtopageforcancel . '">';
@@ -274,6 +275,7 @@ if ($action == 'create') {
 	print '<div class="center">';
 	print '<input type="submit" class="button" name="add" value="' . dol_escape_htmltag($langs->trans("Create")) . '">';
 	print '&nbsp; ';
+
 	print '<input type="' . ($backtopage ? "submit" : "button") . '" class="button button-cancel" name="cancel" value="' . dol_escape_htmltag($langs->trans("Cancel")) . '"' . ($backtopage ? '' : ' onclick="javascript:history.go(-1)"') . '>'; // Cancel for create does not post form if we don't know the backtopage
 	print '</div>';
 
