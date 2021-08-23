@@ -78,7 +78,10 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
 dol_include_once('/hrmtest/class/evaluation.class.php');
+dol_include_once('/hrmtest/class/skill.class.php');
+dol_include_once('/hrmtest/class/skillrank.class.php');
 dol_include_once('/hrmtest/lib/hrmtest_evaluation.lib.php');
+dol_include_once('/hrmtest/lib/hrmtest_skillrank.lib.php');
 
 // Load translation files required by the page
 $langs->loadLangs(array("hrmtest@hrmtest", "other"));
@@ -192,6 +195,42 @@ if (empty($reshook)) {
 	$autocopy = 'MAIN_MAIL_AUTOCOPY_EVALUATION_TO';
 	$trackid = 'evaluation'.$object->id;
 	include DOL_DOCUMENT_ROOT.'/core/actions_sendmails.inc.php';
+
+	if ($action == 'saveSkill')
+	{
+		$TNote = GETPOST('TNote', 'array');
+		if (!empty($TNote))
+		{
+			foreach ($object->lines as $line)
+			{
+				if ($line->fk_rank)
+				{
+					$skillRank = new SkillRank($db);
+					$skillRank->fetch($line->fk_rank);
+					if ($TNote[$line->fk_skill] != $skillRank->rank)
+					{
+						$skillRank->rank = $TNote[$line->fk_skill];
+						$skillRank->update($user);
+					}
+				}
+				else
+				{
+					$skillRank = new SkillRank($db);
+					$skillRank->objecttype = 'evaluationdet';
+					$skillRank->fk_object = $line->id;
+					$skillRank->rank = $TNote[$line->fk_skill];
+					$skillRank->fk_skill = $line->fk_skill;
+					$ret = $skillRank->create($user);
+					if ($ret > 0)
+					{
+						$line->fk_rank = $ret;
+						$line->update($user);
+					}
+				}
+			}
+		}
+
+	}
 }
 
 
@@ -436,7 +475,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 		print '	<form name="addproduct" id="addproduct" action="'.$_SERVER["PHP_SELF"].'?id='.$object->id.(($action != 'editline') ? '' : '#line_'.GETPOST('lineid', 'int')).'" method="POST">
 		<input type="hidden" name="token" value="' . newToken().'">
-		<input type="hidden" name="action" value="' . (($action != 'editline') ? 'addline' : 'updateline').'">
+		<input type="hidden" name="action" value="saveSkill">
 		<input type="hidden" name="mode" value="">
 		<input type="hidden" name="page_y" value="">
 		<input type="hidden" name="id" value="' . $object->id.'">
@@ -455,7 +494,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			$object->printObjectLines($action, $mysoc, null, GETPOST('lineid', 'int'), 1);
 		}
 
-		// Form to add new line
+		/*// Form to add new line
 		if ($object->status == 0 && $permissiontoadd && $action != 'selectlines') {
 			if ($action != 'editline') {
 				// Add products/services form
@@ -466,14 +505,20 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				if (empty($reshook))
 					$object->formAddObjectLine(1, $mysoc, $soc);
 			}
-		}
+		}*/
 
 		if (!empty($object->lines) || ($object->status == $object::STATUS_DRAFT && $permissiontoadd && $action != 'selectlines' && $action != 'editline')) {
 			print '</table>';
+
+			if ($object->status == $object::STATUS_DRAFT && $permissiontoadd) print '<input class="button pull-right" type="submit" value="Enregistrer">';
 		}
+
+
 		print '</div>';
 
 		print "</form>\n";
+		print "<br>";
+
 	}
 
 
@@ -511,7 +556,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			}
 
 			// Clone
-			print dolGetButtonAction($langs->trans('ToClone'), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&socid='.$object->socid.'&action=clone&token='.newToken(), '', $permissiontoadd);
+//			print dolGetButtonAction($langs->trans('ToClone'), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&socid='.$object->socid.'&action=clone&token='.newToken(), '', $permissiontoadd);
 
 			/*
 			if ($permissiontoadd) {

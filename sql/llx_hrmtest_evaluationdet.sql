@@ -14,14 +14,17 @@
 -- along with this program.  If not, see https://www.gnu.org/licenses/.
 
 
--- BEGIN MODULEBUILDER INDEXES
-ALTER TABLE llx_hrmtest_evaluation ADD INDEX idx_hrmtest_evaluation_rowid (rowid);
-ALTER TABLE llx_hrmtest_evaluation ADD INDEX idx_hrmtest_evaluation_ref (ref);
-ALTER TABLE llx_hrmtest_evaluation ADD CONSTRAINT llx_hrmtest_evaluation_fk_user_creat FOREIGN KEY (fk_user_creat) REFERENCES llx_user(rowid);
-ALTER TABLE llx_hrmtest_evaluation ADD INDEX idx_hrmtest_evaluation_status (status);
--- END MODULEBUILDER INDEXES
-
---ALTER TABLE llx_hrmtest_evaluation ADD UNIQUE INDEX uk_hrmtest_evaluation_fieldxy(fieldx, fieldy);
-
---ALTER TABLE llx_hrmtest_evaluation ADD CONSTRAINT llx_hrmtest_evaluation_fk_field FOREIGN KEY (fk_field) REFERENCES llx_hrmtest_myotherobject(rowid);
-
+CREATE TABLE llx_hrmtest_evaluationdet(
+	-- BEGIN MODULEBUILDER FIELDS
+	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL, 
+	date_creation datetime NOT NULL, 
+	tms timestamp, 
+	fk_user_creat integer NOT NULL, 
+	fk_user_modif integer, 
+	fk_skill integer NOT NULL, 
+	fk_evaluation integer NOT NULL, 
+	fk_rank integer NOT NULL, 
+	required_rank integer NOT NULL, 
+	import_key varchar(14)
+	-- END MODULEBUILDER FIELDS
+) ENGINE=innodb;

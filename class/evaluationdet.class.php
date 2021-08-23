@@ -17,21 +17,21 @@
  */
 
 /**
- * \file        class/evaluation.class.php
+ * \file        class/evaluationdet.class.php
  * \ingroup     hrmtest
- * \brief       This file is a CRUD class file for Evaluation (Create/Read/Update/Delete)
+ * \brief       This file is a CRUD class file for Evaluationdet (Create/Read/Update/Delete)
  */
 
 // Put here all includes required by your class file
 require_once DOL_DOCUMENT_ROOT.'/core/class/commonobject.class.php';
-dol_include_once('hrmtest/class/evaluationdet.class.php');
+dol_include_once('hrmtest/class/skillrank.class.php');
 //require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
 //require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
 
 /**
- * Class for Evaluation
+ * Class for Evaluationdet
  */
-class Evaluation extends CommonObject
+class Evaluationdet extends CommonObject
 {
 	/**
 	 * @var string ID of module.
@@ -41,12 +41,12 @@ class Evaluation extends CommonObject
 	/**
 	 * @var string ID to identify managed object.
 	 */
-	public $element = 'evaluation';
+	public $element = 'evaluationdet';
 
 	/**
 	 * @var string Name of table without prefix where object is stored. This is also the key used for extrafields management.
 	 */
-	public $table_element = 'hrmtest_evaluation';
+	public $table_element = 'hrmtest_evaluationdet';
 
 	/**
 	 * @var int  Does this object support multicompany module ?
@@ -60,9 +60,9 @@ class Evaluation extends CommonObject
 	public $isextrafieldmanaged = 1;
 
 	/**
-	 * @var string String with name of icon for evaluation. Must be the part after the 'object_' into object_evaluation.png
+	 * @var string String with name of icon for evaluationdet. Must be the part after the 'object_' into object_evaluationdet.png
 	 */
-	public $picto = 'evaluation@hrmtest';
+	public $picto = 'evaluationdet@hrmtest';
 
 
 	const STATUS_DRAFT = 0;
@@ -102,55 +102,45 @@ class Evaluation extends CommonObject
 	 */
 	public $fields=array(
 		'rowid' => array('type'=>'integer', 'label'=>'TechnicalID', 'enabled'=>'1', 'position'=>1, 'notnull'=>1, 'visible'=>0, 'noteditable'=>'1', 'index'=>1, 'css'=>'left', 'comment'=>"Id"),
-		'ref' => array('type'=>'varchar(128)', 'label'=>'Ref', 'enabled'=>'1', 'position'=>20, 'notnull'=>1, 'visible'=>4, 'noteditable'=>'1', 'default'=>'(PROV)', 'index'=>1, 'searchall'=>1, 'showoncombobox'=>'1', 'comment'=>"Reference of object"),
-		'label' => array('type'=>'varchar(255)', 'label'=>'Label', 'enabled'=>'1', 'position'=>30, 'notnull'=>0, 'visible'=>1, 'searchall'=>1, 'css'=>'minwidth300', 'cssview'=>'wordbreak', 'help'=>"Help text", 'showoncombobox'=>'2',),
-		'description' => array('type'=>'text', 'label'=>'Description', 'enabled'=>'1', 'position'=>60, 'notnull'=>0, 'visible'=>3,),
-		'note_public' => array('type'=>'html', 'label'=>'NotePublic', 'enabled'=>'1', 'position'=>61, 'notnull'=>0, 'visible'=>0,),
-		'note_private' => array('type'=>'html', 'label'=>'NotePrivate', 'enabled'=>'1', 'position'=>62, 'notnull'=>0, 'visible'=>0,),
 		'date_creation' => array('type'=>'datetime', 'label'=>'DateCreation', 'enabled'=>'1', 'position'=>500, 'notnull'=>1, 'visible'=>-2,),
 		'tms' => array('type'=>'timestamp', 'label'=>'DateModification', 'enabled'=>'1', 'position'=>501, 'notnull'=>0, 'visible'=>-2,),
 		'fk_user_creat' => array('type'=>'integer:User:user/class/user.class.php', 'label'=>'UserAuthor', 'enabled'=>'1', 'position'=>510, 'notnull'=>1, 'visible'=>-2, 'foreignkey'=>'user.rowid',),
 		'fk_user_modif' => array('type'=>'integer:User:user/class/user.class.php', 'label'=>'UserModif', 'enabled'=>'1', 'position'=>511, 'notnull'=>-1, 'visible'=>-2,),
+		'fk_skill' => array('type'=>'integer:Skill:hrmtest/class/skill.class.php:1', 'label'=>'Skill', 'enabled'=>'1', 'position'=>3, 'notnull'=>1, 'visible'=>1, 'index'=>1,),
+		'fk_evaluation' => array('type'=>'integer:Evaluation:hrmtest/class/evaluation.class.php:1', 'label'=>'Evaluation', 'enabled'=>'1', 'position'=>3, 'notnull'=>1, 'visible'=>1, 'index'=>1,),
+		'fk_rank' => array('type'=>'integer', 'label'=>'Rank', 'enabled'=>'1', 'position'=>4, 'notnull'=>1, 'visible'=>1,),
+		'required_rank' => array('type'=>'integer', 'label'=>'requiredRank', 'enabled'=>'1', 'position'=>5, 'notnull'=>1, 'visible'=>1,),
 		'import_key' => array('type'=>'varchar(14)', 'label'=>'ImportId', 'enabled'=>'1', 'position'=>1000, 'notnull'=>-1, 'visible'=>-2,),
-		'status' => array('type'=>'smallint', 'label'=>'Status', 'enabled'=>'1', 'position'=>1000, 'notnull'=>1, 'default'=>0, 'visible'=>5, 'index'=>1, 'arrayofkeyval'=>array('0'=>'Brouillon', '1'=>'Valid&eacute;'),),
-		'date_eval' => array('type'=>'datetime', 'label'=>'DateEval', 'enabled'=>'1', 'position'=>502, 'notnull'=>0, 'visible'=>1,),
-		'fk_user' => array('type'=>'integer:User:user/class/user.class.php', 'label'=>'fkUser', 'enabled'=>'1', 'position'=>504, 'notnull'=>1, 'visible'=>1,),
-		'fk_job' => array('type'=>'integer:Job:/hrmtest/class/job.class.php', 'label'=>'Job', 'enabled'=>'1', 'position'=>505, 'notnull'=>1, 'visible'=>1,),
 	);
 	public $rowid;
-	public $ref;
-	public $label;
-	public $description;
-	public $note_public;
-	public $note_private;
 	public $date_creation;
 	public $tms;
 	public $fk_user_creat;
 	public $fk_user_modif;
+	public $fk_skill;
+	public $fk_evaluation;
+	public $fk_rank;
+	public $required_rank;
 	public $import_key;
-	public $status;
-	public $date_eval;
-	public $fk_user;
-	public $fk_job;
 	// END MODULEBUILDER PROPERTIES
 
 
 	// If this object has a subtable with lines
 
-	 /**
-	  * @var string    Name of subtable line
-	  */
-	 public $table_element_line = 'hrmtest_evaluationdet';
+	// /**
+	//  * @var string    Name of subtable line
+	//  */
+	// public $table_element_line = 'hrmtest_evaluationdetline';
 
-	 /**
-	  * @var string    Field with ID of parent key if this object has a parent
-	  */
-	 public $fk_element = 'fk_evaluation';
+	// /**
+	//  * @var string    Field with ID of parent key if this object has a parent
+	//  */
+	// public $fk_element = 'fk_evaluationdet';
 
-	 /**
-	  * @var string    Name of subtable class that manage subtable lines
-	  */
-	 public $class_element_line = 'Evaluationdet';
+	// /**
+	//  * @var string    Name of subtable class that manage subtable lines
+	//  */
+	// public $class_element_line = 'Evaluationdetline';
 
 	// /**
 	//  * @var array	List of child tables. To test if we can delete object.
@@ -162,12 +152,12 @@ class Evaluation extends CommonObject
 	//  *               If name matches '@ClassNAme:FilePathClass;ParentFkFieldName' it will
 	//  *               call method deleteByParentField(parentId, ParentFkFieldName) to fetch and delete child object
 	//  */
-	 protected $childtablesoncascade = array('@Evaluationdet:hrmtest/class/evaluationdet.class.php:fk_evaluation');
+	// protected $childtablesoncascade = array('hrmtest_evaluationdetdet');
 
-	 /**
-	  * @var Evaluationdet[]     Array of subtable lines
-	  */
-	 public $lines = array();
+	// /**
+	//  * @var EvaluationdetLine[]     Array of subtable lines
+	//  */
+	// public $lines = array();
 
 
 
@@ -190,7 +180,7 @@ class Evaluation extends CommonObject
 		}
 
 		// Example to show how to set values of fields definition dynamically
-		/*if ($user->rights->hrmtest->evaluation->read) {
+		/*if ($user->rights->hrmtest->evaluationdet->read) {
 			$this->fields['myfield']['visible'] = 1;
 			$this->fields['myfield']['noteditable'] = 0;
 		}*/
@@ -224,30 +214,6 @@ class Evaluation extends CommonObject
 	public function create(User $user, $notrigger = false)
 	{
 		$resultcreate = $this->createCommon($user, $notrigger);
-
-		if ($resultcreate > 0)
-		{
-			dol_include_once('hrmtest/class/skillrank.class.php');
-			$skillRank = new SkillRank($this->db);
-			$TRequiredRanks = $skillRank->fetchAll('ASC', 't.rowid', 0, 0, array('customsql' => 'fk_object='.$this->fk_job.' AND objecttype="job"'));
-
-			if (is_array($TRequiredRanks) && !empty($TRequiredRanks))
-			{
-				$this->lines = array();
-				foreach ($TRequiredRanks as $required)
-				{
-					$line = new Evaluationdet($this->db);
-					$line->fk_evaluation = $resultcreate;
-					$line->fk_skill = $required->fk_skill;
-					$line->required_rank = $required->rank;
-					$line->fk_rank = 0;
-
-					$res = $line->create($user, $notrigger);
-					if ($res > 0) $this->lines[] = $line;
-				}
-			}
-
-		}
 
 		return $resultcreate;
 	}
@@ -376,43 +342,8 @@ class Evaluation extends CommonObject
 	{
 		$this->lines = array();
 
-		$objectlineclassname = get_class($this).'det';
-		if (!class_exists($objectlineclassname)) {
-			$this->error = 'Error, class '.$objectlineclassname.' not found during call of fetchLinesCommon';
-			return -1;
-		}
-
-		$objectline = new $objectlineclassname($this->db);
-
-		$sql = 'SELECT '.$objectline->getFieldList('l');
-		$sql .= ' FROM '.MAIN_DB_PREFIX.$objectline->table_element.' as l';
-		$sql .= ' WHERE l.fk_'.$this->element.' = '.$this->id;
-		if (isset($objectline->fields['position'])) {
-			$sql .= $this->db->order('position', 'ASC');
-		}
-
-		$resql = $this->db->query($sql);
-		if ($resql) {
-			$num_rows = $this->db->num_rows($resql);
-			$i = 0;
-			while ($i < $num_rows) {
-				$obj = $this->db->fetch_object($resql);
-				if ($obj) {
-					$newline = new $objectlineclassname($this->db);
-					$newline->setVarsFromFetchObj($obj);
-
-					$this->lines[] = $newline;
-				}
-				$i++;
-			}
-
-			return 1;
-		} else {
-			$this->error = $this->db->lasterror();
-			$this->errors[] = $this->error;
-			return -1;
-		}
-
+		$result = $this->fetchLinesCommon();
+		return $result;
 	}
 
 
@@ -517,6 +448,12 @@ class Evaluation extends CommonObject
 	 */
 	public function delete(User $user, $notrigger = false)
 	{
+		if ($this->fk_rank)
+		{
+			$skillRank = new SkillRank($this->db);
+			$skillRank->fetch($this->fk_rank);
+			$skillRank->delete($user, $notrigger);
+		}
 		return $this->deleteCommon($user, $notrigger);
 		//return $this->deleteCommon($user, $notrigger, 1);
 	}
@@ -561,8 +498,8 @@ class Evaluation extends CommonObject
 			return 0;
 		}
 
-		/*if (! ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->hrmtest->evaluation->write))
-		 || (! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->hrmtest->evaluation->evaluation_advance->validate))))
+		/*if (! ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->hrmtest->evaluationdet->write))
+		 || (! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->hrmtest->evaluationdet->evaluationdet_advance->validate))))
 		 {
 		 $this->error='NotEnoughPermissions';
 		 dol_syslog(get_class($this)."::valid ".$this->error, LOG_ERR);
@@ -604,7 +541,7 @@ class Evaluation extends CommonObject
 
 			if (!$error && !$notrigger) {
 				// Call trigger
-				$result = $this->call_trigger('EVALUATION_VALIDATE', $user);
+				$result = $this->call_trigger('EVALUATIONDET_VALIDATE', $user);
 				if ($result < 0) {
 					$error++;
 				}
@@ -618,8 +555,8 @@ class Evaluation extends CommonObject
 			// Rename directory if dir was a temporary ref
 			if (preg_match('/^[\(]?PROV/i', $this->ref)) {
 				// Now we rename also files into index
-				$sql = 'UPDATE '.MAIN_DB_PREFIX."ecm_files set filename = CONCAT('".$this->db->escape($this->newref)."', SUBSTR(filename, ".(strlen($this->ref) + 1).")), filepath = 'evaluation/".$this->db->escape($this->newref)."'";
-				$sql .= " WHERE filename LIKE '".$this->db->escape($this->ref)."%' AND filepath = 'evaluation/".$this->db->escape($this->ref)."' and entity = ".$conf->entity;
+				$sql = 'UPDATE '.MAIN_DB_PREFIX."ecm_files set filename = CONCAT('".$this->db->escape($this->newref)."', SUBSTR(filename, ".(strlen($this->ref) + 1).")), filepath = 'evaluationdet/".$this->db->escape($this->newref)."'";
+				$sql .= " WHERE filename LIKE '".$this->db->escape($this->ref)."%' AND filepath = 'evaluationdet/".$this->db->escape($this->ref)."' and entity = ".$conf->entity;
 				$resql = $this->db->query($sql);
 				if (!$resql) {
 					$error++; $this->error = $this->db->lasterror();
@@ -628,15 +565,15 @@ class Evaluation extends CommonObject
 				// We rename directory ($this->ref = old ref, $num = new ref) in order not to lose the attachments
 				$oldref = dol_sanitizeFileName($this->ref);
 				$newref = dol_sanitizeFileName($num);
-				$dirsource = $conf->hrmtest->dir_output.'/evaluation/'.$oldref;
-				$dirdest = $conf->hrmtest->dir_output.'/evaluation/'.$newref;
+				$dirsource = $conf->hrmtest->dir_output.'/evaluationdet/'.$oldref;
+				$dirdest = $conf->hrmtest->dir_output.'/evaluationdet/'.$newref;
 				if (!$error && file_exists($dirsource)) {
 					dol_syslog(get_class($this)."::validate() rename dir ".$dirsource." into ".$dirdest);
 
 					if (@rename($dirsource, $dirdest)) {
 						dol_syslog("Rename ok");
 						// Rename docs starting with $oldref with $newref
-						$listoffiles = dol_dir_list($conf->hrmtest->dir_output.'/evaluation/'.$newref, 'files', 1, '^'.preg_quote($oldref, '/'));
+						$listoffiles = dol_dir_list($conf->hrmtest->dir_output.'/evaluationdet/'.$newref, 'files', 1, '^'.preg_quote($oldref, '/'));
 						foreach ($listoffiles as $fileentry) {
 							$dirsource = $fileentry['name'];
 							$dirdest = preg_replace('/^'.preg_quote($oldref, '/').'/', $newref, $dirsource);
@@ -686,7 +623,7 @@ class Evaluation extends CommonObject
 		 return -1;
 		 }*/
 
-		return $this->setStatusCommon($user, self::STATUS_DRAFT, $notrigger, 'EVALUATION_UNVALIDATE');
+		return $this->setStatusCommon($user, self::STATUS_DRAFT, $notrigger, 'EVALUATIONDET_UNVALIDATE');
 	}
 
 	/**
@@ -710,7 +647,7 @@ class Evaluation extends CommonObject
 		 return -1;
 		 }*/
 
-		return $this->setStatusCommon($user, self::STATUS_CANCELED, $notrigger, 'EVALUATION_CANCEL');
+		return $this->setStatusCommon($user, self::STATUS_CANCELED, $notrigger, 'EVALUATIONDET_CANCEL');
 	}
 
 	/**
@@ -734,7 +671,7 @@ class Evaluation extends CommonObject
 		 return -1;
 		 }*/
 
-		return $this->setStatusCommon($user, self::STATUS_VALIDATED, $notrigger, 'EVALUATION_REOPEN');
+		return $this->setStatusCommon($user, self::STATUS_VALIDATED, $notrigger, 'EVALUATIONDET_REOPEN');
 	}
 
 	/**
@@ -757,14 +694,14 @@ class Evaluation extends CommonObject
 
 		$result = '';
 
-		$label = img_picto('', $this->picto).' <u>'.$langs->trans("Evaluation").'</u>';
+		$label = img_picto('', $this->picto).' <u>'.$langs->trans("Evaluationdet").'</u>';
 		if (isset($this->status)) {
 			$label .= ' '.$this->getLibStatut(5);
 		}
 		$label .= '<br>';
 		$label .= '<b>'.$langs->trans('Ref').':</b> '.$this->ref;
 
-		$url = dol_buildpath('/hrmtest/evaluation_card.php', 1).'?id='.$this->id;
+		$url = dol_buildpath('/hrmtest/evaluationdet_card.php', 1).'?id='.$this->id;
 
 		if ($option != 'nolink') {
 			// Add param to save lastsearch_values or not
@@ -780,7 +717,7 @@ class Evaluation extends CommonObject
 		$linkclose = '';
 		if (empty($notooltip)) {
 			if (!empty($conf->global->MAIN_OPTIMIZEFORTEXTBROWSER)) {
-				$label = $langs->trans("ShowEvaluation");
+				$label = $langs->trans("ShowEvaluationdet");
 				$linkclose .= ' alt="'.dol_escape_htmltag($label, 1).'"';
 			}
 			$linkclose .= ' title="'.dol_escape_htmltag($label, 1).'"';
@@ -840,7 +777,7 @@ class Evaluation extends CommonObject
 		//if ($withpicto != 2) $result.=(($addlabel && $this->label) ? $sep . dol_trunc($this->label, ($addlabel > 1 ? $addlabel : 0)) : '');
 
 		global $action, $hookmanager;
-		$hookmanager->initHooks(array('evaluationdao'));
+		$hookmanager->initHooks(array('evaluationdetdao'));
 		$parameters = array('id'=>$this->id, 'getnomurl'=>$result);
 		$reshook = $hookmanager->executeHooks('getNomUrl', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
 		if ($reshook > 0) {
@@ -964,8 +901,8 @@ class Evaluation extends CommonObject
 	{
 		$this->lines = array();
 
-		$objectline = new Evaluationdet($this->db);
-		$result = $objectline->fetchAll('ASC', 'fk_rank', 0, 0, array('customsql'=>'fk_evaluation = '.$this->id));
+		$objectline = new EvaluationdetLine($this->db);
+		$result = $objectline->fetchAll('ASC', 'position', 0, 0, array('customsql'=>'fk_evaluationdet = '.$this->id));
 
 		if (is_numeric($result)) {
 			$this->error = $this->error;
@@ -987,15 +924,15 @@ class Evaluation extends CommonObject
 		global $langs, $conf;
 		$langs->load("hrmtest@hrmtest");
 
-		if (empty($conf->global->HRMTEST_EVALUATION_ADDON)) {
-			$conf->global->HRMTEST_EVALUATION_ADDON = 'mod_evaluation_standard';
+		if (empty($conf->global->HRMTEST_EVALUATIONDET_ADDON)) {
+			$conf->global->HRMTEST_EVALUATIONDET_ADDON = 'mod_evaluationdet_standard';
 		}
 
-		if (!empty($conf->global->HRMTEST_EVALUATION_ADDON)) {
+		if (!empty($conf->global->HRMTEST_EVALUATIONDET_ADDON)) {
 			$mybool = false;
 
-			$file = $conf->global->HRMTEST_EVALUATION_ADDON.".php";
-			$classname = $conf->global->HRMTEST_EVALUATION_ADDON;
+			$file = $conf->global->HRMTEST_EVALUATIONDET_ADDON.".php";
+			$classname = $conf->global->HRMTEST_EVALUATIONDET_ADDON;
 
 			// Include file with class
 			$dirmodels = array_merge(array('/'), (array) $conf->modules_parts['models']);
@@ -1053,12 +990,12 @@ class Evaluation extends CommonObject
 		$langs->load("hrmtest@hrmtest");
 
 		if (!dol_strlen($modele)) {
-			$modele = 'standard_evaluation';
+			$modele = 'standard_evaluationdet';
 
 			if (!empty($this->model_pdf)) {
 				$modele = $this->model_pdf;
-			} elseif (!empty($conf->global->EVALUATION_ADDON_PDF)) {
-				$modele = $conf->global->EVALUATION_ADDON_PDF;
+			} elseif (!empty($conf->global->EVALUATIONDET_ADDON_PDF)) {
+				$modele = $conf->global->EVALUATIONDET_ADDON_PDF;
 			}
 		}
 
@@ -1100,130 +1037,31 @@ class Evaluation extends CommonObject
 
 		return $error;
 	}
-
-	public function printObjectLines($action, $seller, $buyer, $selected = 0, $dateSelector = 0, $defaulttpldir = '/core/tpl')
-	{
-		global $conf, $hookmanager, $langs, $user, $form, $extrafields, $object;
-		// TODO We should not use global var for this
-		global $inputalsopricewithtax, $usemargins, $disableedit, $disablemove, $disableremove, $outputalsopricetotalwithtax;
-
-		// Define usemargins
-		$usemargins = 0;
-		if (!empty($conf->margin->enabled) && !empty($this->element) && in_array($this->element, array('facture', 'facturerec', 'propal', 'commande'))) {
-			$usemargins = 1;
-		}
-
-		$num = count($this->lines);
-
-		// Line extrafield
-		if (!is_object($extrafields)) {
-			require_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
-			$extrafields = new ExtraFields($this->db);
-		}
-		$extrafields->fetch_name_optionals_label($this->table_element_line);
-
-		$parameters = array('num'=>$num, 'dateSelector'=>$dateSelector, 'seller'=>$seller, 'buyer'=>$buyer, 'selected'=>$selected, 'table_element_line'=>$this->table_element_line);
-		$reshook = $hookmanager->executeHooks('printObjectLineTitle', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
-		if (empty($reshook)) {
-			// Output template part (modules that overwrite templates must declare this into descriptor)
-			// Use global variables + $dateSelector + $seller and $buyer
-			// Note: This is deprecated. If you need to overwrite the tpl file, use instead the hook.
-			include dol_buildpath('hrmtest/core/tpl/objectline_title.tpl.php');
-		}
-
-		$i = 0;
-
-		print "<!-- begin printObjectLines() --><tbody>\n";
-		foreach ($this->lines as $line) {
-			//Line extrafield
-			$line->fetch_optionals();
-
-			//if (is_object($hookmanager) && (($line->product_type == 9 && ! empty($line->special_code)) || ! empty($line->fk_parent_line)))
-			if (is_object($hookmanager)) {   // Old code is commented on preceding line.
-				if (empty($line->fk_parent_line)) {
-					$parameters = array('line'=>$line, 'num'=>$num, 'i'=>$i, 'dateSelector'=>$dateSelector, 'seller'=>$seller, 'buyer'=>$buyer, 'selected'=>$selected, 'table_element_line'=>$line->table_element);
-					$reshook = $hookmanager->executeHooks('printObjectLine', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
-				} else {
-					$parameters = array('line'=>$line, 'num'=>$num, 'i'=>$i, 'dateSelector'=>$dateSelector, 'seller'=>$seller, 'buyer'=>$buyer, 'selected'=>$selected, 'table_element_line'=>$line->table_element, 'fk_parent_line'=>$line->fk_parent_line);
-					$reshook = $hookmanager->executeHooks('printObjectSubLine', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
-				}
-			}
-			if (empty($reshook)) {
-				$this->printObjectLine($action, $line, '', $num, $i, $dateSelector, $seller, $buyer, $selected, $extrafields, $defaulttpldir);
-			}
-
-			$i++;
-		}
-		print "</tbody><!-- end printObjectLines() -->\n";
-	}
-
-	public function printObjectLine($action, $line, $var, $num, $i, $dateSelector, $seller, $buyer, $selected = 0, $extrafields = null, $defaulttpldir = '/core/tpl')
-	{
-		global $conf, $langs, $user, $object, $hookmanager;
-		global $form;
-		global $object_rights, $disableedit, $disablemove, $disableremove; // TODO We should not use global var for this !
-
-		$object_rights = $this->getRights();
-
-		$element = $this->element;
-
-		$text = '';
-		$description = '';
-
-		// Line in view mode
-		if ($action != 'editline' || $selected != $line->id) {
-			// Product
-			if ($line->fk_product > 0) {
-				$product_static = new Product($this->db);
-				$product_static->fetch($line->fk_product);
-
-				$product_static->ref = $line->ref; //can change ref in hook
-				$product_static->label = $line->label; //can change label in hook
-
-				$text = $product_static->getNomUrl(1);
-
-				// Define output language and label
-				if (!empty($conf->global->MAIN_MULTILANGS)) {
-					if (property_exists($this, 'socid') && !is_object($this->thirdparty)) {
-						dol_print_error('', 'Error: Method printObjectLine was called on an object and object->fetch_thirdparty was not done before');
-						return;
-					}
-
-					$prod = new Product($this->db);
-					$prod->fetch($line->fk_product);
-
-					$outputlangs = $langs;
-					$newlang = '';
-					if (empty($newlang) && GETPOST('lang_id', 'aZ09')) {
-						$newlang = GETPOST('lang_id', 'aZ09');
-					}
-					if (!empty($conf->global->PRODUIT_TEXTS_IN_THIRDPARTY_LANGUAGE) && empty($newlang) && is_object($this->thirdparty)) {
-						$newlang = $this->thirdparty->default_lang; // To use language of customer
-					}
-					if (!empty($newlang)) {
-						$outputlangs = new Translate("", $conf);
-						$outputlangs->setDefaultLang($newlang);
-					}
-
-					$label = (!empty($prod->multilangs[$outputlangs->defaultlang]["label"])) ? $prod->multilangs[$outputlangs->defaultlang]["label"] : $line->product_label;
-				} else {
-					$label = $line->product_label;
-				}
-
-				$text .= ' - '.(!empty($line->label) ? $line->label : $label);
-				$description .= (!empty($conf->global->PRODUIT_DESC_IN_FORM) ? '' : dol_htmlentitiesbr($line->description)); // Description is what to show on popup. We shown nothing if already into desc.
-			}
-
-			$line->pu_ttc = price2num($line->subprice * (1 + ($line->tva_tx / 100)), 'MU');
-
-			// Output template part (modules that overwrite templates must declare this into descriptor)
-			// Use global variables + $dateSelector + $seller and $buyer
-			// Note: This is deprecated. If you need to overwrite the tpl file, use instead the hook printObjectLine and printObjectSubLine.
-			include dol_buildpath('hrmtest/core/tpl/objectline_view.tpl.php');
-		}
-
-	}
-
-
 }
 
+
+require_once DOL_DOCUMENT_ROOT.'/core/class/commonobjectline.class.php';
+
+/**
+ * Class EvaluationdetLine. You can also remove this and generate a CRUD class for lines objects.
+ */
+class EvaluationdetLine extends CommonObjectLine
+{
+	// To complete with content of an object EvaluationdetLine
+	// We should have a field rowid, fk_evaluationdet and position
+
+	/**
+	 * @var int  Does object support extrafields ? 0=No, 1=Yes
+	 */
+	public $isextrafieldmanaged = 0;
+
+	/**
+	 * Constructor
+	 *
+	 * @param DoliDb $db Database handler
+	 */
+	public function __construct(DoliDB $db)
+	{
+		$this->db = $db;
+	}
+}

@@ -278,35 +278,42 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 	}
 
-	// form pour ajouter des compétences
-	print '<form name="addSkill" method="post" action="' . $_SERVER['PHP_SELF'] . '">';
-	print '<input type="hidden" name="objecttype" value="' . $objecttype . '">';
-	print '<input type="hidden" name="id" value="' . $id . '">';
-	print '<input type="hidden" name="action" value="addSkill">';
-	print '<div class="div-table-responsive-no-min">';
-	print '<table id="tablelines" class="noborder noshadow" width="100%">';
-	print '<tr><td>' . $langs->trans('AddSkill') . '</td><td>' . $langs->trans('Rank') . '</td><td></td></tr>';
-	print '<tr>';
-	foreach ($skill->fields as $key => $infos) {
-		if ($key == 'fk_skill') {
-			print '<td>' . $skill->showInputField($infos, $key, $$key) . '</td>';
+	if ($objecttype != 'user')
+	{
+		// form pour ajouter des compétences
+		print '<form name="addSkill" method="post" action="' . $_SERVER['PHP_SELF'] . '">';
+		print '<input type="hidden" name="objecttype" value="' . $objecttype . '">';
+		print '<input type="hidden" name="id" value="' . $id . '">';
+		print '<input type="hidden" name="action" value="addSkill">';
+		print '<div class="div-table-responsive-no-min">';
+		print '<table id="tablelines" class="noborder noshadow" width="100%">';
+		print '<tr><td>' . $langs->trans('AddSkill') . '</td><td>' . $langs->trans('Rank') . '</td><td></td></tr>';
+		print '<tr>';
+		foreach ($skill->fields as $key => $infos) {
+			if ($key == 'fk_skill') {
+				print '<td>' . $skill->showInputField($infos, $key, $$key) . '</td>';
+			}
 		}
+		print '<td><input class="button reposition" type="submit" value="' . $langs->trans('Add') . '"></td>';
+		print '</tr>';
+		print '</table>';
+		print '</div>';
+		print '</form>';
+
 	}
-	print '<td><input class="button reposition" type="submit" value="' . $langs->trans('Add') . '"></td>';
-	print '</tr>';
-	print '</table>';
-	print '</div>';
-	print '</form>';
 
 	print '</div>';
 	print '<br>';
 
 	print '<div class="clearboth"></div>';
 
-	print '<form name="saveSkill" method="post" action="' . $_SERVER['PHP_SELF'] . '">';
-	print '<input type="hidden" name="objecttype" value="' . $objecttype . '">';
-	print '<input type="hidden" name="id" value="' . $id . '">';
-	print '<input type="hidden" name="action" value="saveSkill">';
+	if ($objecttype != 'user')
+	{
+		print '<form name="saveSkill" method="post" action="' . $_SERVER['PHP_SELF'] . '">';
+		print '<input type="hidden" name="objecttype" value="' . $objecttype . '">';
+		print '<input type="hidden" name="id" value="' . $id . '">';
+		print '<input type="hidden" name="action" value="saveSkill">';
+	}
 	print '<div class="div-table-responsive-no-min">';
 	print '<table id="tablelines" class="noborder noshadow" width="100%">';
 	print '<tr class="liste_titre">';
@@ -326,18 +333,21 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			}
 			print '<td class="linecoledit"></td>';
 			print '<td class="linecoldelete">';
-			print '<a class="reposition" href="' . $_SERVER["PHP_SELF"] . '?id=' . $skillElement->fk_object . '&amp;objecttype=' . $objecttype . '&amp;action=ask_deleteskill&amp;lineid=' . $skillElement->id . '">';
-			print img_delete();
-			print '</a>';
+			if ($objecttype != 'user')
+			{
+				print '<a class="reposition" href="' . $_SERVER["PHP_SELF"] . '?id=' . $skillElement->fk_object . '&amp;objecttype=' . $objecttype . '&amp;action=ask_deleteskill&amp;lineid=' . $skillElement->id . '">';
+				print img_delete();
+				print '</a>';
+			}
 			print '</td>';
 			print '</tr>';
 		}
 	}
 
 	print '</table>';
-	print '<td><input class="button pull-right" type="submit" value="' . $langs->trans('Save') . '"></td>';
+	if ($objecttype != 'user') print '<td><input class="button pull-right" type="submit" value="' . $langs->trans('Save') . '"></td>';
 	print '</div>';
-	print '</form>';
+	if ($objecttype != 'user') print '</form>';
 
 
 	// liste des compétences liées

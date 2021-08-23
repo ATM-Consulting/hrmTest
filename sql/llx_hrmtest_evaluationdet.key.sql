@@ -15,13 +15,13 @@
 
 
 -- BEGIN MODULEBUILDER INDEXES
-ALTER TABLE llx_hrmtest_evaluation ADD INDEX idx_hrmtest_evaluation_rowid (rowid);
-ALTER TABLE llx_hrmtest_evaluation ADD INDEX idx_hrmtest_evaluation_ref (ref);
-ALTER TABLE llx_hrmtest_evaluation ADD CONSTRAINT llx_hrmtest_evaluation_fk_user_creat FOREIGN KEY (fk_user_creat) REFERENCES llx_user(rowid);
-ALTER TABLE llx_hrmtest_evaluation ADD INDEX idx_hrmtest_evaluation_status (status);
+ALTER TABLE llx_hrmtest_evaluationdet ADD INDEX idx_hrmtest_evaluationdet_rowid (rowid);
+ALTER TABLE llx_hrmtest_evaluationdet ADD CONSTRAINT llx_hrmtest_evaluationdet_fk_user_creat FOREIGN KEY (fk_user_creat) REFERENCES llx_user(rowid);
+ALTER TABLE llx_hrmtest_evaluationdet ADD INDEX idx_hrmtest_evaluationdet_fk_skill (fk_skill);
+ALTER TABLE llx_hrmtest_evaluationdet ADD INDEX idx_hrmtest_evaluationdet_fk_evaluation (fk_evaluation);
 -- END MODULEBUILDER INDEXES
 
---ALTER TABLE llx_hrmtest_evaluation ADD UNIQUE INDEX uk_hrmtest_evaluation_fieldxy(fieldx, fieldy);
+--ALTER TABLE llx_hrmtest_evaluationdet ADD UNIQUE INDEX uk_hrmtest_evaluationdet_fieldxy(fieldx, fieldy);
 
---ALTER TABLE llx_hrmtest_evaluation ADD CONSTRAINT llx_hrmtest_evaluation_fk_field FOREIGN KEY (fk_field) REFERENCES llx_hrmtest_myotherobject(rowid);
+--ALTER TABLE llx_hrmtest_evaluationdet ADD CONSTRAINT llx_hrmtest_evaluationdet_fk_field FOREIGN KEY (fk_field) REFERENCES llx_hrmtest_myotherobject(rowid);
 

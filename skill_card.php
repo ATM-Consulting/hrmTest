@@ -173,7 +173,7 @@ if (empty($reshook)) {
 
 	// action update on Skilldet
 
-	$skilldetArray =  GETPOST("description","array");
+	$skilldetArray =  GETPOST("descriptionline","array");
 	if (is_array($skilldetArray) && count($skilldetArray) > 0) {
 		foreach ($skilldetArray as $key => $SkValueToUpdate){
 			$skilldetObj = new Skilldet($object->db);
@@ -371,7 +371,7 @@ if (($id || $ref) && $action == 'edit') {
 					print $sk->showOutputField($val, $key, $value, '', '', '', 0);
 				} else {
 					/** @var Skilldet $sk*/
-					print $sk->showInputField($val, $key, $value,"","[".$sk->id."]","","" );
+					print $sk->showInputField($val, $key, $value,"","line[".$sk->id."]","","" );
 				}
 				print '</td>';
 				print '</tr>';
