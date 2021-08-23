@@ -127,6 +127,12 @@ class Position extends CommonObject
 	public $date_start;
 	public $date_end;
 	public $commentaire_abandon;
+	public $note_public;
+	public $note_private;
+	public $fk_user_creat;
+	public $fk_user_modif;
+
+
 	// END MODULEBUILDER PROPERTIES
 
 

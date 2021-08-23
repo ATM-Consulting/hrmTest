@@ -25,6 +25,10 @@ CREATE TABLE llx_hrmtest_position(
 	fk_job integer NOT NULL, 
 	date_start datetime, 
 	date_end datetime, 
-	commentaire_abandon varchar(255)
+	commentaire_abandon varchar(255),
+    note_public text,
+    note_private text,
+    fk_user_creat integer,
+    fk_user_modif integer
 	-- END MODULEBUILDER FIELDS
 ) ENGINE=innodb;

@@ -31,5 +31,5 @@ CREATE TABLE llx_hrmtest_evaluation(
 	date_eval datetime, 
 	fk_user integer NOT NULL, 
 	fk_job integer NOT NULL
-	-- END MODULEBUILDER FIELDS
+    -- END MODULEBUILDER FIELDS
 ) ENGINE=innodb;

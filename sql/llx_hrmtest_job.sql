@@ -21,6 +21,10 @@ CREATE TABLE llx_hrmtest_job(
 	description text, 
 	date_creation datetime NOT NULL, 
 	tms timestamp, 
-	deplacement varchar(255)
-	-- END MODULEBUILDER FIELDS
+	deplacement varchar(255),
+    note_public text,
+    note_private text,
+    fk_user_creat integer,
+    fk_user_modif integer
+    -- END MODULEBUILDER FIELDS
 ) ENGINE=innodb;
