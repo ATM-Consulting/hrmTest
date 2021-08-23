@@ -253,7 +253,7 @@ $now = dol_now();
 
 //$help_url="EN:Module_Position|FR:Module_Position_FR|ES:Módulo_Position";
 $help_url = '';
-$title = $langs->trans('ListOf', $langs->transnoentitiesnoconv("Positions"));
+$title = $langs->trans("ListofPosition");
 $morejs = array();
 $morecss = array();
 

@@ -58,16 +58,25 @@ description=Description
 deplacement=Déplacement
 list=Liste
 
-# Job
+## Job ##
 Job=Emploi
+Jobs=Emplois
+ListofJobs=Liste des emplois
 fkJob=Emploi
 fkUser=Utilisateur
+
+## Evaluation ##
+Eval=Évaluation
+Evals=Évaluations
+NewEval=Nouvelle évaluation
 DateEval= Date d'évaluation
+ListofEvaluation=Liste des évaluations
 
 
 # Skill
 Skill= Compétence
 Skills= Compétences
+ListofSkills=Liste des compétences
 NewSkill= Nouvelle Compétence
 AddSkill= Ajouter une compétence
 SKILL_TYPE_EXPERTISE= Savoir-être
@@ -90,13 +99,14 @@ SkillHasNoLines=Cette compétence n'a pas de niveau défini
 NoUser=Sans Utilisateur
 Deleted=Supprimé
 NewJob=Nouvel emploi
-Eval=Évaluation
-NewEval=Nouvelle évaluation
+
 Draft=brouillon
 Validate=Validé
 
 # Position
 Position=Poste
+Positions=Postes
+ListofPosition=Liste des postes
 date_end=Date de fin
 date_start=Date de début
 fk_user=Utilisateur

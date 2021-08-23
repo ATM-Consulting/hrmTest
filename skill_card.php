@@ -17,9 +17,9 @@
  */
 
 /**
- *   	\file       skill_card.php
- *		\ingroup    hrmtest
- *		\brief      Page to create/edit/view skill
+ *    \file       skill_card.php
+ *        \ingroup    hrmtest
+ *        \brief      Page to create/edit/view skill
  */
 
 //if (! defined('NOREQUIREDB'))              define('NOREQUIREDB', '1');				// Do not create database handler $db
@@ -47,18 +47,22 @@
 $res = 0;
 // Try main.inc.php into web root known defined into CONTEXT_DOCUMENT_ROOT (not always defined)
 if (!$res && !empty($_SERVER["CONTEXT_DOCUMENT_ROOT"])) {
-	$res = @include $_SERVER["CONTEXT_DOCUMENT_ROOT"]."/main.inc.php";
+	$res = @include $_SERVER["CONTEXT_DOCUMENT_ROOT"] . "/main.inc.php";
 }
 // Try main.inc.php into web root detected using web root calculated from SCRIPT_FILENAME
-$tmp = empty($_SERVER['SCRIPT_FILENAME']) ? '' : $_SERVER['SCRIPT_FILENAME']; $tmp2 = realpath(__FILE__); $i = strlen($tmp) - 1; $j = strlen($tmp2) - 1;
+$tmp = empty($_SERVER['SCRIPT_FILENAME']) ? '' : $_SERVER['SCRIPT_FILENAME'];
+$tmp2 = realpath(__FILE__);
+$i = strlen($tmp) - 1;
+$j = strlen($tmp2) - 1;
 while ($i > 0 && $j > 0 && isset($tmp[$i]) && isset($tmp2[$j]) && $tmp[$i] == $tmp2[$j]) {
-	$i--; $j--;
+	$i--;
+	$j--;
 }
-if (!$res && $i > 0 && file_exists(substr($tmp, 0, ($i + 1))."/main.inc.php")) {
-	$res = @include substr($tmp, 0, ($i + 1))."/main.inc.php";
+if (!$res && $i > 0 && file_exists(substr($tmp, 0, ($i + 1)) . "/main.inc.php")) {
+	$res = @include substr($tmp, 0, ($i + 1)) . "/main.inc.php";
 }
-if (!$res && $i > 0 && file_exists(dirname(substr($tmp, 0, ($i + 1)))."/main.inc.php")) {
-	$res = @include dirname(substr($tmp, 0, ($i + 1)))."/main.inc.php";
+if (!$res && $i > 0 && file_exists(dirname(substr($tmp, 0, ($i + 1))) . "/main.inc.php")) {
+	$res = @include dirname(substr($tmp, 0, ($i + 1))) . "/main.inc.php";
 }
 // Try main.inc.php using relative path
 if (!$res && file_exists("../main.inc.php")) {
@@ -74,9 +78,9 @@ if (!$res) {
 	die("Include of main fails");
 }
 
-require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
-require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
-require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.formfile.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.formprojet.class.php';
 dol_include_once('/hrmtest/class/skill.class.php');
 dol_include_once('/hrmtest/lib/hrmtest_skill.lib.php');
 
@@ -110,8 +114,8 @@ $search_array_options = $extrafields->getOptionalsFromPost($object->table_elemen
 $search_all = GETPOST("search_all", 'alpha');
 $search = array();
 foreach ($object->fields as $key => $val) {
-	if (GETPOST('search_'.$key, 'alpha')) {
-		$search[$key] = GETPOST('search_'.$key, 'alpha');
+	if (GETPOST('search_' . $key, 'alpha')) {
+		$search[$key] = GETPOST('search_' . $key, 'alpha');
 	}
 }
 
@@ -120,7 +124,7 @@ if (empty($action) && empty($id) && empty($ref)) {
 }
 
 // Load object
-include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php'; // Must be include, not include_once.
+include DOL_DOCUMENT_ROOT . '/core/actions_fetchobject.inc.php'; // Must be include, not include_once.
 
 
 $permissiontoread = $user->rights->hrmtest->skill->read;
@@ -128,7 +132,7 @@ $permissiontoadd = $user->rights->hrmtest->skill->write; // Used by the include 
 $permissiontodelete = $user->rights->hrmtest->skill->delete || ($permissiontoadd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
 $permissionnote = $user->rights->hrmtest->skill->write; // Used by the include of actions_setnotes.inc.php
 $permissiondellink = $user->rights->hrmtest->skill->write; // Used by the include of actions_dellink.inc.php
-$upload_dir = $conf->hrmtest->multidir_output[isset($object->entity) ? $object->entity : 1].'/skill';
+$upload_dir = $conf->hrmtest->multidir_output[isset($object->entity) ? $object->entity : 1] . '/skill';
 
 // Security check (enable the most restrictive one)
 //if ($user->socid > 0) accessforbidden();
@@ -158,9 +162,9 @@ if (empty($reshook)) {
 		if (empty($backtopage) || ($cancel && strpos($backtopage, '__ID__'))) {
 			if (empty($id) && (($action != 'add' && $action != 'create') || $cancel)) {
 				//$backtopage = $backurlforlist;
-				$backtopage = dol_buildpath('/hrmtest/skill_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
+				$backtopage = dol_buildpath('/hrmtest/skill_card.php', 1) . '?id=' . ($id > 0 ? $id : '__ID__');
 			} else {
-				$backtopage = dol_buildpath('/hrmtest/skill_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
+				$backtopage = dol_buildpath('/hrmtest/skill_card.php', 1) . '?id=' . ($id > 0 ? $id : '__ID__');
 			}
 		}
 	}
@@ -169,19 +173,19 @@ if (empty($reshook)) {
 
 
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
-	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
+	include DOL_DOCUMENT_ROOT . '/core/actions_addupdatedelete.inc.php';
 
 	// action update on Skilldet
 
-	$skilldetArray =  GETPOST("descriptionline","array");
+	$skilldetArray = GETPOST("descriptionline", "array");
 	if (is_array($skilldetArray) && count($skilldetArray) > 0) {
-		foreach ($skilldetArray as $key => $SkValueToUpdate){
+		foreach ($skilldetArray as $key => $SkValueToUpdate) {
 			$skilldetObj = new Skilldet($object->db);
 			$res = $skilldetObj->fetch($key);
-			if ($res >  0 ){
+			if ($res > 0) {
 				$skilldetObj->description = $SkValueToUpdate;
 				$resupd = $skilldetObj->update($user);
-				if ($resupd <= 0){
+				if ($resupd <= 0) {
 					setEventMessage($langs->trans('errorUpdateSkilldet'));
 				}
 			}
@@ -189,19 +193,17 @@ if (empty($reshook)) {
 	}
 
 
-
-
 	// Actions when linking object each other
-	include DOL_DOCUMENT_ROOT.'/core/actions_dellink.inc.php';
+	include DOL_DOCUMENT_ROOT . '/core/actions_dellink.inc.php';
 
 	// Actions when printing a doc from card
-	include DOL_DOCUMENT_ROOT.'/core/actions_printing.inc.php';
+	include DOL_DOCUMENT_ROOT . '/core/actions_printing.inc.php';
 
 	// Action to move up and down lines of object
 	//include DOL_DOCUMENT_ROOT.'/core/actions_lineupdown.inc.php';
 
 	// Action to build doc
-	include DOL_DOCUMENT_ROOT.'/core/actions_builddoc.inc.php';
+	include DOL_DOCUMENT_ROOT . '/core/actions_builddoc.inc.php';
 
 	if ($action == 'set_thirdparty' && $permissiontoadd) {
 		$object->setValueFrom('fk_soc', GETPOST('fk_soc', 'int'), '', '', 'date', '', $user, $triggermodname);
@@ -213,11 +215,9 @@ if (empty($reshook)) {
 	// Actions to send emails
 	$triggersendname = 'HRMTEST_SKILL_SENTBYMAIL';
 	$autocopy = 'MAIN_MAIL_AUTOCOPY_SKILL_TO';
-	$trackid = 'skill'.$object->id;
-	include DOL_DOCUMENT_ROOT.'/core/actions_sendmails.inc.php';
+	$trackid = 'skill' . $object->id;
+	include DOL_DOCUMENT_ROOT . '/core/actions_sendmails.inc.php';
 }
-
-
 
 
 /*
@@ -237,16 +237,16 @@ llxHeader('', $title, $help_url);
 
 // Part to create
 if ($action == 'create') {
-	print load_fiche_titre($langs->trans("NewObject", $langs->transnoentitiesnoconv("Skill")), '', 'object_'.$object->picto);
+	print load_fiche_titre($langs->trans("NewSkill"), '', 'object_' . $object->picto);
 
-	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
-	print '<input type="hidden" name="token" value="'.newToken().'">';
+	print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
+	print '<input type="hidden" name="token" value="' . newToken() . '">';
 	print '<input type="hidden" name="action" value="add">';
 	if ($backtopage) {
-		print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
+		print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';
 	}
 	if ($backtopageforcancel) {
-		print '<input type="hidden" name="backtopageforcancel" value="'.$backtopageforcancel.'">';
+		print '<input type="hidden" name="backtopageforcancel" value="' . $backtopageforcancel . '">';
 	}
 
 	print dol_get_fiche_head(array(), '');
@@ -254,10 +254,10 @@ if ($action == 'create') {
 	// Set some default values
 	//if (! GETPOSTISSET('fieldname')) $_POST['fieldname'] = 'myvalue';
 
-	print '<table class="border centpercent tableforfieldcreate">'."\n";
+	print '<table class="border centpercent tableforfieldcreate">' . "\n";
 
 	// Common attributes
-	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_add.tpl.php';
+	include DOL_DOCUMENT_ROOT . '/core/tpl/commonfields_add.tpl.php';
 
 
 	// SKILLDET ADD
@@ -265,16 +265,16 @@ if ($action == 'create') {
 	//print $object->showInputField($val, $key, $value, '', '['']', '', 0);
 
 	// Other attributes
-	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_add.tpl.php';
+	include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_add.tpl.php';
 
-	print '</table>'."\n";
+	print '</table>' . "\n";
 
 	print dol_get_fiche_end();
 
 	print '<div class="center">';
-	print '<input type="submit" class="button" name="add" value="'.dol_escape_htmltag($langs->trans("Create")).'">';
+	print '<input type="submit" class="button" name="add" value="' . dol_escape_htmltag($langs->trans("Create")) . '">';
 	print '&nbsp; ';
-	print '<input type="'.($backtopage ? "submit" : "button").'" class="button button-cancel" name="cancel" value="'.dol_escape_htmltag($langs->trans("Cancel")).'"'.($backtopage ? '' : ' onclick="javascript:history.go(-1)"').'>'; // Cancel for create does not post form if we don't know the backtopage
+	print '<input type="' . ($backtopage ? "submit" : "button") . '" class="button button-cancel" name="cancel" value="' . dol_escape_htmltag($langs->trans("Cancel")) . '"' . ($backtopage ? '' : ' onclick="javascript:history.go(-1)"') . '>'; // Cancel for create does not post form if we don't know the backtopage
 	print '</div>';
 
 	print '</form>';
@@ -285,28 +285,28 @@ if ($action == 'create') {
 // Part to edit record
 // and skilldet edition
 if (($id || $ref) && $action == 'edit') {
-	print load_fiche_titre($langs->trans("Skill"), '', 'object_'.$object->picto);
+	print load_fiche_titre($langs->trans("Skill"), '', 'object_' . $object->picto);
 
-	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
-	print '<input type="hidden" name="token" value="'.newToken().'">';
+	print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
+	print '<input type="hidden" name="token" value="' . newToken() . '">';
 	print '<input type="hidden" name="action" value="update">';
-	print '<input type="hidden" name="id" value="'.$object->id.'">';
+	print '<input type="hidden" name="id" value="' . $object->id . '">';
 	if ($backtopage) {
-		print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
+		print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';
 	}
 	if ($backtopageforcancel) {
-		print '<input type="hidden" name="backtopageforcancel" value="'.$backtopageforcancel.'">';
+		print '<input type="hidden" name="backtopageforcancel" value="' . $backtopageforcancel . '">';
 	}
 
 	print dol_get_fiche_head();
 
-	print '<table class="border centpercent tableforfieldedit">'."\n";
+	print '<table class="border centpercent tableforfieldedit">' . "\n";
 
 	// Common attributes
-	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_edit.tpl.php';
+	include DOL_DOCUMENT_ROOT . '/core/tpl/commonfields_edit.tpl.php';
 
 	// Other attributes
-	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_edit.tpl.php';
+	include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_edit.tpl.php';
 
 	print '</table>';
 
@@ -314,11 +314,11 @@ if (($id || $ref) && $action == 'edit') {
 	// SKILLDET
 
 	print dol_get_fiche_head(array(), '');
-	$SkilldetRecords =  $object->fetchLines();
-	if (is_array($SkilldetRecords) && count($SkilldetRecords) > 0 ){
+	$SkilldetRecords = $object->fetchLines();
+	if (is_array($SkilldetRecords) && count($SkilldetRecords) > 0) {
 		print '<table>';
-		foreach ($SkilldetRecords as $sk){
-			print '<table class="border centpercent tableforfieldedit">'."\n";
+		foreach ($SkilldetRecords as $sk) {
+			print '<table class="border centpercent tableforfieldedit">' . "\n";
 			$sk->fields = dol_sort_array($sk->fields, 'position');
 			foreach ($sk->fields as $key => $val) {
 				// Discard if extrafield is a hidden field on form
@@ -330,7 +330,7 @@ if (($id || $ref) && $action == 'edit') {
 					continue; // We don't want this field
 				}
 
-				print '<tr class="field_'.$key.'"><td';
+				print '<tr class="field_' . $key . '"><td';
 				print ' class="titlefieldcreate';
 				if (isset($val['notnull']) && $val['notnull'] > 0) {
 					print ' fieldrequired';
@@ -350,7 +350,7 @@ if (($id || $ref) && $action == 'edit') {
 					print img_picto('', $val['picto'], '', false, 0, 0, '', 'pictofixedwidth');
 				}
 				if (in_array($val['type'], array('int', 'integer'))) {
-					$value = GETPOSTISSET($key) ?GETPOST($key, 'int') : $sk->$key;
+					$value = GETPOSTISSET($key) ? GETPOST($key, 'int') : $sk->$key;
 				} elseif ($val['type'] == 'double') {
 					$value = GETPOSTISSET($key) ? price2num(GETPOST($key, 'alphanohtml')) : $sk->$key;
 				} elseif (preg_match('/^(text|html)/', $val['type'])) {
@@ -370,8 +370,8 @@ if (($id || $ref) && $action == 'edit') {
 				if ($val['noteditable']) {
 					print $sk->showOutputField($val, $key, $value, '', '', '', 0);
 				} else {
-					/** @var Skilldet $sk*/
-					print $sk->showInputField($val, $key, $value,"","line[".$sk->id."]","","" );
+					/** @var Skilldet $sk */
+					print $sk->showInputField($val, $key, $value, "", "line[" . $sk->id . "]", "", "");
 				}
 				print '</td>';
 				print '</tr>';
@@ -383,14 +383,12 @@ if (($id || $ref) && $action == 'edit') {
 
 	print dol_get_fiche_end();
 
-	print '<div class="center"><input type="submit" class="button button-save" name="save" value="'.$langs->trans("Save").'">';
-	print ' &nbsp; <input type="submit" class="button button-cancel" name="cancel" value="'.$langs->trans("Cancel").'">';
+	print '<div class="center"><input type="submit" class="button button-save" name="save" value="' . $langs->trans("Save") . '">';
+	print ' &nbsp; <input type="submit" class="button button-cancel" name="cancel" value="' . $langs->trans("Cancel") . '">';
 	print '</div>';
 
 	print '</form>';
 }
-
-
 
 
 // Part to show record
@@ -404,17 +402,17 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Confirmation to delete
 	if ($action == 'delete') {
-		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('DeleteSkill'), $langs->trans('ConfirmDeleteObject'), 'confirm_delete', '', 0, 1);
+		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('DeleteSkill'), $langs->trans('ConfirmDeleteObject'), 'confirm_delete', '', 0, 1);
 	}
 	// Confirmation to delete line
 	if ($action == 'deleteline') {
-		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id.'&lineid='.$lineid, $langs->trans('DeleteLine'), $langs->trans('ConfirmDeleteLine'), 'confirm_deleteline', '', 0, 1);
+		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id . '&lineid=' . $lineid, $langs->trans('DeleteLine'), $langs->trans('ConfirmDeleteLine'), 'confirm_deleteline', '', 0, 1);
 	}
 	// Clone confirmation
 	if ($action == 'clone') {
 		// Create an array for form
 		$formquestion = array();
-		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('ToClone'), $langs->trans('ConfirmCloneAsk', $object->ref), 'confirm_clone', $formquestion, 'yes', 1);
+		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('ToClone'), $langs->trans('ConfirmCloneAsk', $object->ref), 'confirm_clone', $formquestion, 'yes', 1);
 	}
 
 	// Confirmation of action xxxx
@@ -430,7 +428,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			// array('type' => 'other',    'name' => 'idwarehouse',   'label' => $langs->trans("SelectWarehouseForStockDecrease"), 'value' => $formproduct->selectWarehouses(GETPOST('idwarehouse')?GETPOST('idwarehouse'):'ifone', 'idwarehouse', '', 1, 0, 0, '', 0, $forcecombo))
 		);
 		*/
-		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('XXX'), $text, 'confirm_xxx', $formquestion, 0, 1, 220);
+		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('XXX'), $text, 'confirm_xxx', $formquestion, 0, 1, 220);
 	}
 
 	// Call Hook formConfirm
@@ -448,9 +446,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Object card
 	// ------------------------------------------------------------
-	$linkback = '<a href="'.dol_buildpath('/hrmtest/skill_list.php', 1).'?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
-
-
+	$linkback = '<a href="' . dol_buildpath('/hrmtest/skill_list.php', 1) . '?restore_lastsearch_values=1' . (!empty($socid) ? '&socid=' . $socid : '') . '">' . $langs->trans("BackToList") . '</a>';
 
 
 	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
@@ -459,13 +455,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<div class="fichecenter">';
 	print '<div class="fichehalfleft">';
 	print '<div class="underbanner clearboth"></div>';
-	print '<table class="border centpercent tableforfield">'."\n";
+	print '<table class="border centpercent tableforfield">' . "\n";
 
-	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
+	include DOL_DOCUMENT_ROOT . '/core/tpl/commonfields_view.tpl.php';
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
-	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_view.tpl.php';
-
+	include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_view.tpl.php';
 
 
 	print '</table>';
@@ -477,13 +472,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print dol_get_fiche_end();
 
 
-
 	//dol_include_once('/hrmtest/tpl/hrmtest_skillde.fiche.tpl.php');
 
 	// Buttons for actions
 
 	if ($action != 'presend' && $action != 'editline') {
-		print '<div class="tabsAction">'."\n";
+		print '<div class="tabsAction">' . "\n";
 		$parameters = array();
 		$reshook = $hookmanager->executeHooks('addMoreActionsButtons', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
 		if ($reshook < 0) {
@@ -494,15 +488,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			// Back to draft
 			if ($object->status == $object::STATUS_VALIDATED) {
-				print dolGetButtonAction($langs->trans('SetToDraft'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=confirm_setdraft&confirm=yes&token='.newToken(), '', $permissiontoadd);
+				print dolGetButtonAction($langs->trans('SetToDraft'), '', 'default', $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=confirm_setdraft&confirm=yes&token=' . newToken(), '', $permissiontoadd);
 			}
 
-			print dolGetButtonAction($langs->trans('Modify'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=edit&token='.newToken(), '', $permissiontoadd);
+			print dolGetButtonAction($langs->trans('Modify'), '', 'default', $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=edit&token=' . newToken(), '', $permissiontoadd);
 
 			// Delete (need delete permission, or if draft, just need create/modify permission)
-			print dolGetButtonAction($langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete&token='.newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
+			print dolGetButtonAction($langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=delete&token=' . newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
 		}
-		print '</div>'."\n";
+		print '</div>' . "\n";
 	}
 
 }
@@ -513,7 +507,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 //*---------------------------------------------------------------------------
 
-if ($action != "create" &&  $action != "edit") {
+if ($action != "create" && $action != "edit") {
 
 	require_once DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php';
 	require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
@@ -808,7 +802,7 @@ if ($action != "create" &&  $action != "edit") {
 	if ($limit > 0 && $limit != $conf->liste_limit) {
 		$param .= '&limit=' . urlencode($limit);
 	}
-	if (!empty($object->id)) $param .= '&id='.$object->id;
+	if (!empty($object->id)) $param .= '&id=' . $object->id;
 	foreach ($search as $key => $val) {
 		if (is_array($search[$key]) && count($search[$key])) {
 			foreach ($search[$key] as $skey) {
@@ -1157,13 +1151,13 @@ if ($action != "create" &&  $action != "edit") {
 
 	$MAXEVENT = 10;
 
-	$morehtmlright = '<a href="'.dol_buildpath('/hrmtest/skill_agenda.php', 1).'?id='.$object->id.'">';
+	$morehtmlright = '<a href="' . dol_buildpath('/hrmtest/skill_agenda.php', 1) . '?id=' . $object->id . '">';
 	$morehtmlright .= $langs->trans("SeeAll");
 	$morehtmlright .= '</a>';
 	// List of actions on element
-	include_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';
+	include_once DOL_DOCUMENT_ROOT . '/core/class/html.formactions.class.php';
 	$formactions = new FormActions($db);
-	$somethingshown = $formactions->showactions($object, $object->element.'@'.$object->module, (is_object($object->thirdparty) ? $object->thirdparty->id : 0), 1, '', $MAXEVENT, '', $morehtmlright);
+	$somethingshown = $formactions->showactions($object, $object->element . '@' . $object->module, (is_object($object->thirdparty) ? $object->thirdparty->id : 0), 1, '', $MAXEVENT, '', $morehtmlright);
 
 	print '</div></div></div>';
 
