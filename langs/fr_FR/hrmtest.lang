@@ -62,6 +62,7 @@ list=Liste
 Job=Emploi
 Jobs=Emplois
 ListofJobs=Liste des emplois
+NewJob=Nouvel emploi
 fkJob=Emploi
 fkUser=Utilisateur
 
@@ -73,7 +74,7 @@ DateEval= Date d'évaluation
 ListofEvaluation=Liste des évaluations
 
 
-# Skill
+## Skill ##
 Skill= Compétence
 Skills= Compétences
 ListofSkills=Liste des compétences
@@ -88,22 +89,13 @@ Skilldet=Niveau de compétence
 rank=Niveau
 ErrNoSkillSelected=Vous n'avez pas sélectionné de compétence
 ErrSkillAlreadyAdded=Cette compétence est déjà dans la liste
-
 ErrorBadObjectType=Mauvais type d'objet fourni
 RequiredRank=Niveau requis
 Rank=Niveau
 NA=Non concerné
 SkillHasNoLines=Cette compétence n'a pas de niveau défini
 
-
-NoUser=Sans Utilisateur
-Deleted=Supprimé
-NewJob=Nouvel emploi
-
-Draft=brouillon
-Validate=Validé
-
-# Position
+## Position ##
 Position=Poste
 Positions=Postes
 ListofPosition=Liste des postes
@@ -111,5 +103,14 @@ date_end=Date de fin
 date_start=Date de début
 fk_user=Utilisateur
 fk_job=Emploi
-commentaire_abandon =Commentaire abandon
+commentaire_abandon=Commentaire abandon
 EndContract=Fin de contrat
+
+
+NoUser=Sans Utilisateur
+Deleted=Supprimé
+
+Draft=brouillon
+Validate=Validé
+
+
