@@ -117,6 +117,10 @@ class Job extends CommonObject
 	public $date_creation;
 	public $tms;
 	public $deplacement;
+	public $note_public;
+	public $note_private;
+	public $fk_user_creat;
+	public $fk_user_modif;
 	// END MODULEBUILDER PROPERTIES
 
 
