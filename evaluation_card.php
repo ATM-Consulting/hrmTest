@@ -127,6 +127,7 @@ include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php'; // Must be includ
 
 $permissiontoread = $user->rights->hrmtest->evaluation->read;
 $permissiontoadd = $user->rights->hrmtest->evaluation->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
+$permissiontoClose = $user->rights->hrmtest->evaluation->write;
 $permissiontodelete = $user->rights->hrmtest->evaluation->delete || ($permissiontoadd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
 $permissionnote = $user->rights->hrmtest->evaluation->write; // Used by the include of actions_setnotes.inc.php
 $permissiondellink = $user->rights->hrmtest->evaluation->write; // Used by the include of actions_dellink.inc.php
@@ -203,7 +204,7 @@ if (empty($reshook)) {
 		{
 			foreach ($object->lines as $line)
 			{
-				if ($line->fk_rank)
+				if ($line->fk_rank >= 0 )
 				{
 					$skillRank = new SkillRank($db);
 					$skillRank->fetch($line->fk_rank);
@@ -216,7 +217,7 @@ if (empty($reshook)) {
 				else
 				{
 					$skillRank = new SkillRank($db);
-					$skillRank->objecttype = 'evaluationdet';
+					$skillRank->objecttype = SkillRank::SKILLRANK_TYPE_EVALDET;
 					$skillRank->fk_object = $line->id;
 					$skillRank->rank = $TNote[$line->fk_skill];
 					$skillRank->fk_skill = $line->fk_skill;
@@ -229,6 +230,74 @@ if (empty($reshook)) {
 				}
 			}
 		}
+
+	}
+
+	if ($action == 'close'){
+		//var_dump("need close");
+		// save evaldet lines to user;
+		$sk = new SkillRank($db);
+		$SkillrecordsForActiveUser = $sk->fetchAll('ASC','fk_skill',0,0,array("customsql"=>"fk_object = ".$user->id ." AND objecttype ='".SkillRank::SKILLRANK_TYPE_USER."'"),'AND');
+
+		$errors = 0;
+		// on parcours les evaldets de l'eval
+		foreach ($object->lines as $key => $line){
+
+			$currentSkill = new SkillRank($db);
+			$res =  $currentSkill->fetch($line->fk_rank);
+
+
+			// pas de reference  .. on ajoute la ligne pour le user
+			if (count($SkillrecordsForActiveUser) == 0){
+
+				if ($res > 0){
+					$newSkill = new SkillRank($db);
+					$resCreate = $newSkill->cloneFromCurrentSkill($currentSkill,$user);
+
+					if ($resCreate > 0 ){
+
+					}else{
+						$errors++;
+						setEventMessage($langs->trans('ErrorCreateUserSkill'),$currentSkill->fk_skill);
+					}
+
+				}else{
+					setEventMessage($langs->trans('NoSkilRankLoaded'));
+				}
+
+			} else{
+				//check  si la skill est presente pour le user
+				$find = false;
+				$keyFind = 0;
+				foreach ($SkillrecordsForActiveUser as $k => $sr){
+					if ($sr->fk_skill == $currentSkill->fk_skill){
+						$keyFind = $k;
+						$find = true;
+						break;
+					}
+				}
+				// on update la skill user
+				if ($find){
+					$updSkill = $SkillrecordsForActiveUser[$k];
+
+					$updSkill->rank = $currentSkill->rank;
+					$updSkill->update($user);
+				}else{ // sinon on ajoute la skill
+					$newSkill = new SkillRank($db);
+					$resCreate = $newSkill->cloneFromCurrentSkill($currentSkill,$user);
+				}
+
+
+			}
+
+
+		}
+		$object->setStatut(Evaluation::STATUS_CLOSED);
+	}
+
+	if ($action == 'reopen' ){
+		// pas de mise à jour ici on change juste le status de l'évaluation
+		$object->setStatut(Evaluation::STATUS_VALIDATED);
 
 	}
 }
@@ -249,22 +318,6 @@ $formproject = new FormProjets($db);
 $title = $langs->trans("Evaluation");
 $help_url = '';
 llxHeader('', $title, $help_url);
-
-// Example : Adding jquery code
-// print '<script type="text/javascript" language="javascript">
-// jQuery(document).ready(function() {
-// 	function init_myfunc()
-// 	{
-// 		jQuery("#myid").removeAttr(\'disabled\');
-// 		jQuery("#myid").attr(\'disabled\',\'disabled\');
-// 	}
-// 	init_myfunc();
-// 	jQuery("#mybutton").click(function() {
-// 		init_myfunc();
-// 	});
-// });
-// </script>';
-
 
 // Part to create
 if ($action == 'create') {
@@ -402,41 +455,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$linkback = '<a href="'.dol_buildpath('/hrmtest/evaluation_list.php', 1).'?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
 
 	$morehtmlref = '<div class="refidno">';
-	/*
-	 // Ref customer
-	 $morehtmlref.=$form->editfieldkey("RefCustomer", 'ref_client', $object->ref_client, $object, 0, 'string', '', 0, 1);
-	 $morehtmlref.=$form->editfieldval("RefCustomer", 'ref_client', $object->ref_client, $object, 0, 'string', '', null, null, '', 1);
-	 // Thirdparty
-	 $morehtmlref.='<br>'.$langs->trans('ThirdParty') . ' : ' . (is_object($object->thirdparty) ? $object->thirdparty->getNomUrl(1) : '');
-	 // Project
-	 if (! empty($conf->projet->enabled)) {
-	 $langs->load("projects");
-	 $morehtmlref .= '<br>'.$langs->trans('Project') . ' ';
-	 if ($permissiontoadd) {
-	 //if ($action != 'classify') $morehtmlref.='<a class="editfielda" href="' . $_SERVER['PHP_SELF'] . '?action=classify&amp;id=' . $object->id . '">' . img_edit($langs->transnoentitiesnoconv('SetProject')) . '</a> ';
-	 $morehtmlref .= ' : ';
-	 if ($action == 'classify') {
-	 //$morehtmlref .= $form->form_project($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->socid, $object->fk_project, 'projectid', 0, 0, 1, 1);
-	 $morehtmlref .= '<form method="post" action="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'">';
-	 $morehtmlref .= '<input type="hidden" name="action" value="classin">';
-	 $morehtmlref .= '<input type="hidden" name="token" value="'.newToken().'">';
-	 $morehtmlref .= $formproject->select_projects($object->socid, $object->fk_project, 'projectid', $maxlength, 0, 1, 0, 1, 0, 0, '', 1);
-	 $morehtmlref .= '<input type="submit" class="button valignmiddle" value="'.$langs->trans("Modify").'">';
-	 $morehtmlref .= '</form>';
-	 } else {
-	 $morehtmlref.=$form->form_project($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->socid, $object->fk_project, 'none', 0, 0, 0, 1);
-	 }
-	 } else {
-	 if (! empty($object->fk_project)) {
-	 $proj = new Project($db);
-	 $proj->fetch($object->fk_project);
-	 $morehtmlref .= ': '.$proj->getNomUrl();
-	 } else {
-	 $morehtmlref .= '';
-	 }
-	 }
-	 }*/
 	$morehtmlref .= '</div>';
+
 
 
 	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
@@ -447,10 +467,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<div class="underbanner clearboth"></div>';
 	print '<table class="border centpercent tableforfield">'."\n";
 
-	// Common attributes
-	//$keyforbreak='fieldkeytoswitchonsecondcolumn';	// We change column just before this field
-	//unset($object->fields['fk_project']);				// Hide field already shown in banner
-	//unset($object->fields['fk_soc']);					// Hide field already shown in banner
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
@@ -489,6 +505,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		if (!empty($object->lines) || ($object->status == $object::STATUS_DRAFT && $permissiontoadd && $action != 'selectlines' && $action != 'editline')) {
 			print '<table id="tablelines" class="noborder noshadow" width="100%">';
 		}
+
+		/*$rank = new SkillRank($db);
+		$object->lines = $rank->fetchAll('','',0,0,array('customsql'=>'objecttype = '. SkillRank::SKILLRANK_TYPE_USER,'customsql'=>'fk_object = '.$user->id));*/
+
+
+//		$rank = new SkillRank($db);
+//		$object->lines = $rank->fetchAll('','',0,0,array('customsql'=>'objecttype ='.SkillRank::SKILLRANK_TYPE_JOB,'customsql'=>'fk_object = '.$object->fk_job));
+
 
 		if (!empty($object->lines)) {
 			$object->printObjectLines($action, $mysoc, null, GETPOST('lineid', 'int'), 1);
@@ -541,9 +565,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			// Back to draft
 			if ($object->status == $object::STATUS_VALIDATED) {
 				print dolGetButtonAction($langs->trans('SetToDraft'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=confirm_setdraft&confirm=yes&token='.newToken(), '', $permissiontoadd);
+				print dolGetButtonAction($langs->trans('Close'), '', 'close', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=close&token='.newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_CLOSED && $permissiontoclose));
+			}elseif ($object->status != $object::STATUS_CLOSED) {
+				print dolGetButtonAction($langs->trans('Modify'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=edit&token='.newToken(), '', $permissiontoadd);
 			}
 
-			print dolGetButtonAction($langs->trans('Modify'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=edit&token='.newToken(), '', $permissiontoadd);
+			if ($object->status == $object::STATUS_CLOSED) {
+				print dolGetButtonAction($langs->trans('reopen'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=reopen&token='.newToken(), '', $permissiontoadd);
+			}
+
 
 			// Validate
 			if ($object->status == $object::STATUS_DRAFT) {
@@ -555,29 +585,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				}
 			}
 
-			// Clone
-//			print dolGetButtonAction($langs->trans('ToClone'), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&socid='.$object->socid.'&action=clone&token='.newToken(), '', $permissiontoadd);
-
-			/*
-			if ($permissiontoadd) {
-				if ($object->status == $object::STATUS_ENABLED) {
-					print dolGetButtonAction($langs->trans('Disable'), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=disable&token='.newToken(), '', $permissiontoadd);
-				} else {
-					print dolGetButtonAction($langs->trans('Enable'), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=enable&token='.newToken(), '', $permissiontoadd);
-				}
-			}
-			if ($permissiontoadd) {
-				if ($object->status == $object::STATUS_VALIDATED) {
-					print dolGetButtonAction($langs->trans('Cancel'), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=close&token='.newToken(), '', $permissiontoadd);
-				} else {
-					print dolGetButtonAction($langs->trans('Re-Open'), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=reopen&token='.newToken(), '', $permissiontoadd);
-				}
-			}
-			*/
 
 			// Delete (need delete permission, or if draft, just need create/modify permission)
 			print dolGetButtonAction($langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete&token='.newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
+
 		}
+
+
 		print '</div>'."\n";
 	}
 

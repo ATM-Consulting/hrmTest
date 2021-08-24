@@ -103,3 +103,6 @@ fk_user=Utilisateur
 fk_job=Emploi
 commentaire_abandon =Commentaire abandon
 EndContract=Fin de contrat
+
+#
+reopen=Réouvrir

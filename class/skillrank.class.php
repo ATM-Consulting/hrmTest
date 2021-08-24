@@ -67,6 +67,9 @@ class SkillRank extends CommonObject
 	const STATUS_VALIDATED = 1;
 	const STATUS_CANCELED = 9;
 
+	const SKILLRANK_TYPE_JOB = "job";
+	const SKILLRANK_TYPE_USER = "user";
+	const SKILLRANK_TYPE_EVALDET = "evaluationdet";
 
 	/**
 	 *  'type' field format ('integer', 'integer:ObjectClass:PathToClass[:AddCreateButtonOrNot[:Filter]]', 'sellist:TableName:LabelFieldName[:KeyFieldName[:KeyFieldParent[:Filter]]]', 'varchar(x)', 'double(24,8)', 'real', 'price', 'text', 'text:none', 'html', 'date', 'datetime', 'timestamp', 'duration', 'mail', 'phone', 'url', 'password')
@@ -352,6 +355,20 @@ class SkillRank extends CommonObject
 		return $result;
 	}
 
+	public function cloneFromCurrentSkill($currentSkill,$user){
+
+		$this->fk_skill 		= $currentSkill->fk_skill;
+		$this->rank 			= $currentSkill->rank;
+		$this->fk_object		= $user->id;
+		$this->date_creation 	= $currentSkill->date_creation;
+		$this->tms 				= $currentSkill->tms;
+		$this->fk_user_creat 	= $currentSkill->fk_user_creat;
+		$this->fk_user_modif 	= $currentSkill->fk_user_modif;
+		$this->objecttype	 	= self::SKILLRANK_TYPE_USER;
+		$resCreate =  $this->create($user);
+
+		return $resCreate;
+	}
 
 	/**
 	 * Load list of objects in memory from the database.
