@@ -365,7 +365,7 @@ function DisplayPositionCard($conf, $langs, $db, &$object, $permissiontoadd, $li
 
 		$morehtmlref .= '</div>';
 
-		dol_banner_tab($object, 'id', $linkback, 1, 'rowid', $ref, $morehtmlref);
+		dol_banner_tab($object, 'id', $linkback, 1, 'rowid', '', $morehtmlref);
 
 
 		print '<div class="fichecenter">';
