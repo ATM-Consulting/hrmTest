@@ -212,12 +212,12 @@ function DisplayJob($conf, $langs, $db, $object, $permissiontoadd, $lineid)
 		if ($action == 'addposition')
 		{
 			$object = new Position($db);
-//var_dump(empty($ref), $fk_user<0, $fk_job<0, empty($cancel));exit;
 			if(empty($cancel) && (empty($ref) || $fk_user < 0 || $fk_job < 0))
 			{
 				$redir = dol_buildpath('/hrmtest/position.php', 1) . '?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF']) . '&fk_job=' . $fk_job;
 				header("Location: ".$redir);
 				setEventMessage($langs->trans('FieldsRequired'), 'errors');
+				exit;
 			}
 			else
 			{
