@@ -253,7 +253,7 @@ $now = dol_now();
 
 //$help_url="EN:Module_Evaluation|FR:Module_Evaluation_FR|ES:Módulo_Evaluation";
 $help_url = '';
-$title = $langs->trans('ListOf', $langs->transnoentitiesnoconv("Evaluations"));
+$title = $langs->trans("ListofEvaluation");
 $morejs = array();
 $morecss = array();
 

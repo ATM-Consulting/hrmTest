@@ -102,50 +102,6 @@ DisplayJob($conf, $langs, $db, $object, $permissiontoadd, $lineid);
 $object = new Position($db);
 
 
-// Part to create
-if ($action == 'create') {
-	print load_fiche_titre($langs->trans("NewObject", $langs->transnoentitiesnoconv("Position")), '', 'object_' . $object->picto);
-
-	print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
-	print '<input type="hidden" name="token" value="' . newToken() . '">';
-	print '<input type="hidden" name="action" value="addposition">';
-	if ($backtopage) {
-		print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';
-	}
-
-	if ($backtopageforcancel) {
-		print '<input type="hidden" name="backtopageforcancel" value="' . $backtopageforcancel . '">';
-	}
-
-	print dol_get_fiche_head(array(), '');
-
-	// Set some default values
-	//if (! GETPOSTISSET('fieldname')) $_POST['fieldname'] = 'myvalue';
-
-	print '<table class="border centpercent tableforfieldcreate">' . "\n";
-
-	// Common attributes
-	include DOL_DOCUMENT_ROOT . '/core/tpl/commonfields_add.tpl.php';
-
-	// Other attributes
-	include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_add.tpl.php';
-
-	print '</table>' . "\n";
-
-	print dol_get_fiche_end();
-
-	print '<div class="center">';
-
-	print '<input type="submit" class="button" name="add" value="' . dol_escape_htmltag($langs->trans("Create")) . '">';
-	print '&nbsp; ';
-	print '<input type="' . ($backtopage ? "submit" : "button") . '" class="button button-cancel" name="cancel" value="' . dol_escape_htmltag($langs->trans("Cancel")) . '"' . ($backtopage ? '' : ' onclick="javascript:history.go(-1)"') . '>'; // Cancel for create does not post form if we don't know the backtopage
-	print '</div>';
-
-	print '</form>';
-
-	//dol_set_focus('input[name="ref"]');
-}
-
 if ($action == 'view' || $action == 'list' || $action == 'delete')
 	DisplayPositionList($conf, $langs, $db, $object);
 
@@ -166,8 +122,9 @@ function DisplayJob($conf, $langs, $db, $object, $permissiontoadd, $lineid)
 	global $user, $langs, $db, $conf, $extrafields, $hookmanager;
 
 	// Get parameters
-	$id 	= GETPOST('fk_job', 'int');
-	$fk_job = GETPOST('fk_job', 'int');
+	$id 	 = GETPOST('fk_job', 'int');
+	$fk_job  = GETPOST('fk_job', 'int');
+	$fk_user = GETPOST('fk_user', 'int');
 
 	$ref 	= GETPOST('ref', 'alpha');
 	$action = GETPOST('action', 'aZ09');
@@ -237,6 +194,7 @@ function DisplayJob($conf, $langs, $db, $object, $permissiontoadd, $lineid)
 		$error = 0;
 
 		$backurlforlist = dol_buildpath('/hrmtest/position_list.php', 1);
+		$backtopage = dol_buildpath('/hrmtest/position.php', 1) . '?fk_job=' . ($fk_job > 0 ? $fk_job : '__ID__');
 
 		if (empty($backtopage) || ($cancel && empty($fk_job))) {
 			if (empty($backtopage) || ($cancel && strpos($backtopage, '__ID__'))) {
@@ -250,10 +208,21 @@ function DisplayJob($conf, $langs, $db, $object, $permissiontoadd, $lineid)
 
 		$triggermodname = 'HRMTEST_POSITION_MODIFY'; // Name of trigger action code to execute when we modify record
 
-		if ($action == 'addposition') {
+
+		if ($action == 'addposition')
+		{
 			$object = new Position($db);
-			$action = 'add';
-			$backtopage = dol_buildpath('/hrmtest/position.php', 1) . '?fk_job=' . ($fk_job > 0 ? $fk_job : '__ID__');
+//var_dump(empty($ref), $fk_user<0, $fk_job<0, empty($cancel));exit;
+			if(empty($cancel) && (empty($ref) || $fk_user < 0 || $fk_job < 0))
+			{
+				$redir = dol_buildpath('/hrmtest/position.php', 1) . '?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF']) . '&fk_job=' . $fk_job;
+				header("Location: ".$redir);
+				setEventMessage($langs->trans('FieldsRequired'), 'errors');
+			}
+			else
+			{
+				$action = 'add';
+			}
 		}
 
 		// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
@@ -1095,6 +1064,50 @@ function DisplayPositionList($conf, $langs, $db, $object)
 		print $formfile->showdocuments('massfilesarea_hrmtest', '', $filedir, $urlsource, 0, $delallowed, '', 1, 1, 0, 48, 1, $param, $title, '', '', '', null, $hidegeneratedfilelistifempty);
 	}
 	return array($arrayfields, $object, $action, $obj, $totalarray);
+}
+
+// Part to create
+if ($action == 'create') {
+	print load_fiche_titre($langs->trans("NewObject", $langs->transnoentitiesnoconv("Position")), '', 'object_' . $object->picto);
+
+	print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
+	print '<input type="hidden" name="token" value="' . newToken() . '">';
+	print '<input type="hidden" name="action" value="addposition">';
+	if ($backtopage) {
+		print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';
+	}
+
+	if ($backtopageforcancel) {
+		print '<input type="hidden" name="backtopageforcancel" value="' . $backtopageforcancel . '">';
+	}
+
+	print dol_get_fiche_head(array(), '');
+
+	// Set some default values
+	//if (! GETPOSTISSET('fieldname')) $_POST['fieldname'] = 'myvalue';
+
+	print '<table class="border centpercent tableforfieldcreate">' . "\n";
+
+	// Common attributes
+	include DOL_DOCUMENT_ROOT . '/core/tpl/commonfields_add.tpl.php';
+
+	// Other attributes
+	include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_add.tpl.php';
+
+	print '</table>' . "\n";
+
+	print dol_get_fiche_end();
+
+	print '<div class="center">';
+
+	print '<input type="submit" class="button" name="add" value="' . dol_escape_htmltag($langs->trans("Create")) . '">';
+	print '&nbsp; ';
+	print '<input type="' . ($backtopage ? "submit" : "button") . '" class="button button-cancel" name="cancel" value="' . dol_escape_htmltag($langs->trans("Cancel")) . '"' . ($backtopage ? '' : ' onclick="javascript:history.go(-1)"') . '>'; // Cancel for create does not post form if we don't know the backtopage
+	print '</div>';
+
+	print '</form>';
+
+	//dol_set_focus('input[name="ref"]');
 }
 
 // End of page
