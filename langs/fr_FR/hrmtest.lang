@@ -58,16 +58,26 @@ description=Description
 deplacement=Déplacement
 list=Liste
 
-# Job
+## Job ##
 Job=Emploi
+Jobs=Emplois
+ListofJobs=Liste des emplois
+NewJob=Nouvel emploi
 fkJob=Emploi
 fkUser=Utilisateur
+
+## Evaluation ##
+Eval=Évaluation
+Evals=Évaluations
+NewEval=Nouvelle évaluation
 DateEval= Date d'évaluation
+ListofEvaluation=Liste des évaluations
 
 
-# Skill
+## Skill ##
 Skill= Compétence
 Skills= Compétences
+ListofSkills=Liste des compétences
 NewSkill= Nouvelle Compétence
 AddSkill= Ajouter une compétence
 SKILL_TYPE_EXPERTISE= Savoir-être
@@ -79,30 +89,33 @@ Skilldet=Niveau de compétence
 rank=Niveau
 ErrNoSkillSelected=Vous n'avez pas sélectionné de compétence
 ErrSkillAlreadyAdded=Cette compétence est déjà dans la liste
-
 ErrorBadObjectType=Mauvais type d'objet fourni
 RequiredRank=Niveau requis
 Rank=Niveau
 NA=Non concerné
 SkillHasNoLines=Cette compétence n'a pas de niveau défini
 
-
-NoUser=Sans Utilisateur
-Deleted=Supprimé
-NewJob=Nouvel emploi
-Eval=Évaluation
-NewEval=Nouvelle évaluation
-Draft=brouillon
-Validate=Validé
-
-# Position
+## Position ##
 Position=Poste
+Positions=Postes
+ListofPosition=Liste des postes
 date_end=Date de fin
 date_start=Date de début
 fk_user=Utilisateur
 fk_job=Emploi
-commentaire_abandon =Commentaire abandon
+commentaire_abandon=Commentaire abandon
 EndContract=Fin de contrat
 
+<<<<<<< HEAD
 #
 reopen=Réouvrir
+=======
+
+NoUser=Sans Utilisateur
+Deleted=Supprimé
+
+Draft=brouillon
+Validate=Validé
+
+FieldsRequired=Les champs obligatoires doivent être renseignés
+>>>>>>> 6f891a1c61cd8a1ac3c04b18184afea1aedbae04

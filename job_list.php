@@ -253,7 +253,7 @@ $now = dol_now();
 
 //$help_url="EN:Module_Job|FR:Module_Job_FR|ES:Módulo_Job";
 $help_url = '';
-$title = $langs->trans('ListOf', $langs->transnoentitiesnoconv("Jobs"));
+$title = $langs->trans("ListofJobs");
 $morejs = array();
 $morecss = array();
 
