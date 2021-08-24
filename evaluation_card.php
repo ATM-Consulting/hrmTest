@@ -506,30 +506,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '<table id="tablelines" class="noborder noshadow" width="100%">';
 		}
 
-		/*$rank = new SkillRank($db);
-		$object->lines = $rank->fetchAll('','',0,0,array('customsql'=>'objecttype = '. SkillRank::SKILLRANK_TYPE_USER,'customsql'=>'fk_object = '.$user->id));*/
-
-
-//		$rank = new SkillRank($db);
-//		$object->lines = $rank->fetchAll('','',0,0,array('customsql'=>'objecttype ='.SkillRank::SKILLRANK_TYPE_JOB,'customsql'=>'fk_object = '.$object->fk_job));
-
 
 		if (!empty($object->lines)) {
 			$object->printObjectLines($action, $mysoc, null, GETPOST('lineid', 'int'), 1);
 		}
 
-		/*// Form to add new line
-		if ($object->status == 0 && $permissiontoadd && $action != 'selectlines') {
-			if ($action != 'editline') {
-				// Add products/services form
 
-				$parameters = array();
-				$reshook = $hookmanager->executeHooks('formAddObjectLine', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
-				if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
-				if (empty($reshook))
-					$object->formAddObjectLine(1, $mysoc, $soc);
-			}
-		}*/
 
 		if (!empty($object->lines) || ($object->status == $object::STATUS_DRAFT && $permissiontoadd && $action != 'selectlines' && $action != 'editline')) {
 			print '</table>';
