@@ -596,6 +596,41 @@ class Job extends CommonObject
 		}
 	}
 
+	/**
+	 * @param $fk_user
+	 * @return mixed|string|null
+	 */
+	static function getLastJobForUser($fk_user) {
+		global $db;
+
+		$e = new Job($db);
+		$Tab = $e->get_for_user($fk_user);
+
+		if(empty($Tab)) return '';
+
+		$job = array_shift($Tab);
+
+		return $job;
+	}
+
+	/**
+	 * @param $userid
+	 * @return array
+	 */
+	function get_for_user($userid)
+	{
+		global $db;
+
+		$TReturn = array();
+		$position = new Position($db);
+		$TPosition = $position->get_for_user($userid);
+		foreach($TPosition as $UPosition)
+		{
+			$TReturn[$UPosition->Job->rowid] = $UPosition->Job->label;
+		}
+		return $TReturn;
+	}
+
 
 	/**
 	 *	Set draft status
