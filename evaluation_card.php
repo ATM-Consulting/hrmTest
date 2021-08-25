@@ -204,7 +204,7 @@ if (empty($reshook)) {
 		{
 			foreach ($object->lines as $line)
 			{
-				if ($line->fk_rank >= 0 )
+				if ($line->fk_rank > 0 )
 				{
 					$skillRank = new SkillRank($db);
 					$skillRank->fetch($line->fk_rank);
