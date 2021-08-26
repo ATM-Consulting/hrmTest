@@ -131,11 +131,9 @@ $fk_usergroup1 = GETPOST('fk_usergroup1');
 
 			$skill = new Skill($db);
 			$TSkill1 = getSkillForUsers($TUser1);
-//			$TCompetence1 = TNodeGPEC::getCompetenceForUsers($PDOdb, $TUser1);
 
 			if ($fk_job > 0)
 			{
-//				$TCompetence2 = TNodeGPEC::getCompetenceForEmploi($PDOdb, $fk_job);
 				$TSkill2 = getSkillForJob($fk_job);
 
 				$job = new Job($db);
@@ -150,7 +148,6 @@ $fk_usergroup1 = GETPOST('fk_usergroup1');
 			else
 			{
 				$userlist2 = displayUsersListWithPicto($TUser2, $fk_usergroup2, 'userlist2');
-//				$TCompetence2 = TNodeGPEC::getCompetenceForUsers($PDOdb, $TUser2);
 				$TSkill2 = getSkillForUsers($TUser2);
 
 			}
@@ -301,7 +298,6 @@ function mergeSkills($TSkill1, $TSkill2)
 
 			if (empty($Tab[$sk->rowid])) $Tab[$sk->rowid] = new stdClass;
 
-			$Tab[$sk->rowid]->label = $sk->label;
 			$Tab[$sk->rowid]->rate1 = $sk->note;
 
 			$Tab[$sk->rowid]->how_many_max1 = $sk->how_many_max;
@@ -318,7 +314,6 @@ function mergeSkills($TSkill1, $TSkill2)
 
 			if (empty($Tab[$sk->rowid])) $Tab[$sk->rowid] = new stdClass;
 
-			$Tab[$sk->rowid]->label = $sk->label;
 			$Tab[$sk->rowid]->rate2 = $sk->note;
 			$Tab[$sk->rowid]->description = $sk->description;
 			$Tab[$sk->rowid]->how_many_max2 = $sk->how_many_max;
@@ -421,14 +416,48 @@ function getSkillForUsers($TUser)
 {
 	global $db;
 
-	$skill = new SkillRank($db);
-	for ($i = 0; $i <= end($TUser); $i++) {
-		$TSkills = $skill->fetchAll('ASC', 't.rowid', 0, 0, array('customsql' => 'fk_skill=' . $TUser[$i] . ' AND objecttype="user"'));
-//var_dump($skill);
-	}
-	return $TSkills;
-}
+	//Je remonte l'utilisateur qui a la note la plus haute dans un groupe donné pour toutes les compétences évaluées dans ce groupe
+	if(empty($TUser)) return array();
 
+	$sql = 'SELECT sk.rowid, sk.label, sk.description, sk.skill_type,
+				sr.fk_object, sr.objecttype, sr.fk_skill, ';
+
+	$sql.= " MAX(sr.rank) as rank";
+
+	$sql.=' FROM '.MAIN_DB_PREFIX.'hrmtest_skill sk
+	 			LEFT JOIN '.MAIN_DB_PREFIX.'hrmtest_skillrank sr ON (sk.rowid = sr.fk_skill)
+				WHERE 1 AND sr.objecttype = "'.SkillRank::SKILLRANK_TYPE_USER.'"';
+
+	$sql.=' AND sr.fk_object IN ('.implode(',',$TUser).')';
+
+	$sql.=" GROUP BY sk.rowid ";
+
+	$resql = $db->query($sql);
+	if (!$resql)
+		dol_print_error($db);
+
+	$Tab = array();
+
+	//Pour chaque compétence, on compte le nombre de fois que la note max a été atteinte au sein d'un groupe donné
+	foreach($resql as $k=>$row ) {
+		$sql1 = "SELECT count(*) as how_many_max FROM ".MAIN_DB_PREFIX."hrmtest_skillrank sr";
+		$sql1.=" WHERE sr.rank = ".(int)$row['rank'];
+		$sql1.=" AND sr.objecttype = '".Skillrank::SKILLRANK_TYPE_USER."'";
+		$sql1.=" AND sr.fk_skill = ".$row['fk_skill'];
+		$sql1.=" AND sr.fk_object IN (".implode(',',$TUser).")";
+
+		$resql1 = $db->query($sql1);
+		$resql11 = $db->fetch_object($resql1);
+
+		if (!$resql)
+			dol_print_error($db);
+
+		$Tab[$k]['fk_skill'] = $row['fk_skill'];
+		$Tab[$k]['how_many_max'] = $resql11->how_many_max;
+
+	}
+return $Tab;
+}
 
 /**
  * 		Allow to get skill(s) of a job
