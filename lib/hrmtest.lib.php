@@ -64,3 +64,26 @@ function hrmtestAdminPrepareHead()
 
 	return $head;
 }
+
+function displaySubmitButton($pLib,$pName,$plus="", $class='button', $autoDisabled = false){
+	$field = "<INPUT class='".$class."' TYPE='SUBMIT' NAME='$pName' VALUE=\"$pLib\" ";
+
+	if($autoDisabled && stripos($plus, 'onclick')===false) {
+		$field.=' onclick="this.disabled=true" ';
+	}
+
+	$field.=" $plus>\n";
+	return $field;
+}
+
+function hidden($pName,$pVal,$plus=""){
+	$field = '<input id="'.$pName.'" TYPE="HIDDEN" NAME="'.$pName.'" VALUE="'.$pVal.'" '.$plus.'> ';
+	return $field;
+}
+
+function endf() {
+	print end_form();
+}
+function end_form(){
+	return "</FORM>\n";
+}

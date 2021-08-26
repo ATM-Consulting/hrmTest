@@ -600,11 +600,11 @@ class Job extends CommonObject
 	 * @param $fk_user
 	 * @return mixed|string|null
 	 */
-	static function getLastJobForUser($fk_user) {
+	public function getLastJobForUser($fk_user) {
 		global $db;
 
-		$e = new Job($db);
-		$Tab = $e->get_for_user($fk_user);
+		$j = new Job($db);
+		$Tab = $j->get_for_user($fk_user);
 
 		if(empty($Tab)) return '';
 
@@ -614,10 +614,11 @@ class Job extends CommonObject
 	}
 
 	/**
+	 *
 	 * @param $userid
-	 * @return array
+	 * @return array des
 	 */
-	function get_for_user($userid)
+	public function get_for_user($userid)
 	{
 		global $db;
 
@@ -626,9 +627,26 @@ class Job extends CommonObject
 		$TPosition = $position->get_for_user($userid);
 		foreach($TPosition as $UPosition)
 		{
-			$TReturn[$UPosition->Job->rowid] = $UPosition->Job->label;
+			$TReturn[$UPosition->Job->rowid] = $UPosition->Job->ref;
 		}
 		return $TReturn;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getCombo() {
+		global $db;
+
+		$res = $db->query("SELECT rowid, ref FROM ".MAIN_DB_PREFIX.'hrmtest_job WHERE 1 ORDER BY ref' );
+		$Tab=array();
+		while($obj = $db->fetch_object($res)) {
+
+			$Tab[$obj->rowid] = $obj->label;
+
+		}
+
+		return $Tab;
 	}
 
 

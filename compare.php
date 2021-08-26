@@ -22,14 +22,17 @@
  * \brief       This file compares skills of user groups
  */
 
-
-//require 'config.php';
+require_once '../../main.inc.php';
+require_once DOL_DOCUMENT_ROOT.'/core/lib/functions.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
 
 ini_set('display_errors', 1);
 
 dol_include_once('/hrmtest/class/skill.class.php');
 dol_include_once('/hrmtest/class/job.class.php');
 dol_include_once('/hrmtest/class/evaluation.class.php');
+dol_include_once('/hrmtest/class/position.class.php');
+dol_include_once('/hrmtest/lib/hrmtest.lib.php');
 
 $langs->load('hrmtest@hrmtest');
 $css = array();
@@ -37,7 +40,7 @@ $css[] = '/hrmtest/css/style.css';
 llxHeader('', 'HRMtest Comparaison', '', '', 0, 0, '', $css);
 print load_fiche_titre($langs->trans("Comparer"));
 
-$PDOdb = new TPDOdb;
+//$PDOdb = new TPDOdb;
 $form = new Form($db);
 ?>
 	<script type="text/javascript">
@@ -77,8 +80,8 @@ $form = new Form($db);
 
 
 <?php
-
-$formCore = new TFormCore('auto', 'formCompare', 'post');
+$job = new Job($db);
+$form = new Form($db);
 
 $fk_usergroup2 = 0;
 $fk_job = (int)GETPOST('fk_job');
@@ -86,7 +89,8 @@ if ($fk_job <= 0) $fk_usergroup2 = GETPOST('fk_usergroup2');
 
 $fk_usergroup1 = GETPOST('fk_usergroup1');
 
-?>
+?><form action="<?php echo $_SERVER['PHP_SELF'] ?>">
+
 	<div class="tabBar">
 		<table class="border" width="100%">
 			<tr>
@@ -96,14 +100,15 @@ $fk_usergroup1 = GETPOST('fk_usergroup1');
 			<tr>
 				<td>Second élèment à comparer</td>
 
-				<td><?php echo $form->select_dolgroups($fk_usergroup2, 'fk_usergroup2', 1) . ' ' . $langs->trans('Or') . ' ' . $formCore->combo_sexy('', 'fk_job', Job::getCombo(), $fk_job, 1, '', '', 'flat', '', 'false', 1); ?></td>
+				<td><?php echo $form->select_dolgroups($fk_usergroup2, 'fk_usergroup2', 1) . ' ' . $langs->trans('Or') . ' ' . $form->select_dolgroups($fk_job, 'fk_job', 1); ?></td>
 			</tr>
 			<tr>
-				<td colspan="2" align="center"><?php echo $formCore->btsubmit($langs->trans('Filter'), 'bt1'); ?></td>
+				<td colspan="2" align="center"><?php echo displaySubmitButton($langs->trans('Filter'), 'bt1'); ?></td>
 				<td></td>
 			</tr>
 		</table>
 	</div>
+</form>
 
 	<div id="compare" width="100%" style="position:relative;">
 		<table width="100%">
@@ -121,45 +126,55 @@ $fk_usergroup1 = GETPOST('fk_usergroup1');
 
 			$TUser1 = $TUser2 = array();
 
-			$liste1 = _liste_user($PDOdb, $TUser1, $fk_usergroup1, 'liste1');
+			$userlist1 = displayUsersListWithPicto($TUser1, $fk_usergroup1, 'userlist1');
 
-			$TCompetence1 = TNodeGPEC::getCompetenceForUsers($PDOdb, $TUser1);
-			if ($fk_job > 0) {
 
-				$TCompetence2 = TNodeGPEC::getCompetenceForEmploi($PDOdb, $fk_job);
+			$skill = new Skill($db);
+			$TSkill1 = getSkillForUsers($TUser1);
+//			$TCompetence1 = TNodeGPEC::getCompetenceForUsers($PDOdb, $TUser1);
+
+			if ($fk_job > 0)
+			{
+//				$TCompetence2 = TNodeGPEC::getCompetenceForEmploi($PDOdb, $fk_job);
+				$TSkill2 = getSkillForJob($fk_job);
 
 				$job = new Job($db);
-				$job->load($PDOdb, $fk_job);
-				$liste2 = '<ul><li>
-	      <h3>' . $job->label . '</h3>
-	      <p>' . $job->description . '</p>
-	    </li></ul>';
+				$job->fetch($fk_job);
+				$userlist1 = '<ul>
+								  <li>
+									  <h3>' . $job->ref . '</h3>
+									  <p>'  . $job->description . '</p>
+							   	  </li>
+						  	  </ul>';
+			}
+			else
+			{
+				$userlist2 = displayUsersListWithPicto($TUser2, $fk_usergroup2, 'userlist2');
+//				$TCompetence2 = TNodeGPEC::getCompetenceForUsers($PDOdb, $TUser2);
+				$TSkill2 = getSkillForUsers($TUser2);
 
-			} else {
-				$liste2 = _liste_user($PDOdb, $TUser2, $fk_usergroup2, 'liste2');
-				$TCompetence2 = TNodeGPEC::getCompetenceForUsers($PDOdb, $TUser2);
 			}
 
-			$TCompetence = _merge_competence($TCompetence1, $TCompetence2);
+			$TMergedSkills = mergeSkills($TSkill1, $TSkill2);
 
-			echo $liste1;
+			echo $userlist1;
 
 			echo '</td>';
 
-			echo '<td id="" style="width:20%" valign="top">' . _listeCompetence($TCompetence) . '</td>';
-			echo '<td id="" style="width:5%" valign="top">' . _note($TCompetence, 'note1') . '</td>';
-			echo '<td id="" style="width:10%" valign="top">' . _diff($TCompetence) . '</td>';
-			echo '<td id="" style="width:5%" valign="top">' . _note($TCompetence, 'note2') . '</td>';
+			echo '<td id="" style="width:20%" valign="top">' . skillList($TMergedSkills) . '</td>';
+			echo '<td id="" style="width:5%" valign="top">' . rate($TMergedSkills, 'rate1') . '</td>';
+			echo '<td id="" style="width:10%" valign="top">' . diff($TMergedSkills) . '</td>';
+			echo '<td id="" style="width:5%" valign="top">' . rate($TMergedSkills, 'rate2') . '</td>';
 
 			echo '<td id="list-user-right" style="width:30%" valign="top">';
 
-			echo $liste2;
+			echo $userlist2;
 
 			echo '</td></tr>';
 
 			echo '</table>';
 
-			$formCore->end();
+			endf();
 			?>
 
 			<div style="background:#eee;border-radius:5px 0;margin:30px 0 10px;font-style:italic;padding:5px;">
@@ -191,21 +206,21 @@ $fk_usergroup1 = GETPOST('fk_usergroup1');
 dol_fiche_end();
 llxFooter();
 
-function _diff(&$TCompetence)
+function diff(&$TMergedSkills)
 {
 
 	$out = '<ul class="diff">';
 
-	foreach ($TCompetence as $id => &$c) {
+	foreach ($TMergedSkills as $id => &$sk) {
 		$class = 'diffnote';
 
-		if (empty($c->note2)) $class .= ' toohappy';
-		else if (empty($c->note1)) $class .= ' toosad';
-		else if ($c->note1 == $c->note2) $class .= ' happy';
-		else if ($c->note2 < $c->note1) $class .= ' veryhappy';
-		else if ($c->note2 > $c->note1) $class .= ' sad';
+		if (empty($sk->rate2)) $class .= ' toohappy';
+		else if (empty($sk->rate1)) $class .= ' toosad';
+		else if ($sk->rate1 == $sk->rate2) $class .= ' happy';
+		else if ($sk->rate2 < $sk->rate1) $class .= ' veryhappy';
+		else if ($sk->rate2 > $sk->rate1) $class .= ' sad';
 
-		$out .= '<li fkcompetence="' . $id . '" class="' . $class . '" style="text-align:center;">
+		$out .= '<li fk_skill="' . $id . '" class="' . $class . '" style="text-align:center;">
 	      <span class="' . $class . '">&nbsp;</span>
 	    </li>';
 
@@ -216,24 +231,24 @@ function _diff(&$TCompetence)
 	return $out;
 }
 
-function _note(&$TCompetence, $field)
+function rate(&$TMergedSkills, $field)
 {
 	global $langs;
 
 	$out = '<ul class="competence">';
 
-	foreach ($TCompetence as $id => &$c) {
+	foreach ($TMergedSkills as $id => &$sk) {
 		$class = "note";
 		$how_many = 0;
-		if (empty($c->{$field})) {
+		if (empty($sk->{$field})) {
 			$note = 'x';
 			$class .= ' none';
 		} else {
-			$note = $c->{$field};
-			$how_many = ($field === 'note1') ? $c->how_many_max1 : $c->how_many_max2;
+			$note = $sk->{$field};
+			$how_many = ($field === 'rate1') ? $sk->how_many_max1 : $sk->how_many_max2;
 		}
 
-		$out .= '<li fkcompetence="' . $id . '" style="text-align:center;">
+		$out .= '<li fk_skill="' . $id . '" style="text-align:center;">
 	      <p><span class="' . $class . ' classfortooltip" title="' . $langs->trans('Evaluation') . ' Max">' . $note . '</span>' . ($how_many > 0 ? '<span class="bubble classfortooltip" title="' . $langs->trans('HowManyUserWithThisMaxNote') . '">' . $how_many . '</span>' : '') . '</p>
 	    </li>';
 
@@ -245,16 +260,20 @@ function _note(&$TCompetence, $field)
 
 }
 
-function _listeCompetence(&$TCompetence)
+/**
+ * @param $TMergedSkills
+ * @return string
+ */
+function skillList(&$TMergedSkills)
 {
 
 	$out = '<ul class="competence">';
 
-	foreach ($TCompetence as $id => &$c) {
+	foreach ($TMergedSkills as $id => &$sk) {
 
-		$out .= '<li fkcompetence="' . $id . '">
-	      <h3>' . $c->label . '</h3>
-	      <p>' . $c->description . '</p>
+		$out .= '<li fk_skill="' . $id . '">
+	      <h3>' . $sk->label . '</h3>
+	      <p>' . $sk->description . '</p>
 	    </li>';
 
 	}
@@ -265,39 +284,44 @@ function _listeCompetence(&$TCompetence)
 
 }
 
-function _merge_competence($TCompetence1, $TCompetence2)
+/**
+ * @param $TSkill1
+ * @param $TSkill2
+ * @return array
+ */
+function mergeSkills($TSkill1, $TSkill2)
 {
-	global $PDOdb;
+	global $db;
 	$Tab = array();
 
-	foreach ($TCompetence1 as &$c) {
-		$comp = new TNodeGPEC();
-		$comp->load($PDOdb, $c->rowid);
-		if (in_array($comp->object_type, array("COMP", "RISK", "TASK"))) {
+	foreach ($TSkill1 as &$sk) {
+		$skill = new Skill($db);
+		$skill->fetch($sk->rowid);
+		if (in_array($skill->object_type, array("COMP", "RISK", "TASK"))) {
 
-			if (empty($Tab[$c->rowid])) $Tab[$c->rowid] = new stdClass;
+			if (empty($Tab[$sk->rowid])) $Tab[$sk->rowid] = new stdClass;
 
-			$Tab[$c->rowid]->label = $c->label;
-			$Tab[$c->rowid]->note1 = $c->note;
+			$Tab[$sk->rowid]->label = $sk->label;
+			$Tab[$sk->rowid]->rate1 = $sk->note;
 
-			$Tab[$c->rowid]->how_many_max1 = $c->how_many_max;
+			$Tab[$sk->rowid]->how_many_max1 = $sk->how_many_max;
 
-			$Tab[$c->rowid]->description = $c->description;
+			$Tab[$sk->rowid]->description = $sk->description;
 		}
 
 	}
 
-	foreach ($TCompetence2 as &$c) {
-		$comp = new TNodeGPEC();
-		$comp->load($PDOdb, $c->rowid);
-		if (in_array($comp->object_type, array("COMP", "RISK", "TASK"))) {
+	foreach ($TSkill2 as &$sk) {
+		$skill = new Skill($db);
+		$skill->fetch($sk->rowid);
+		if (in_array($skill->object_type, array("COMP", "RISK", "TASK"))) {
 
-			if (empty($Tab[$c->rowid])) $Tab[$c->rowid] = new stdClass;
+			if (empty($Tab[$sk->rowid])) $Tab[$sk->rowid] = new stdClass;
 
-			$Tab[$c->rowid]->label = $c->label;
-			$Tab[$c->rowid]->note2 = $c->note;
-			$Tab[$c->rowid]->description = $c->description;
-			$Tab[$c->rowid]->how_many_max2 = $c->how_many_max;
+			$Tab[$sk->rowid]->label = $sk->label;
+			$Tab[$sk->rowid]->rate2 = $sk->note;
+			$Tab[$sk->rowid]->description = $sk->description;
+			$Tab[$sk->rowid]->how_many_max2 = $sk->how_many_max;
 		}
 
 	}
@@ -306,16 +330,22 @@ function _merge_competence($TCompetence1, $TCompetence2)
 
 }
 
-function _liste_user(&$PDOdb, &$TUser, $fk_usergroup = 0, $listename = 'list-user')
+/**
+ * @param $TUser
+ * @param int $fk_usergroup
+ * @param string $namelist
+ * @return string
+ */
+function displayUsersListWithPicto(&$TUser, $fk_usergroup = 0, $namelist = 'list-user')
 {
 	global $db, $langs, $conf, $form;
 
 	$out = '';
 	if ($fk_usergroup > 0) {
 
-		$liste = $listename . '_excluded_id';
+		$list = $namelist . '_excluded_id';
 
-		$listeExcludedIds = GETPOST($liste);
+		$excludedIdsList = GETPOST($list);
 
 
 		$sql = "SELECT DISTINCT u.rowid FROM " . MAIN_DB_PREFIX . "user u
@@ -326,12 +356,12 @@ function _liste_user(&$PDOdb, &$TUser, $fk_usergroup = 0, $listename = 'list-use
 
 		$res = $db->query($sql);
 
-		$out .= '<ul name="' . $listename . '">';
+		$out .= '<ul name="' . $namelist . '">';
 
-		$TExcludedId = explode(',', $listeExcludedIds);
+		$TExcludedId = explode(',', $excludedIdsList);
 
-		$formCore = new TFormCore;
-		$out .= $formCore->hidden($liste, $listeExcludedIds);
+		$form = new Form($db);
+		$out .= hidden($list, $excludedIdsList);
 
 		while ($obj = $db->fetch_object($res)) {
 
@@ -355,7 +385,7 @@ function _liste_user(&$PDOdb, &$TUser, $fk_usergroup = 0, $listename = 'list-use
 			$job = Job::getLastJobForUser($user->id);
 			$desc .= $job;
 
-			$evaluation = Evaluation::getLastEvaluationForUser($PDOdb, $user->id);
+			$evaluation = Evaluation::getLastEvaluationForUser($user->id);
 
 			if (!empty($evaluation)) {
 				$desc .= ' - ' . $langs->trans('DateLastEval') . ' : ' . dol_print_date($evaluation->date_eval);
@@ -377,4 +407,40 @@ function _liste_user(&$PDOdb, &$TUser, $fk_usergroup = 0, $listename = 'list-use
 	}
 
 	return $out;
+}
+
+
+/**
+ *
+ * 		Allow to get skill(s) of a user
+ *
+ * 		@param $TUser
+ * 		@return array|int
+ */
+function getSkillForUsers($TUser)
+{
+	global $db;
+
+	$skill = new SkillRank($db);
+	for ($i = 0; $i <= end($TUser); $i++) {
+		$TSkills = $skill->fetchAll('ASC', 't.rowid', 0, 0, array('customsql' => 'fk_skill=' . $TUser[$i] . ' AND objecttype="user"'));
+//var_dump($skill);
+	}
+	return $TSkills;
+}
+
+
+/**
+ * 		Allow to get skill(s) of a job
+ *
+ * 		@param $fk_job
+ * 		@return array|int
+ */
+function getSkillForJob($fk_job)
+{
+	global $db;
+
+	$skill = new Skillrank($db);
+	$TSkills = $skill->fetchAll('ASC', 't.rowid', 0, 0, array('customsql' => 'fk_object=' . $fk_job . ' AND objecttype="job"'));
+	return $TSkills;
 }
