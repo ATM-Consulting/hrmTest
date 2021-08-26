@@ -113,7 +113,7 @@ function displayRankInfos(SkillRank $skillRank, $inputname = 'TNote', $mode = 'v
 	if ($mode == 'edit')
 	{
 		$ret.= '
-		<input type="hidden" id="'.$inputname.'_'.$skillRank->fk_skill.'" name="'.$inputname.'['.$skillRank->fk_skill.']" value="0">
+		<input type="hidden" id="'.$inputname.'_'.$skillRank->fk_skill.'" name="'.$inputname.'['.$skillRank->fk_skill.']" value="'.$skillRank->rank.'">
 		<script type="text/javascript">
 			$(document).ready(function(){
 				$(".radio_js_bloc_number").tooltip();
