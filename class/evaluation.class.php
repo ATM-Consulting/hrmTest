@@ -68,6 +68,7 @@ class Evaluation extends CommonObject
 	const STATUS_DRAFT = 0;
 	const STATUS_VALIDATED = 1;
 	const STATUS_CANCELED = 9;
+	const STATUS_CLOSED = 2;
 
 
 	/**
@@ -918,6 +919,7 @@ class Evaluation extends CommonObject
 			$this->labelStatusShort[self::STATUS_DRAFT] = $langs->trans('Draft');
 			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->trans('Enabled');
 			$this->labelStatusShort[self::STATUS_CANCELED] = $langs->trans('Disabled');
+			$this->labelStatus[self::STATUS_CLOSED] = $langs->trans('Closed');
 		}
 
 		$statusType = 'status'.$status;

@@ -107,6 +107,7 @@ commentaire_abandon=Commentaire abandon
 EndContract=Fin de contrat
 
 
+reopen=Réouvrir
 NoUser=Sans Utilisateur
 Deleted=Supprimé
 
@@ -115,5 +116,3 @@ Validate=Validé
 
 FieldsRequired=Les champs obligatoires doivent être renseignés
 
-
-Compare=Comparer
