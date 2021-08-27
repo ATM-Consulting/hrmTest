@@ -65,6 +65,8 @@ function hrmtestAdminPrepareHead()
 	return $head;
 }
 
+
+/** compare.php */
 function displaySubmitButton($pLib,$pName,$plus="", $class='button', $autoDisabled = false){
 	$field = "<INPUT class='".$class."' TYPE='SUBMIT' NAME='$pName' VALUE=\"$pLib\" ";
 
@@ -84,6 +86,8 @@ function hidden($pName,$pVal,$plus=""){
 function endf() {
 	print end_form();
 }
+
 function end_form(){
 	return "</FORM>\n";
 }
+

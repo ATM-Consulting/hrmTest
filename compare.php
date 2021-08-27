@@ -100,7 +100,7 @@ $fk_usergroup1 = GETPOST('fk_usergroup1');
 			<tr>
 				<td>Second élèment à comparer</td>
 
-				<td><?php echo $form->select_dolgroups($fk_usergroup2, 'fk_usergroup2', 1) . ' ' . $langs->trans('Or') . ' ' . $form->select_dolgroups($fk_job, 'fk_job', 1); ?></td>
+				<td><?php echo $form->select_dolgroups($fk_usergroup2, 'fk_usergroup2', 1) . ' ' . $langs->trans('Or') . ' ' . select_jobs($fk_job, 'fk_job', 1); ?></td>
 			</tr>
 			<tr>
 				<td colspan="2" align="center"><?php echo displaySubmitButton($langs->trans('Filter'), 'bt1'); ?></td>
@@ -138,7 +138,7 @@ $fk_usergroup1 = GETPOST('fk_usergroup1');
 
 				$job = new Job($db);
 				$job->fetch($fk_job);
-				$userlist1 = '<ul>
+				$userlist2 = '<ul>
 								  <li>
 									  <h3>' . $job->ref . '</h3>
 									  <p>'  . $job->description . '</p>
@@ -282,43 +282,34 @@ function skillList(&$TMergedSkills)
 }
 
 /**
+ *  create an array of lines [ skillLabel,dscription, maxrank on group1 , minrank needed for this skill ]
+ *
  * @param $TSkill1
  * @param $TSkill2
  * @return array
  */
 function mergeSkills($TSkill1, $TSkill2)
 {
-	global $db;
+
 	$Tab = array();
 
 	foreach ($TSkill1 as &$sk) {
-		$skill = new Skill($db);
-		$skill->fetch($sk->rowid);
-		if (in_array($skill->object_type, array("COMP", "RISK", "TASK"))) {
 
-			if (empty($Tab[$sk->rowid])) $Tab[$sk->rowid] = new stdClass;
+			if (empty($Tab[$sk->fk_skill])) $Tab[$sk->fk_skill] = new stdClass;
 
-			$Tab[$sk->rowid]->rate1 = $sk->note;
-
-			$Tab[$sk->rowid]->how_many_max1 = $sk->how_many_max;
-
-			$Tab[$sk->rowid]->description = $sk->description;
-		}
-
+			$Tab[$sk->fk_skill]->rate1 = $sk->rank;
+			$Tab[$sk->fk_skill]->how_many_max1 = $sk->how_many_max;
+			$Tab[$sk->fk_skill]->label = $sk->label;
+			$Tab[$sk->fk_skill]->description = $sk->description;
 	}
 
 	foreach ($TSkill2 as &$sk) {
-		$skill = new Skill($db);
-		$skill->fetch($sk->rowid);
-		if (in_array($skill->object_type, array("COMP", "RISK", "TASK"))) {
 
-			if (empty($Tab[$sk->rowid])) $Tab[$sk->rowid] = new stdClass;
-
-			$Tab[$sk->rowid]->rate2 = $sk->note;
-			$Tab[$sk->rowid]->description = $sk->description;
-			$Tab[$sk->rowid]->how_many_max2 = $sk->how_many_max;
-		}
-
+			if (empty($Tab[$sk->fk_skill])) $Tab[$sk->fk_skill] = new stdClass;
+			$Tab[$sk->fk_skill]->rate2 = $sk->rank;
+			$Tab[$sk->fk_skill]->label = $sk->label;
+			$Tab[$sk->fk_skill]->description = $sk->description;
+			$Tab[$sk->fk_skill]->how_many_max2 = $sk->how_many_max;
 	}
 
 	return $Tab;
@@ -419,44 +410,53 @@ function getSkillForUsers($TUser)
 	//Je remonte l'utilisateur qui a la note la plus haute dans un groupe donné pour toutes les compétences évaluées dans ce groupe
 	if(empty($TUser)) return array();
 
-	$sql = 'SELECT sk.rowid, sk.label, sk.description, sk.skill_type,
-				sr.fk_object, sr.objecttype, sr.fk_skill, ';
-
+	$sql = 'SELECT sk.rowid, sk.label, sk.description, sk.skill_type, sr.fk_object, sr.objecttype, sr.fk_skill, ';
 	$sql.= " MAX(sr.rank) as rank";
-
-	$sql.=' FROM '.MAIN_DB_PREFIX.'hrmtest_skill sk
-	 			LEFT JOIN '.MAIN_DB_PREFIX.'hrmtest_skillrank sr ON (sk.rowid = sr.fk_skill)
-				WHERE 1 AND sr.objecttype = "'.SkillRank::SKILLRANK_TYPE_USER.'"';
-
+	$sql.=' FROM '.MAIN_DB_PREFIX.'hrmtest_skill sk';
+	$sql.='	LEFT JOIN '.MAIN_DB_PREFIX.'hrmtest_skillrank sr ON (sk.rowid = sr.fk_skill)';
+	$sql.='	WHERE sr.objecttype = "'.SkillRank::SKILLRANK_TYPE_USER.'"';
 	$sql.=' AND sr.fk_object IN ('.implode(',',$TUser).')';
-
-	$sql.=" GROUP BY sk.rowid ";
+	$sql.=" GROUP BY sk.rowid "; // group par competence
 
 	$resql = $db->query($sql);
-	if (!$resql)
-		dol_print_error($db);
-
 	$Tab = array();
+	if (!$resql){
+		dol_print_error($db);
+	    //Pour chaque compétence, on compte le nombre de fois que la note max a été atteinte au sein d'un groupe donné
+		$num = 0;
+		while($obj = $db->fetch_object($resql) ) {
 
-	//Pour chaque compétence, on compte le nombre de fois que la note max a été atteinte au sein d'un groupe donné
-	foreach($resql as $k=>$row ) {
-		$sql1 = "SELECT count(*) as how_many_max FROM ".MAIN_DB_PREFIX."hrmtest_skillrank sr";
-		$sql1.=" WHERE sr.rank = ".(int)$row['rank'];
-		$sql1.=" AND sr.objecttype = '".Skillrank::SKILLRANK_TYPE_USER."'";
-		$sql1.=" AND sr.fk_skill = ".$row['fk_skill'];
-		$sql1.=" AND sr.fk_object IN (".implode(',',$TUser).")";
 
-		$resql1 = $db->query($sql1);
-		$resql11 = $db->fetch_object($resql1);
+			$sql1 = "SELECT count(*) as how_many_max FROM ".MAIN_DB_PREFIX."hrmtest_skillrank sr";
+			$sql1.=" WHERE sr.rank = ".(int)$obj->rank;
+			$sql1.=" AND sr.objecttype = '".Skillrank::SKILLRANK_TYPE_USER."'";
+			$sql1.=" AND sr.fk_skill = ".$obj->fk_skill;
+			$sql1.=" AND sr.fk_object IN (".implode(',',$TUser).")";
 
-		if (!$resql)
-			dol_print_error($db);
+			$resql1 = $db->query($sql1);
 
-		$Tab[$k]['fk_skill'] = $row['fk_skill'];
-		$Tab[$k]['how_many_max'] = $resql11->how_many_max;
+			$objMax = $db->fetch_object($resql1);
 
+			if (!$resql)
+				dol_print_error($db);
+			$Tab[$num] = new stdClass();
+			$Tab[$num]->fk_skill = $obj->fk_skill;
+			$Tab[$num]->label = $obj->label;
+			$Tab[$num]->description = $obj->description;
+			$Tab[$num]->skill_type = $obj->skill_type;
+			//$Tab[$num]->date_start = '';
+			//$Tab[$num]->date_end = '';
+			$Tab[$num]->fk_object = $obj->fk_object;
+			$Tab[$num]->objectType = SkillRank::SKILLRANK_TYPE_USER;
+			$Tab[$num]->rank = $obj->rank;
+			$Tab[$num]->how_many_max = $objMax->how_many_max;
+
+			$num++;
+		}
 	}
+
 return $Tab;
+
 }
 
 /**
@@ -469,7 +469,119 @@ function getSkillForJob($fk_job)
 {
 	global $db;
 
-	$skill = new Skillrank($db);
-	$TSkills = $skill->fetchAll('ASC', 't.rowid', 0, 0, array('customsql' => 'fk_object=' . $fk_job . ' AND objecttype="job"'));
-	return $TSkills;
+	if (empty($fk_job)) return array();
+
+	$sql = 'SELECT sk.rowid, sk.label, sk.description, sk.skill_type, sr.fk_object, sr.objecttype, sr.fk_skill, ';
+	$sql.= " MAX(sr.rank) as rank";
+	$sql.=' FROM '.MAIN_DB_PREFIX.'hrmtest_skill sk';
+	$sql.='	LEFT JOIN '.MAIN_DB_PREFIX.'hrmtest_skillrank sr ON (sk.rowid = sr.fk_skill)';
+	$sql.='	WHERE sr.objecttype = "'.SkillRank::SKILLRANK_TYPE_JOB.'"';
+	$sql.=' AND sr.fk_object IN ('.$fk_job.')';
+	$sql.=' GROUP BY sk.rowid '; // group par competence*/
+
+	$resql = $db->query($sql);
+	$Tab = array();
+	$num = 0;
+	if (!$resql){
+		while($obj = $db->fetch_object($resql) ) {
+
+
+			if (!$resql) dol_print_error($db);
+
+			$Tab[$num] = new stdClass();
+			$Tab[$num]->fk_skill = $obj->fk_skill;
+			$Tab[$num]->label = $obj->label;
+			$Tab[$num]->description = $obj->description;
+			$Tab[$num]->skill_type = $obj->skill_type;
+			//$Tab[$num]->date_start = '';
+			//$Tab[$num]->date_end = '';
+			$Tab[$num]->fk_object = $obj->fk_object;
+			$Tab[$num]->objectType = SkillRank::SKILLRANK_TYPE_JOB;
+			$Tab[$num]->rank = $obj->rank;
+			$Tab[$num]->how_many_max = $obj->how_many_max;
+
+			$num++;
+		}
+	}
+
+
+	return $Tab;
+}
+
+/**
+ * @param string $selected
+ * @param string $htmlname
+ * @param int $show_empty
+ * @param int $disabled
+ * @param string $enableonly
+ * @param string $force_entity
+ * @param false $multiple
+ * @param string $morecss
+ * @return string
+ */
+function select_jobs($selected = '', $htmlname = 'groupid', $show_empty = 0,  $disabled = 0, $enableonly = '', $force_entity = '0', $multiple = false, $morecss = '')
+{
+	// phpcs:enable
+	global $conf, $user, $langs,$db;
+
+	if (!is_array($selected)) {
+		$selected = array($selected);
+	}
+	$out = '';
+
+	// On recherche les groupes
+	$sql = "SELECT j.rowid, j.ref as name";
+	$sql .= " FROM ".MAIN_DB_PREFIX."hrmtest_job as j ";
+	$sql .= " ORDER BY j.ref ASC";
+
+
+	$resql = $db->query($sql);
+	if ($resql) {
+		// Enhance with select2
+		include_once DOL_DOCUMENT_ROOT.'/core/lib/ajax.lib.php';
+		$out .= ajax_combobox($htmlname);
+		$out .= '<select class="flat minwidth200'.($morecss ? ' '.$morecss : '').'" id="'.$htmlname.'" name="'.$htmlname.($multiple ? '[]' : '').'" '.($multiple ? 'multiple' : '').' '.($disabled ? ' disabled' : '').'>';
+		$num = $db->num_rows($resql);
+		$i = 0;
+		if ($num) {
+			if ($show_empty && !$multiple) {
+				$out .= '<option value="-1"'.(in_array(-1, $selected) ? ' selected' : '').'>&nbsp;</option>'."\n";
+			}
+
+			while ($i < $num) {
+				$obj = $db->fetch_object($resql);
+				$disableline = 0;
+				if (is_array($enableonly) && count($enableonly) && !in_array($obj->rowid, $enableonly)) {
+					$disableline = 1;
+				}
+
+				$out .= '<option value="'.$obj->rowid.'"';
+				if ($disableline) {
+					$out .= ' disabled';
+				}
+				if ((is_object($selected[0]) && $selected[0]->id == $obj->rowid) || (!is_object($selected[0]) && in_array($obj->rowid, $selected))) {
+					$out .= ' selected';
+				}
+				$out .= '>';
+
+				$out .= $obj->name;
+				if (!empty($conf->multicompany->enabled) && empty($conf->global->MULTICOMPANY_TRANSVERSE_MODE) && $conf->entity == 1) {
+					$out .= " (".$obj->label.")";
+				}
+
+				$out .= '</option>';
+				$i++;
+			}
+		} else {
+			if ($show_empty) {
+				$out .= '<option value="-1"'.(in_array(-1, $selected) ? ' selected' : '').'></option>'."\n";
+			}
+			$out .= '<option value="" disabled>'.$langs->trans("NoUserGroupDefined").'</option>';
+		}
+		$out .= '</select>';
+	} else {
+		dol_print_error($db);
+	}
+
+	return $out;
 }
