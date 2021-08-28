@@ -74,6 +74,7 @@ rank=Rank
 ErrNoSkillSelected=No skill selected
 ErrSkillAlreadyAdded=This skill is already in the list
 SkillHasNoLines=This skill has no lines
+skill=Skill
 
 NoUser=No user
 NewJob=New Job
@@ -89,4 +90,16 @@ EndContract=End of contract
 ErrorBadObjectType= Bad object type provided
 RequiredRank=Required rank
 
+# Compare
 Compare=Compare
+group1ToCompare=Group to compare
+group2ToCompare=Second element to compare
+rank=Rank
+differences=Differences
+CompetenceAcquiredByOneOrMore=Competence acquired by one or more users but not requested by the second comparator
+MaxlevelGreaterThan=Max level greater than the one requested
+MaxLevelEqualTo=Max level equal to that demand
+MaxLevelLowerThan= Max level lower than that demand
+SkillNotAcquired=Skill not acquired by all users and requested by the second comparator
+OrJobToCompare= Or job to compare
+legend=Legend

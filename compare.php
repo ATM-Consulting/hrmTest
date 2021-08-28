@@ -102,13 +102,13 @@ $fk_usergroup1 = GETPOST('fk_usergroup1');
 	<div class="tabBar">
 		<table class="border" width="100%">
 			<tr>
-				<td>Groupe à comparer</td>
+				<td><?php echo $langs->trans('group1ToCompare'); ?></td>
 				<td><?php echo $form->select_dolgroups($fk_usergroup1, 'fk_usergroup1', 1); ?></td>
 			</tr>
 			<tr>
-				<td>Second élèment à comparer</td>
+				<td><?php echo $langs->trans('group1ToCompare'); ?></td>
 
-				<td><?php echo $form->select_dolgroups($fk_usergroup2, 'fk_usergroup2', 1) . ' ' . $langs->trans('Or') . ' ' . select_jobs($fk_job, 'fk_job', 1); ?></td>
+				<td><?php echo $form->select_dolgroups($fk_usergroup2, 'fk_usergroup2', 1) . ' ' . $langs->trans('OrJobToCompare') . ' ' . select_jobs($fk_job, 'fk_job', 1); ?></td>
 			</tr>
 			<tr>
 				<td colspan="2" align="center"><?php echo displaySubmitButton($langs->trans('Filter'), 'bt1'); ?></td>
@@ -122,10 +122,10 @@ $fk_usergroup1 = GETPOST('fk_usergroup1');
 		<table width="100%">
 			<tr>
 				<th></th>
-				<th>Compétences</th>
-				<th>Notes</th>
-				<th>Différences</th>
-				<th>Notes</th>
+				<th><?php echo $langs->trans('Skill'); ?></th>
+				<th><?php echo $langs->trans('rank'); ?></th>
+				<th><?php echo $langs->trans('Difference'); ?></th>
+				<th><?php echo $langs->trans('rank'); ?></th>
 				<th></th>
 			</tr>
 
@@ -183,26 +183,26 @@ $fk_usergroup1 = GETPOST('fk_usergroup1');
 			?>
 
 			<div style="background:#eee;border-radius:5px 0;margin:30px 0 10px;font-style:italic;padding:5px;">
-				<h4>Légende</h4>
+				<h4><?php echo $langs->trans('legend'); ?></h4>
 				<p>
-					<span style="vertical-align:middle" class="toohappy diffnote little"></span> Compétence acquise par
-					un ou plusieurs utilisateurs mais non demandé par le second élément de comparaison
+					<span style="vertical-align:middle" class="toohappy diffnote little"></span>
+					<?php echo $langs->trans('CompetenceAcquiredByOneOrMore'); ?>
 				</p>
 				<p>
-					<span style="vertical-align:middle" class="veryhappy diffnote little"></span> Niveau max supérieur à
-					celui demandé
+					<span style="vertical-align:middle" class="veryhappy diffnote little"></span>
+					<?php echo $langs->trans('MaxlevelGreaterThan'); ?>
 				</p>
 				<p>
-					<span style="vertical-align:middle" class="happy diffnote little"></span> Niveau max égal à celui
-					demandé
+					<span style="vertical-align:middle" class="happy diffnote little"></span>
+					<?php echo $langs->trans('MaxLevelEqualTo'); ?>
 				</p>
 				<p>
-					<span style="vertical-align:middle" class="sad diffnote little"></span> Niveau max inférieur à celui
-					demandé
+					<span style="vertical-align:middle" class="sad diffnote little"></span>
+					<?php echo $langs->trans('MaxLevelLowerThan'); ?>
 				</p>
 				<p>
-					<span style="vertical-align:middle" class="toosad diffnote little"></span> Compétence non acquise
-					par tous les utilisateurs et demandé par le second élément de comparaison
+					<span style="vertical-align:middle" class="toosad diffnote little"></span>
+					<?php echo $langs->trans('SkillNotAcquired'); ?>
 				</p>
 				<div style="clear:both"></div>
 			</div>
