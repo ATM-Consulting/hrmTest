@@ -14,12 +14,20 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
 
-/**
  * \file        class/compare.php
  * \ingroup     hrmtest
  * \brief       This file compares skills of user groups
+ *
+ * Displays a table in three parts.
+ * 1-  the left part displays the list of users of the selected group 1.
+ *
+ * 2- the central part displays the skills. display of the maximum score for this group and the number of occurrences.
+ *
+ * 3-  the right part displays the members of group 2 or the job to be compared
+ *
+ *
+ *
  */
 
 require_once '../../main.inc.php';
@@ -178,7 +186,7 @@ $fk_usergroup1 = GETPOST('fk_usergroup1');
 				<h4>Légende</h4>
 				<p>
 					<span style="vertical-align:middle" class="toohappy diffnote little"></span> Compétence acquise par
-					un ou plusieurs utilisateur mais non demandé par le second élément de comparaison
+					un ou plusieurs utilisateurs mais non demandé par le second élément de comparaison
 				</p>
 				<p>
 					<span style="vertical-align:middle" class="veryhappy diffnote little"></span> Niveau max supérieur à
@@ -194,7 +202,7 @@ $fk_usergroup1 = GETPOST('fk_usergroup1');
 				</p>
 				<p>
 					<span style="vertical-align:middle" class="toosad diffnote little"></span> Compétence non acquise
-					par tous les utilisateur et demandé par le second élément de comparaison
+					par tous les utilisateurs et demandé par le second élément de comparaison
 				</p>
 				<div style="clear:both"></div>
 			</div>
@@ -203,6 +211,11 @@ $fk_usergroup1 = GETPOST('fk_usergroup1');
 dol_fiche_end();
 llxFooter();
 
+
+/**
+ * @param $TMergedSkills
+ * @return string
+ */
 function diff(&$TMergedSkills)
 {
 
@@ -228,6 +241,11 @@ function diff(&$TMergedSkills)
 	return $out;
 }
 
+/**
+ * @param $TMergedSkills
+ * @param $field
+ * @return string
+ */
 function rate(&$TMergedSkills, $field)
 {
 	global $langs;
@@ -420,32 +438,26 @@ function getSkillForUsers($TUser)
 
 	$resql = $db->query($sql);
 	$Tab = array();
-	if (!$resql){
-		dol_print_error($db);
-	    //Pour chaque compétence, on compte le nombre de fois que la note max a été atteinte au sein d'un groupe donné
+
+	if ($resql){
+		//Pour chaque compétence, on compte le nombre de fois que la note max a été atteinte au sein d'un groupe donné
 		$num = 0;
 		while($obj = $db->fetch_object($resql) ) {
-
 
 			$sql1 = "SELECT count(*) as how_many_max FROM ".MAIN_DB_PREFIX."hrmtest_skillrank sr";
 			$sql1.=" WHERE sr.rank = ".(int)$obj->rank;
 			$sql1.=" AND sr.objecttype = '".Skillrank::SKILLRANK_TYPE_USER."'";
 			$sql1.=" AND sr.fk_skill = ".$obj->fk_skill;
 			$sql1.=" AND sr.fk_object IN (".implode(',',$TUser).")";
-
 			$resql1 = $db->query($sql1);
 
 			$objMax = $db->fetch_object($resql1);
 
-			if (!$resql)
-				dol_print_error($db);
 			$Tab[$num] = new stdClass();
 			$Tab[$num]->fk_skill = $obj->fk_skill;
 			$Tab[$num]->label = $obj->label;
 			$Tab[$num]->description = $obj->description;
 			$Tab[$num]->skill_type = $obj->skill_type;
-			//$Tab[$num]->date_start = '';
-			//$Tab[$num]->date_end = '';
 			$Tab[$num]->fk_object = $obj->fk_object;
 			$Tab[$num]->objectType = SkillRank::SKILLRANK_TYPE_USER;
 			$Tab[$num]->rank = $obj->rank;
@@ -453,6 +465,8 @@ function getSkillForUsers($TUser)
 
 			$num++;
 		}
+	}else{
+		dol_print_error($db);
 	}
 
 return $Tab;
@@ -481,12 +495,11 @@ function getSkillForJob($fk_job)
 
 	$resql = $db->query($sql);
 	$Tab = array();
-	$num = 0;
-	if (!$resql){
+
+
+	if ($resql){
+		$num = 0;
 		while($obj = $db->fetch_object($resql) ) {
-
-
-			if (!$resql) dol_print_error($db);
 
 			$Tab[$num] = new stdClass();
 			$Tab[$num]->fk_skill = $obj->fk_skill;
@@ -502,6 +515,8 @@ function getSkillForJob($fk_job)
 
 			$num++;
 		}
+	}else{
+		dol_print_error($db);
 	}
 
 
@@ -509,6 +524,8 @@ function getSkillForJob($fk_job)
 }
 
 /**
+ * duplicated with modified data from $form Class
+ *
  * @param string $selected
  * @param string $htmlname
  * @param int $show_empty
