@@ -75,8 +75,9 @@ $scandir = GETPOST('scan_dir', 'alpha');
 $type = 'myobject';
 
 $arrayofparameters = array(
-	'HRMTEST_MYPARAM1'=>array('type'=>'string', 'css'=>'minwidth500' ,'enabled'=>1),
-	'HRMTEST_MYPARAM2'=>array('type'=>'textarea','enabled'=>1),
+	'HRMTEST_MINRANK'=>array('type'=>'integer', 'enabled'=>1),
+	'HRMTEST_MAXRANK'=>array('type'=>'integer','enabled'=>1),
+	'HRMTEST_DEFAULT_SKILL_DESCRIPTION'=>array('type'=>'textarea','enabled'=>1),
 	//'HRMTEST_MYPARAM3'=>array('type'=>'category:'.Categorie::TYPE_CUSTOMER, 'enabled'=>1),
 	//'HRMTEST_MYPARAM4'=>array('type'=>'emailtemplate:thirdparty', 'enabled'=>1),
 	//'HRMTEST_MYPARAM5'=>array('type'=>'yesno', 'enabled'=>1),

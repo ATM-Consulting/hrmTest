@@ -73,7 +73,7 @@ class Skill extends CommonObject
 	const STATUS_DRAFT = 0;
 	const STATUS_VALIDATED = 1;
 	const STATUS_CANCELED = 9;
-    const NB_TRADUCTION_LEVEL_PER_SKILL = 5;
+
 
 	/**
 	 *  'type' field format ('integer', 'integer:ObjectClass:PathToClass[:AddCreateButtonOrNot[:Filter]]', 'sellist:TableName:LabelFieldName[:KeyFieldName[:KeyFieldParent[:Filter]]]', 'varchar(x)', 'double(24,8)', 'real', 'price', 'text', 'text:none', 'html', 'date', 'datetime', 'timestamp', 'duration', 'mail', 'phone', 'url', 'password')
@@ -225,17 +225,27 @@ class Skill extends CommonObject
 	public function create(User $user, $notrigger = false)
 	{
 		global $langs;
+		$MaxNumberSkill = isset($conf->global->HRMTEST_MAXRANK)? $conf->global->HRMTEST_MAXRANK : 0;
+		if ($MaxNumberSkill == 0 ){
+			setEventMessage($langs->trans('MustSetupMaxRank'),'errors');
+			return -1;
+		}
+
+
 		$resultcreate = $this->createCommon($user, $notrigger);
 
 
-
+		$defaultSkillDesc = isset($conf->global->HRMTEST_DEFAULT_SKILL_DESCRIPTION) ? $conf->global->HRMTEST_DEFAULT_SKILL_DESCRIPTION : '';
 		if ($resultcreate > 0){
 			// skillDet create
 			require_once ( __DIR__ . '/skilldet.class.php');
-			for($i = 1 ; $i <= $this::NB_TRADUCTION_LEVEL_PER_SKILL ; $i++){
+
+
+			for($i = 1 ; $i <= $MaxNumberSkill ; $i++){
+
 
 				$skilldet = new Skilldet($this->db);
-				$skilldet->description = "Description ".$i . " -- ".$this->label;
+				$skilldet->description = $defaultSkillDesc . " " . $i ;
 				$skilldet->rank = $i;
 				$skilldet->fk_skill = $resultcreate;
 
