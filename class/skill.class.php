@@ -74,6 +74,7 @@ class Skill extends CommonObject
 	const STATUS_VALIDATED = 1;
 	const STATUS_CANCELED = 9;
 
+	const NB_TRADUCTION_LEVEL_PER_SKILL = 5;
 
 	/**
 	 *  'type' field format ('integer', 'integer:ObjectClass:PathToClass[:AddCreateButtonOrNot[:Filter]]', 'sellist:TableName:LabelFieldName[:KeyFieldName[:KeyFieldParent[:Filter]]]', 'varchar(x)', 'double(24,8)', 'real', 'price', 'text', 'text:none', 'html', 'date', 'datetime', 'timestamp', 'duration', 'mail', 'phone', 'url', 'password')
@@ -225,12 +226,7 @@ class Skill extends CommonObject
 	public function create(User $user, $notrigger = false)
 	{
 		global $langs;
-		$MaxNumberSkill = isset($conf->global->HRMTEST_MAXRANK)? $conf->global->HRMTEST_MAXRANK : 0;
-		if ($MaxNumberSkill == 0 ){
-			setEventMessage($langs->trans('MustSetupMaxRank'),'errors');
-			return -1;
-		}
-
+		$MaxNumberSkill = isset($conf->global->HRMTEST_MAXRANK)? $conf->global->HRMTEST_MAXRANK : self::NB_TRADUCTION_LEVEL_PER_SKILL;
 
 		$resultcreate = $this->createCommon($user, $notrigger);
 
