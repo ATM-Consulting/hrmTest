@@ -980,6 +980,16 @@ class Evaluation extends CommonObject
 	}
 
 	/**
+	 *
+	 */
+	public function getLinesComparedArray(){
+
+
+
+
+
+	}
+	/**
 	 *  Returns the reference to the following non used object depending on the active numbering module.
 	 *
 	 *  @return string      		Object free reference
