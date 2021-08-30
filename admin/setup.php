@@ -243,6 +243,8 @@ if ($action == 'edit') {
 				print '<textarea class="flat" name="'.$constname.'" id="'.$constname.'" cols="50" rows="5" wrap="soft">' . "\n";
 				print $conf->global->{$constname};
 				print "</textarea>\n";
+			} elseif ($val['type']== 'integer') {
+				print '<input  class="flat" name="'.$constname.'" id="'.$constname.'" type="number" step="1" >' . "\n";
 			} elseif ($val['type']== 'html') {
 				require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
 				$doleditor = new DolEditor($constname, $conf->global->{$constname}, '', 160, 'dolibarr_notes', '', false, false, $conf->fckeditor->enabled, ROWS_5, '90%');
