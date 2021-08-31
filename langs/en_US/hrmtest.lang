@@ -88,3 +88,11 @@ fk_job=Job
 EndContract=End of contract
 ErrorBadObjectType= Bad object type provided
 RequiredRank=Required rank
+
+TypeSkill= Skill type
+labelSkill= Label
+SkillDesc= Description
+UserRank=User Rank
+RequiredRank=Required rank
+Result=Result
+SkillList=Skill list
