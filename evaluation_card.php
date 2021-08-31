@@ -640,7 +640,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			}
 
-			print load_fiche_titre($langs->trans("CompetenceList"), '', 'title');
+			print load_fiche_titre($langs->trans("SkillList"), '', 'title');
 			print '<div class="underbanner clearboth"></div>';
 			print '<table class="noborder centpercent">';
 			//@todo trad
