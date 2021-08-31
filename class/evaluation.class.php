@@ -665,6 +665,36 @@ class Evaluation extends CommonObject
 		}
 	}
 
+	/**
+	 * 		Get the last evaluation by date for the user assigned
+	 *
+	 *		 @param $fk_user
+	 * 		 @return Evaluation|null
+	 */
+	public static function getLastEvaluationForUser($fk_user) {
+		global $db;
+
+
+		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."hrmtest_evaluation ";
+		$sql.=	"WHERE fk_user=".$fk_user." ";
+		$sql.=	"ORDER BY date_eval DESC ";
+		$sql.=	"LIMIT 1 ";
+
+		$res = $db->query($sql);
+		if (!$res) { dol_print_error($db);}
+
+		$Tab = $res->fetch_assoc();
+
+		if(empty($Tab)) return null;
+		else{
+
+			$evaluation = new Evaluation($db);
+			$evaluation->fetch($Tab[0]->rowid);
+
+			return $evaluation;
+		}
+	}
+
 
 	/**
 	 *	Set draft status

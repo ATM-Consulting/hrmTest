@@ -356,15 +356,18 @@ class SkillRank extends CommonObject
 	}
 
 	/**
+	 *  Clone skillrank Object linked to job with user id
+	 *  The skillrank table is a join table that is marked for multiple objects
+	 *
 	 * @param SkillRank $currentSkill
 	 * @param $user
 	 * @return int
 	 */
-	public function cloneFromCurrentSkill(SkillRank $currentSkill,$user){
+	public function cloneFromCurrentSkill(SkillRank $currentSkill, $user, $fk_user){
 
 		$this->fk_skill 		= $currentSkill->fk_skill;
 		$this->rank 			= $currentSkill->rank;
-		$this->fk_object		= $user->id;
+		$this->fk_object		= $fk_user;
 		$this->date_creation 	= $currentSkill->date_creation;
 		$this->tms 				= $currentSkill->tms;
 		$this->fk_user_creat 	= $currentSkill->fk_user_creat;
