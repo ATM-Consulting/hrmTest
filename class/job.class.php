@@ -597,8 +597,10 @@ class Job extends CommonObject
 	}
 
 	/**
-	 * @param $fk_user
-	 * @return mixed|string|null
+	 * 		Get last job for user
+	 *
+	 * 			@param $fk_user
+	 * 			@return mixed|string|null
 	 */
 	public function getLastJobForUser($fk_user) {
 		global $db;
@@ -614,9 +616,10 @@ class Job extends CommonObject
 	}
 
 	/**
+	 * 		Get jobs for user
 	 *
-	 * @param $userid
-	 * @return array des
+	 * 			@param $userid
+	 * 			@return array of jobs
 	 */
 	public function get_for_user($userid)
 	{
@@ -633,7 +636,8 @@ class Job extends CommonObject
 	}
 
 	/**
-	 * @return array
+	 *
+	 * 		@return array of   key [rowid] =>   ref
 	 */
 	public function getCombo() {
 		global $db;
@@ -642,7 +646,7 @@ class Job extends CommonObject
 		$Tab=array();
 		while($obj = $db->fetch_object($res)) {
 
-			$Tab[$obj->rowid] = $obj->label;
+			$Tab[$obj->rowid] = $obj->ref;
 
 		}
 

@@ -213,8 +213,11 @@ llxFooter();
 
 
 /**
- * @param $TMergedSkills
- * @return string
+ *
+ * 	Return a html list element with diff  between required rank  and user rank
+ *
+ * 		@param $TMergedSkills
+ * 		@return string
  */
 function diff(&$TMergedSkills)
 {
@@ -242,9 +245,10 @@ function diff(&$TMergedSkills)
 }
 
 /**
- * @param $TMergedSkills
- * @param $field
- * @return string
+ * 	Return a html list with rank informations
+ * 		@param $TMergedSkills
+ * 		@param $field
+ * 		@return string
  */
 function rate(&$TMergedSkills, $field)
 {
@@ -276,8 +280,10 @@ function rate(&$TMergedSkills, $field)
 }
 
 /**
- * @param $TMergedSkills
- * @return string
+ * 	  	return a html ul list of skills
+ *
+ * 			@param $TMergedSkills
+ * 			@return string (ul list in html )
  */
 function skillList(&$TMergedSkills)
 {
@@ -335,10 +341,11 @@ function mergeSkills($TSkill1, $TSkill2)
 }
 
 /**
- * @param $TUser
- * @param int $fk_usergroup
- * @param string $namelist
- * @return string
+ * 	Display a list of User with picto
+ * 		@param $TUser
+ * 		@param int $fk_usergroup
+ * 		@param string $namelist
+ * 		@return string
  */
 function displayUsersListWithPicto(&$TUser, $fk_usergroup = 0, $namelist = 'list-user')
 {
@@ -425,7 +432,7 @@ function getSkillForUsers($TUser)
 {
 	global $db;
 
-	//Je remonte l'utilisateur qui a la note la plus haute dans un groupe donné pour toutes les compétences évaluées dans ce groupe
+	//I go back to the user with the highest score in a given group for all the skills assessed in that group
 	if(empty($TUser)) return array();
 
 	$sql = 'SELECT sk.rowid, sk.label, sk.description, sk.skill_type, sr.fk_object, sr.objecttype, sr.fk_skill, ';
@@ -440,7 +447,7 @@ function getSkillForUsers($TUser)
 	$Tab = array();
 
 	if ($resql){
-		//Pour chaque compétence, on compte le nombre de fois que la note max a été atteinte au sein d'un groupe donné
+		//For each skill, we count the number of times that the max score has been reached within a given group
 		$num = 0;
 		while($obj = $db->fetch_object($resql) ) {
 
@@ -554,7 +561,7 @@ function select_jobs($selected = '', $htmlname = 'groupid', $show_empty = 0,  $d
 
 	$resql = $db->query($sql);
 	if ($resql) {
-		// Enhance with select2
+
 		include_once DOL_DOCUMENT_ROOT.'/core/lib/ajax.lib.php';
 		$out .= ajax_combobox($htmlname);
 		$out .= '<select class="flat minwidth200'.($morecss ? ' '.$morecss : '').'" id="'.$htmlname.'" name="'.$htmlname.($multiple ? '[]' : '').'" '.($multiple ? 'multiple' : '').' '.($disabled ? ' disabled' : '').'>';

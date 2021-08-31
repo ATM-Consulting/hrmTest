@@ -666,17 +666,14 @@ class Evaluation extends CommonObject
 	}
 
 	/**
-	 * @param $PDOdb
-	 * @param $fk_user
-	 * @return Evaluation|null
+	 * 		Get the last evaluation by date for the user assigned
+	 *
+	 *		 @param $fk_user
+	 * 		 @return Evaluation|null
 	 */
 	public static function getLastEvaluationForUser($fk_user) {
 		global $db;
 
-//		$Tab = $PDOdb->ExecuteAsArray("SELECT rowid FROM ".MAIN_DB_PREFIX."hrmtest_evaluation
-//			WHERE fk_user=".$fk_user."
-//			ORDER BY date_eval DESC
-//			LIMIT 1 ");
 
 		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."hrmtest_evaluation ";
 		$sql.=	"WHERE fk_user=".$fk_user." ";
@@ -684,9 +681,7 @@ class Evaluation extends CommonObject
 		$sql.=	"LIMIT 1 ";
 
 		$res = $db->query($sql);
-		if (!$res) {
-			dol_print_error($db);
-		}
+		if (!$res) { dol_print_error($db);}
 
 		$Tab = $res->fetch_assoc();
 
