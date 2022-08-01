@@ -586,7 +586,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// liste avec comparaison
 	if ($object->status != Evaluation::STATUS_DRAFT) {
 
-		// Recup des skills liées à cette evaluation
+		// Recovery of skills related to this evaluation
 
 		$sql = 'select';
 		$sql .= '  e.ref,';
