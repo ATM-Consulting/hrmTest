@@ -614,7 +614,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$Tab = array();
 
 		if ($resql) {
-			//Pour chaque compétence, on compte le nombre de fois que la note max a été atteinte au sein d'un groupe donné
+			//For each skill, we count how many times the maximum score has been reached within a given group
 			$num = 0;
 			while ($obj = $db->fetch_object($resql)) {
 				$Tab[$num] = new stdClass();
