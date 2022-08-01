@@ -583,7 +583,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 
 
-	// liste avec comparaison
+	// List of comparison
 	if ($object->status != Evaluation::STATUS_DRAFT) {
 
 		// Recovery of skills related to this evaluation
